@@ -1,0 +1,155 @@
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
+
+export default function FeedPage() {
+  const { user, profile } = useAuth()
+  const [posts, setPosts] = useState([])
+  const [text, setText] = useState('')
+  const [posting, setPosting] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadFeed()
+
+    const channel = supabase
+      .channel('feed')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'posts',
+      }, payload => {
+        loadFeed() // reload to get profile join
+      })
+      .subscribe()
+
+    return () => supabase.removeChannel(channel)
+  }, [user])
+
+  async function loadFeed() {
+    // Get posts from friends + own posts
+    const { data: friendships } = await supabase
+      .from('friendships')
+      .select('requester_id, addressee_id')
+      .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
+      .eq('status', 'accepted')
+
+    const friendIds = (friendships || []).map(f =>
+      f.requester_id === user.id ? f.addressee_id : f.requester_id
+    )
+    const visibleIds = [...friendIds, user.id]
+
+    const { data } = await supabase
+      .from('posts')
+      .select('*, profiles(username)')
+      .in('user_id', visibleIds)
+      .order('created_at', { ascending: false })
+      .limit(50)
+
+    setPosts(data || [])
+    setLoading(false)
+  }
+
+  async function submitPost(e) {
+    e.preventDefault()
+    if (!text.trim() || posting) return
+    setPosting(true)
+    await supabase.from('posts').insert({
+      user_id: user.id,
+      content: text.trim(),
+    })
+    setText('')
+    setPosting(false)
+    loadFeed()
+  }
+
+  async function deletePost(postId) {
+    await supabase.from('posts').delete().eq('id', postId)
+    setPosts(prev => prev.filter(p => p.id !== postId))
+  }
+
+  function formatDate(ts) {
+    const date = new Date(ts)
+    const now = new Date()
+    const diff = now - date
+    if (diff < 60000) return 'только что'
+    if (diff < 3600000) return `${Math.floor(diff / 60000)} мин назад`
+    if (diff < 86400000) return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+    return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+  }
+
+  return (
+    <div className="flex flex-col h-full overflow-y-auto bg-gray-50">
+      <div className="max-w-lg mx-auto w-full px-4 py-4 space-y-4">
+
+        {/* Post composer */}
+        <form onSubmit={submitPost} className="bg-white rounded-2xl shadow-sm p-4">
+          <div className="flex gap-3">
+            <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium flex-shrink-0 text-sm">
+              {profile?.username?.[0]?.toUpperCase() || '?'}
+            </div>
+            <div className="flex-1">
+              <textarea
+                value={text}
+                onChange={e => setText(e.target.value)}
+                placeholder="Что новенького?.."
+                rows={2}
+                className="w-full resize-none text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end mt-2">
+            <button
+              type="submit"
+              disabled={!text.trim() || posting}
+              className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white text-sm font-medium px-5 py-2 rounded-full transition-colors"
+            >
+              {posting ? '...' : 'Поделиться'}
+            </button>
+          </div>
+        </form>
+
+        {/* Posts feed */}
+        {loading ? (
+          <div className="text-center text-gray-400 py-8 text-sm">Загрузка...</div>
+        ) : posts.length === 0 ? (
+          <div className="text-center text-gray-400 py-12">
+            <div className="text-4xl mb-3">📰</div>
+            <p className="font-medium">Лента пуста</p>
+            <p className="text-xs mt-1">Здесь будут новости твоих друзей</p>
+          </div>
+        ) : (
+          posts.map(post => (
+            <div key={post.id} className="bg-white rounded-2xl shadow-sm p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium flex-shrink-0 text-sm">
+                  {post.profiles?.username?.[0]?.toUpperCase() || '?'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-gray-800 text-sm">{post.profiles?.username}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-400">{formatDate(post.created_at)}</span>
+                      {post.user_id === user.id && (
+                        <button
+                          onClick={() => deletePost(post.id)}
+                          className="text-gray-300 hover:text-red-400 transition-colors"
+                          title="Удалить"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-gray-700 text-sm mt-1 leading-relaxed whitespace-pre-wrap">{post.content}</p>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  )
+}

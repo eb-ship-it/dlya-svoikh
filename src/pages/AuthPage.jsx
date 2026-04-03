@@ -1,0 +1,110 @@
+import { useState } from 'react'
+import { useAuth } from '../context/AuthContext'
+
+export default function AuthPage() {
+  const [isLogin, setIsLogin] = useState(true)
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const { signIn, signUp } = useAuth()
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setError('')
+    if (!username.trim() || !password.trim()) {
+      setError('Заполни все поля')
+      return
+    }
+    if (password.length < 6) {
+      setError('Пароль минимум 6 символов')
+      return
+    }
+    setLoading(true)
+    try {
+      if (isLogin) {
+        await signIn(username.trim().toLowerCase(), password)
+      } else {
+        if (!/^[a-z0-9_]{3,20}$/.test(username.trim().toLowerCase())) {
+          setError('Логин: 3-20 символов, только буквы, цифры, _')
+          setLoading(false)
+          return
+        }
+        await signUp(username.trim().toLowerCase(), password)
+      }
+    } catch (err) {
+      const msg = err.message || ''
+      if (msg.includes('Invalid login credentials')) setError('Неверный логин или пароль')
+      else if (msg.includes('User already registered')) setError('Этот логин уже занят')
+      else setError(msg || 'Что-то пошло не так')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-dvh flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-8">
+        <div className="text-center mb-8">
+          <div className="text-5xl mb-3">✈️</div>
+          <h1 className="text-2xl font-bold text-gray-800">Свои</h1>
+          <p className="text-gray-500 text-sm mt-1">Мессенджер для своих</p>
+        </div>
+
+        <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
+          <button
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${isLogin ? 'bg-white shadow text-gray-800' : 'text-gray-500'}`}
+            onClick={() => { setIsLogin(true); setError('') }}
+          >
+            Войти
+          </button>
+          <button
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${!isLogin ? 'bg-white shadow text-gray-800' : 'text-gray-500'}`}
+            onClick={() => { setIsLogin(false); setError('') }}
+          >
+            Регистрация
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Логин</label>
+            <input
+              type="text"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="твой_логин"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              autoComplete="username"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Пароль</label>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              autoComplete={isLogin ? 'current-password' : 'new-password'}
+            />
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white font-medium py-3 rounded-xl transition-colors"
+          >
+            {loading ? '...' : isLogin ? 'Войти' : 'Зарегистрироваться'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
