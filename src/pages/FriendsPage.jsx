@@ -9,7 +9,7 @@ export default function FriendsPage() {
   const [incoming, setIncoming] = useState([])
   const [outgoing, setOutgoing] = useState([])
   const [search, setSearch] = useState('')
-  const [searchResult, setSearchResult] = useState(null)
+  const [searchResults, setSearchResults] = useState([])
   const [searchLoading, setSearchLoading] = useState(false)
   const [searchError, setSearchError] = useState('')
   const [loading, setLoading] = useState(true)
@@ -49,7 +49,7 @@ export default function FriendsPage() {
       ))]
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, username')
+        .select('id, username, display_name')
         .in('id', otherIds)
 
       const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
@@ -58,7 +58,7 @@ export default function FriendsPage() {
       for (const f of data) {
         const isMine = f.requester_id === user.id
         const otherId = isMine ? f.addressee_id : f.requester_id
-        const other = { id: otherId, username: profileMap[otherId]?.username, friendshipId: f.id }
+        const other = { id: otherId, username: profileMap[otherId]?.username, displayName: profileMap[otherId]?.display_name, friendshipId: f.id }
 
         if (f.status === 'accepted') accepted.push(other)
         else if (isMine) out.push(other)
@@ -79,36 +79,55 @@ export default function FriendsPage() {
 
   async function searchUser() {
     setSearchError('')
-    setSearchResult(null)
+    setSearchResults([])
     const q = search.trim().toLowerCase()
-    if (!q) return
+    if (!q || q.length < 2) { setSearchError('Введи минимум 2 символа'); return }
     setSearchLoading(true)
 
-    const { data } = await supabase
+    // Search by username or display_name
+    const { data: byUsername } = await supabase
       .from('profiles')
-      .select('id, username')
-      .eq('username', q)
+      .select('id, username, display_name')
+      .ilike('username', `%${q}%`)
       .neq('id', user.id)
-      .single()
+      .limit(10)
 
-    if (!data) {
-      setSearchError('Пользователь не найден')
-    } else {
-      // Check if already friends or pending
-      const { data: existing } = await supabase
-        .from('friendships')
-        .select('id, status')
-        .or(`and(requester_id.eq.${user.id},addressee_id.eq.${data.id}),and(requester_id.eq.${data.id},addressee_id.eq.${user.id})`)
-        .single()
+    const { data: byName } = await supabase
+      .from('profiles')
+      .select('id, username, display_name')
+      .ilike('display_name', `%${q}%`)
+      .neq('id', user.id)
+      .limit(10)
 
-      setSearchResult({ ...data, friendship: existing })
+    // Merge and deduplicate
+    const merged = [...(byUsername || []), ...(byName || [])]
+    const unique = [...new Map(merged.map(p => [p.id, p])).values()]
+
+    if (!unique.length) {
+      setSearchError('Никого не найдено')
+      setSearchLoading(false)
+      return
     }
+
+    // Check friendship status for all results
+    const { data: existingFriendships } = await supabase
+      .from('friendships')
+      .select('id, status, requester_id, addressee_id')
+      .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
+
+    const friendshipMap = {}
+    for (const f of existingFriendships || []) {
+      const otherId = f.requester_id === user.id ? f.addressee_id : f.requester_id
+      friendshipMap[otherId] = f
+    }
+
+    setSearchResults(unique.map(p => ({ ...p, friendship: friendshipMap[p.id] || null })))
     setSearchLoading(false)
   }
 
   async function sendRequest(addresseeId) {
     await supabase.from('friendships').insert({ requester_id: user.id, addressee_id: addresseeId })
-    setSearchResult(null)
+    setSearchResults([])
     setSearch('')
     loadAll()
   }
@@ -135,12 +154,12 @@ export default function FriendsPage() {
 
         {/* Search */}
         <div className="bg-white rounded-2xl shadow-sm p-4">
-          <h3 className="font-semibold text-gray-800 mb-3">Найти друга</h3>
+          <h3 className="font-semibold text-gray-800 mb-3">Найти по имени или логину</h3>
           <div className="flex gap-2">
             <input
               type="text"
               value={search}
-              onChange={e => { setSearch(e.target.value); setSearchResult(null); setSearchError('') }}
+              onChange={e => { setSearch(e.target.value); setSearchResults([]); setSearchError('') }}
               onKeyDown={e => e.key === 'Enter' && searchUser()}
               placeholder="Введи логин..."
               className="flex-1 bg-gray-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
@@ -154,28 +173,35 @@ export default function FriendsPage() {
             </button>
           </div>
 
-          {searchError && <p className="text-red-500 text-sm mt-2">{searchError}</p>}
+          {searchError && <p className="text-gray-400 text-sm mt-2">{searchError}</p>}
 
-          {searchResult && (
-            <div className="mt-3 flex items-center justify-between bg-gray-50 rounded-xl p-3">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-sm">
-                  {searchResult.username[0].toUpperCase()}
+          {searchResults.length > 0 && (
+            <div className="mt-3 space-y-2">
+              {searchResults.map(result => (
+                <div key={result.id} className="flex items-center justify-between bg-gray-50 rounded-xl p-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`w-9 h-9 bg-gradient-to-br ${avatarGradient(result.username)} rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0`}>
+                      {result.username[0].toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      {result.display_name && <div className="font-medium text-gray-800 text-sm truncate">{result.display_name}</div>}
+                      <div className={`text-gray-400 truncate ${result.display_name ? 'text-xs' : 'text-sm font-medium text-gray-800'}`}>@{result.username}</div>
+                    </div>
+                  </div>
+                  {!result.friendship ? (
+                    <button
+                      onClick={() => sendRequest(result.id)}
+                      className="bg-gradient-to-r from-violet-500 to-pink-500 text-white text-xs px-3 py-1.5 rounded-lg flex-shrink-0"
+                    >
+                      Добавить
+                    </button>
+                  ) : result.friendship.status === 'pending' ? (
+                    <span className="text-xs text-gray-400 flex-shrink-0">Отправлено</span>
+                  ) : (
+                    <span className="text-xs text-green-500 flex-shrink-0">Друзья</span>
+                  )}
                 </div>
-                <span className="font-medium text-gray-800 text-sm">{searchResult.username}</span>
-              </div>
-              {!searchResult.friendship ? (
-                <button
-                  onClick={() => sendRequest(searchResult.id)}
-                  className="bg-gradient-to-r from-violet-500 to-pink-500 text-white text-xs px-3 py-1.5 rounded-lg"
-                >
-                  Добавить
-                </button>
-              ) : searchResult.friendship.status === 'pending' ? (
-                <span className="text-xs text-gray-400">Запрос отправлен</span>
-              ) : (
-                <span className="text-xs text-green-500">Уже друзья</span>
-              )}
+              ))}
             </div>
           )}
         </div>
@@ -233,7 +259,10 @@ export default function FriendsPage() {
                   <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0">
                     {f.username?.[0]?.toUpperCase()}
                   </div>
-                  <span className="flex-1 font-medium text-gray-800 text-sm">{f.username}</span>
+                  <div className="flex-1 min-w-0">
+                    <span className="font-medium text-gray-800 text-sm block truncate">{f.displayName || f.username}</span>
+                    {f.displayName && <span className="text-xs text-gray-400">@{f.username}</span>}
+                  </div>
                   <button
                     onClick={() => setDeleteConfirm(f)}
                     className="text-gray-300 hover:text-red-400 transition-colors p-1"

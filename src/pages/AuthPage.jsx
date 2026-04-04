@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
   const [username, setUsername] = useState('')
+  const [displayName, setDisplayName] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -12,7 +13,7 @@ export default function AuthPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-    if (!username.trim() || !password.trim()) {
+    if (!username.trim() || !password.trim() || (!isLogin && !displayName.trim())) {
       setError('Заполни все поля')
       return
     }
@@ -30,7 +31,7 @@ export default function AuthPage() {
           setLoading(false)
           return
         }
-        await signUp(username.trim().toLowerCase(), password)
+        await signUp(username.trim().toLowerCase(), password, displayName.trim())
       }
     } catch (err) {
       const msg = err.message || ''
@@ -67,6 +68,19 @@ export default function AuthPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {!isLogin && (
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Имя и фамилия</label>
+              <input
+                type="text"
+                value={displayName}
+                onChange={e => setDisplayName(e.target.value)}
+                placeholder="Елена Белова"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
+                autoComplete="name"
+              />
+            </div>
+          )}
           <div>
             <label className="block text-sm text-gray-600 mb-1">Логин</label>
             <input

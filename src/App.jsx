@@ -4,6 +4,7 @@ import AuthPage from './pages/AuthPage'
 import ChatsPage from './pages/ChatsPage'
 import FeedPage from './pages/FeedPage'
 import FriendsPage from './pages/FriendsPage'
+import ProfilePage from './pages/ProfilePage'
 import Layout from './components/Layout'
 
 function AppRoutes() {
@@ -26,6 +27,7 @@ function AppRoutes() {
           <Route path="/chats" element={<ChatsPage />} />
           <Route path="/feed" element={<FeedPage />} />
           <Route path="/friends" element={<FriendsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="*" element={<Navigate to="/feed" replace />} />
         </Routes>
       </Layout>

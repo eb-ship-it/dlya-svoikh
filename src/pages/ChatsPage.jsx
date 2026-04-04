@@ -32,7 +32,7 @@ export default function ChatsPage() {
       const [partnersRes, messagesRes] = await Promise.all([
         supabase
           .from('chat_participants')
-          .select('chat_id, user_id, profiles(username)')
+          .select('chat_id, user_id, profiles(username, display_name)')
           .in('chat_id', chatIds)
           .neq('user_id', user.id),
         supabase
@@ -60,6 +60,7 @@ export default function ChatsPage() {
         return {
           id: cp.chat_id,
           partnerUsername: cp.profiles?.username,
+        partnerDisplayName: cp.profiles?.display_name,
           lastMessage: lastMsg?.content || '',
           lastAt: lastMsg?.created_at || '',
           unread,
@@ -90,13 +91,13 @@ export default function ChatsPage() {
       const otherIds = data.map(f => f.requester_id === user.id ? f.addressee_id : f.requester_id)
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, username')
+        .select('id, username, display_name')
         .in('id', otherIds)
 
       const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
       const list = data.map(f => {
         const otherId = f.requester_id === user.id ? f.addressee_id : f.requester_id
-        return { id: otherId, username: profileMap[otherId]?.username }
+        return { id: otherId, username: profileMap[otherId]?.username, displayName: profileMap[otherId]?.display_name }
       })
       setFriends(list)
     } catch (err) {
@@ -165,7 +166,7 @@ export default function ChatsPage() {
                   <div className={`w-10 h-10 bg-gradient-to-br ${avatarGradient(f.username)} rounded-full flex items-center justify-center text-white font-medium text-sm`}>
                     {f.username[0].toUpperCase()}
                   </div>
-                  <span className="text-xs text-gray-500 max-w-12 truncate">{f.username}</span>
+                  <span className="text-xs text-gray-500 max-w-12 truncate">{f.displayName || f.username}</span>
                 </button>
               ))}
             </div>
@@ -199,7 +200,7 @@ export default function ChatsPage() {
                   {chat.partnerUsername?.[0]?.toUpperCase() || '?'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className={`text-sm ${chat.unread > 0 ? 'font-bold text-gray-900' : 'font-medium text-gray-800'}`}>{chat.partnerUsername}</div>
+                  <div className={`text-sm ${chat.unread > 0 ? 'font-bold text-gray-900' : 'font-medium text-gray-800'}`}>{chat.partnerDisplayName || chat.partnerUsername}</div>
                   <div className={`text-xs truncate ${chat.unread > 0 ? 'text-gray-700 font-medium' : 'text-gray-400'}`}>{chat.lastMessage || 'Нет сообщений'}</div>
                 </div>
                 {chat.unread > 0 && (
@@ -219,6 +220,7 @@ export default function ChatsPage() {
           <ChatWindow
             chatId={activeChatId}
             partnerUsername={activeChat?.partnerUsername}
+            partnerDisplayName={activeChat?.partnerDisplayName}
             onBack={() => { setActiveChatId(null); loadChats() }}
           />
         ) : (

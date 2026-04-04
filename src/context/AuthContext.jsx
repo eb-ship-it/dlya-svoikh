@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
     setLoading(false)
   }
 
-  async function signUp(username, password) {
+  async function signUp(username, password, displayName) {
     const email = `${username}@messenger.local`
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -43,11 +43,10 @@ export function AuthProvider({ children }) {
     })
     if (error) throw error
 
-    // Create profile manually (more reliable than DB trigger with RLS)
     if (data.user) {
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert({ id: data.user.id, username })
+        .insert({ id: data.user.id, username, display_name: displayName || null })
       if (profileError && profileError.code !== '23505') throw profileError
     }
   }

@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { avatarGradient } from '../lib/colors'
 
-export default function ChatWindow({ chatId, partnerUsername, onBack }) {
+export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName, onBack }) {
   const { user } = useAuth()
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
@@ -88,7 +88,7 @@ export default function ChatWindow({ chatId, partnerUsername, onBack }) {
         <div className={`w-9 h-9 bg-gradient-to-br ${avatarGradient(partnerUsername)} rounded-full flex items-center justify-center text-white font-medium`}>
           {partnerUsername?.[0]?.toUpperCase() || '?'}
         </div>
-        <div className="font-medium text-gray-800">{partnerUsername}</div>
+        <div className="font-medium text-gray-800">{partnerDisplayName || partnerUsername}</div>
       </div>
 
       {/* Messages */}
