@@ -88,6 +88,7 @@ export default function AboutPage({ onClose }) {
           </div>
 
           {/* Stats */}
+          <p className="text-xs text-gray-400 text-center -mb-4">Твоя история в цифрах</p>
           <div className="flex justify-center gap-6">
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-800">{stats.friends}</div>
