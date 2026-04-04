@@ -155,7 +155,7 @@ export default function ChatsPage() {
         {/* Friends to start chats */}
         {friends.length > 0 && (
           <div className="px-4 py-2">
-            <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">Начать чат</p>
+            <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">Начать новый чат</p>
             <div className="flex gap-2 overflow-x-auto pb-2">
               {friends.map(f => (
                 <button
