@@ -28,6 +28,7 @@ function AppRoutes() {
           <Route path="/feed" element={<FeedPage />} />
           <Route path="/friends" element={<FriendsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/" element={<Navigate to="/feed" replace />} />
           <Route path="*" element={<Navigate to="/feed" replace />} />
         </Routes>
       </Layout>
