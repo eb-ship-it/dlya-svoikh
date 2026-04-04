@@ -106,13 +106,7 @@ export default function CreateGroupPage({ onClose }) {
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
               <button onClick={onClose} className="text-gray-400 text-sm w-16">Отмена</button>
               <span className="font-semibold text-gray-800">Новая группа</span>
-              <button
-                onClick={() => goToStep(2)}
-                disabled={!name.trim()}
-                className="text-violet-500 text-sm font-medium disabled:text-gray-300 w-16 text-right"
-              >
-                Далее
-              </button>
+              <div className="w-16"></div>
             </div>
 
             <div className="flex-1 flex flex-col items-center justify-center p-8">
@@ -131,7 +125,17 @@ export default function CreateGroupPage({ onClose }) {
                 autoFocus
                 className="w-full bg-gray-50 rounded-2xl px-5 py-4 text-base text-center text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-200 mb-3"
               />
-              <p className="text-xs text-gray-400">Название можно будет изменить позже</p>
+              <p className="text-xs text-gray-400 mb-6">Название можно будет изменить позже</p>
+            </div>
+
+            <div className="px-4 pb-4">
+              <button
+                onClick={() => goToStep(2)}
+                disabled={!name.trim()}
+                className="w-full bg-gradient-to-r from-violet-500 to-pink-500 disabled:opacity-30 text-white font-medium py-3 rounded-xl transition-all"
+              >
+                Далее
+              </button>
             </div>
           </>
         )}
