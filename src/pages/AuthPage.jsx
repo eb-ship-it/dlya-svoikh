@@ -1,8 +1,11 @@
 import { useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true)
+  const params = useParams()
+  const inviteFrom = params.username || null
+  const [isLogin, setIsLogin] = useState(inviteFrom ? false : true)
   const [username, setUsername] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [password, setPassword] = useState('')
@@ -31,6 +34,7 @@ export default function AuthPage() {
           setLoading(false)
           return
         }
+        if (inviteFrom) localStorage.setItem('invite_from', inviteFrom)
         await signUp(username.trim().toLowerCase(), password, displayName.trim())
       }
     } catch (err) {
@@ -49,7 +53,9 @@ export default function AuthPage() {
         <div className="text-center mb-8">
           <img src="/icon.svg" alt="" className="w-16 h-16 rounded-2xl mx-auto mb-3 shadow-lg" />
           <h1 className="text-2xl font-bold text-gray-800">Свои</h1>
-          <p className="text-gray-500 text-sm mt-1">Мессенджер для своих</p>
+          <p className="text-gray-500 text-sm mt-1">
+            {inviteFrom ? <><b>@{inviteFrom}</b> приглашает тебя!</> : 'Мессенджер для своих'}
+          </p>
         </div>
 
         <div className="flex bg-gray-100 rounded-xl p-1 mb-6">

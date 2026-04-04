@@ -8,6 +8,15 @@ export default function ProfilePage() {
   const [displayName, setDisplayName] = useState(profile?.display_name || '')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const inviteLink = `${window.location.origin}/invite/${profile?.username}`
+
+  function copyLink() {
+    navigator.clipboard.writeText(inviteLink)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   async function handleSave(e) {
     e.preventDefault()
@@ -55,6 +64,26 @@ export default function ProfilePage() {
             {saving ? '...' : saved ? 'Сохранено!' : 'Сохранить'}
           </button>
         </form>
+
+        {/* Invite link */}
+        <div className="bg-white rounded-2xl shadow-sm p-4">
+          <h3 className="font-semibold text-gray-800 mb-1">Пригласить друга</h3>
+          <p className="text-xs text-gray-400 mb-3">Отправь ссылку — друг зарегистрируется и вы сразу станете друзьями</p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={inviteLink}
+              readOnly
+              className="flex-1 min-w-0 bg-gray-100 rounded-xl px-3 py-2.5 text-xs text-gray-600 focus:outline-none"
+            />
+            <button
+              onClick={copyLink}
+              className="bg-gradient-to-r from-violet-500 to-pink-500 text-white text-sm font-medium px-4 py-2.5 rounded-xl flex-shrink-0 transition-all"
+            >
+              {copied ? 'Скопировано!' : 'Копировать'}
+            </button>
+          </div>
+        </div>
 
         {/* Logout */}
         <button

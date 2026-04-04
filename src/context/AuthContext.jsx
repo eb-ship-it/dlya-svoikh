@@ -32,6 +32,24 @@ export function AuthProvider({ children }) {
       .single()
     setProfile(data)
     setLoading(false)
+
+    // Handle pending invite from registration
+    const inviteFrom = localStorage.getItem('invite_from')
+    if (inviteFrom) {
+      localStorage.removeItem('invite_from')
+      const { data: inviter } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', inviteFrom)
+        .single()
+      if (inviter && inviter.id !== userId) {
+        await supabase.from('friendships').insert({
+          requester_id: inviter.id,
+          addressee_id: userId,
+          status: 'accepted',
+        }).then(() => {})
+      }
+    }
   }
 
   async function signUp(username, password, displayName) {
