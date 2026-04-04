@@ -2,12 +2,14 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useBadges } from '../hooks/useBadges'
 import { avatarGradient } from '../lib/colors'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import AboutPage from '../pages/AboutPage'
 
 export default function Layout({ children }) {
   const location = useLocation()
   const { user, profile, signOut } = useAuth()
   const { unreadChats, pendingFriends, newPosts, markFeedSeen, checkAll } = useBadges(user?.id)
+  const [showAbout, setShowAbout] = useState(false)
 
   // Recheck badges on every tab switch + mark feed seen
   useEffect(() => {
@@ -52,10 +54,10 @@ export default function Layout({ children }) {
     <div className="flex flex-col h-dvh">
       {/* Top bar */}
       <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 flex-shrink-0">
-        <div className="flex items-center gap-2">
+        <button onClick={() => setShowAbout(true)} className="flex items-center gap-2">
           <img src="/icon.svg" alt="" className="w-7 h-7 rounded-md" />
           <span className="font-semibold text-gray-800">Свои</span>
-        </div>
+        </button>
         <Link to="/profile" className="flex items-center gap-2">
           <span className="text-sm text-gray-500">{profile?.display_name || profile?.username}</span>
           <div className={`w-8 h-8 bg-gradient-to-br ${avatarGradient(profile?.username)} rounded-full flex items-center justify-center text-white font-medium text-xs`}>
@@ -94,6 +96,8 @@ export default function Layout({ children }) {
           )
         })}
       </nav>
+
+      {showAbout && <AboutPage onClose={() => setShowAbout(false)} />}
     </div>
   )
 }
