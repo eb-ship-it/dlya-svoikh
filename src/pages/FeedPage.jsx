@@ -233,30 +233,28 @@ function PostReactions({ postId, userId }) {
           <span className={myReactions.has(emoji) ? 'text-blue-600' : 'text-gray-500'}>{counts[emoji]}</span>
         </button>
       ))}
-      <div className="relative">
-        <button
-          onClick={() => setShowPicker(!showPicker)}
-          className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-50 border border-gray-100 hover:bg-gray-100 text-gray-400 text-sm"
-        >
-          +
-        </button>
-        {showPicker && (
-          <>
-            <div className="fixed inset-0 z-10" onClick={() => setShowPicker(false)} />
-            <div className="absolute bottom-full right-0 mb-1 bg-white rounded-xl shadow-lg border border-gray-100 p-1.5 flex gap-1 z-20">
-              {REACTIONS.map(emoji => (
-                <button
-                  key={emoji}
-                  onClick={() => toggle(emoji)}
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors ${myReactions.has(emoji) ? 'bg-blue-50' : ''}`}
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
+      <button
+        onClick={() => setShowPicker(!showPicker)}
+        className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-50 border border-gray-100 hover:bg-gray-100 text-gray-400 text-sm"
+      >
+        +
+      </button>
+      {showPicker && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setShowPicker(false)} />
+          <div className="fixed left-1/2 -translate-x-1/2 bottom-24 bg-white rounded-2xl shadow-lg border border-gray-100 p-2 flex gap-1.5 z-20">
+            {REACTIONS.map(emoji => (
+              <button
+                key={emoji}
+                onClick={() => toggle(emoji)}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors text-lg ${myReactions.has(emoji) ? 'bg-blue-50' : ''}`}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }
