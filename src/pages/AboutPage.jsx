@@ -88,7 +88,8 @@ export default function AboutPage({ onClose }) {
           </div>
 
           {/* Stats */}
-          <p className="text-xs text-gray-400 text-center -mb-4">Твоя история в цифрах</p>
+          <div>
+          <p className="text-xs text-gray-400 text-center mb-3">Твоя история в цифрах</p>
           <div className="flex justify-center gap-6">
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-800">{stats.friends}</div>
@@ -104,6 +105,7 @@ export default function AboutPage({ onClose }) {
               <div className="text-2xl font-bold text-gray-800">{stats.posts}</div>
               <div className="text-xs text-gray-400">{pluralize(stats.posts, 'пост', 'поста', 'постов')}</div>
             </div>
+          </div>
           </div>
 
           {/* Suggestion form */}
