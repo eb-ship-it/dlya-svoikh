@@ -26,7 +26,7 @@ function AppRoutes() {
           <Route path="/chats" element={<ChatsPage />} />
           <Route path="/feed" element={<FeedPage />} />
           <Route path="/friends" element={<FriendsPage />} />
-          <Route path="*" element={<Navigate to="/chats" replace />} />
+          <Route path="*" element={<Navigate to="/feed" replace />} />
         </Routes>
       </Layout>
     </BrowserRouter>
