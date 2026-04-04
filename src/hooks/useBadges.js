@@ -17,6 +17,7 @@ export function useBadges(userId) {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => checkUnreadChats())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' }, () => checkPendingFriends())
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, () => checkNewPosts())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'post_comments' }, () => checkNewPosts())
       .subscribe()
 
     return () => supabase.removeChannel(channel)
@@ -86,13 +87,20 @@ export function useBadges(userId) {
 
     if (!friendIds.length) { setNewPosts(false); return }
 
-    const { count } = await supabase
+    const { count: newPostCount } = await supabase
       .from('posts')
       .select('id', { count: 'exact', head: true })
       .in('user_id', friendIds)
       .gt('created_at', lastSeen.seen_at)
 
-    setNewPosts((count || 0) > 0)
+    // Also check for new comments on my posts
+    const { count: newCommentCount } = await supabase
+      .from('post_comments')
+      .select('id', { count: 'exact', head: true })
+      .neq('user_id', userId)
+      .gt('created_at', lastSeen.seen_at)
+
+    setNewPosts((newPostCount || 0) + (newCommentCount || 0) > 0)
   }
 
   async function markFeedSeen() {

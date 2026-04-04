@@ -187,6 +187,7 @@ const REACTIONS = ['❤️', '😂', '😮', '😢', '👍']
 
 function PostReactions({ postId, userId }) {
   const [reactions, setReactions] = useState([])
+  const [showPicker, setShowPicker] = useState(false)
 
   useEffect(() => { loadReactions() }, [postId])
 
@@ -199,13 +200,14 @@ function PostReactions({ postId, userId }) {
   }
 
   async function toggle(emoji) {
-    const existing = reactions.find(r => r.user_id === userId && r.emoji === emoji)
-    if (existing) {
+    const myReaction = reactions.find(r => r.user_id === userId && r.emoji === emoji)
+    if (myReaction) {
       await supabase.from('post_reactions').delete()
         .eq('post_id', postId).eq('user_id', userId).eq('emoji', emoji)
     } else {
       await supabase.from('post_reactions').insert({ post_id: postId, user_id: userId, emoji })
     }
+    setShowPicker(false)
     loadReactions()
   }
 
@@ -215,25 +217,46 @@ function PostReactions({ postId, userId }) {
     counts[r.emoji] = (counts[r.emoji] || 0) + 1
   }
   const myReactions = new Set(reactions.filter(r => r.user_id === userId).map(r => r.emoji))
+  const activeEmojis = REACTIONS.filter(e => counts[e] > 0)
 
   return (
     <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-      {REACTIONS.map(emoji => {
-        const count = counts[emoji] || 0
-        const active = myReactions.has(emoji)
-        return (
-          <button
-            key={emoji}
-            onClick={() => toggle(emoji)}
-            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-all ${
-              active ? 'bg-blue-100 border border-blue-300' : 'bg-gray-50 border border-gray-100 hover:bg-gray-100'
-            }`}
-          >
-            <span>{emoji}</span>
-            {count > 0 && <span className={active ? 'text-blue-600' : 'text-gray-500'}>{count}</span>}
-          </button>
-        )
-      })}
+      {activeEmojis.map(emoji => (
+        <button
+          key={emoji}
+          onClick={() => toggle(emoji)}
+          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-all ${
+            myReactions.has(emoji) ? 'bg-blue-100 border border-blue-300' : 'bg-gray-50 border border-gray-100 hover:bg-gray-100'
+          }`}
+        >
+          <span>{emoji}</span>
+          <span className={myReactions.has(emoji) ? 'text-blue-600' : 'text-gray-500'}>{counts[emoji]}</span>
+        </button>
+      ))}
+      <div className="relative">
+        <button
+          onClick={() => setShowPicker(!showPicker)}
+          className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-50 border border-gray-100 hover:bg-gray-100 text-gray-400 text-sm"
+        >
+          +
+        </button>
+        {showPicker && (
+          <>
+            <div className="fixed inset-0 z-10" onClick={() => setShowPicker(false)} />
+            <div className="absolute bottom-full left-0 mb-1 bg-white rounded-xl shadow-lg border border-gray-100 p-1.5 flex gap-1 z-20">
+              {REACTIONS.map(emoji => (
+                <button
+                  key={emoji}
+                  onClick={() => toggle(emoji)}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors ${myReactions.has(emoji) ? 'bg-blue-50' : ''}`}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   )
 }
@@ -313,20 +336,22 @@ function PostComments({ postId, userId, username }) {
               </div>
             </div>
           ))}
-          <form onSubmit={submit} className="flex gap-2">
+          <form onSubmit={submit} className="flex gap-1.5 items-center">
             <input
               type="text"
               value={text}
               onChange={e => setText(e.target.value)}
-              placeholder="Написать комментарий..."
-              className="flex-1 bg-gray-50 rounded-full px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-200"
+              placeholder="Комментарий..."
+              className="flex-1 min-w-0 bg-gray-50 rounded-full px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-200"
             />
             <button
               type="submit"
               disabled={!text.trim()}
-              className="text-blue-500 disabled:text-blue-300 text-xs font-medium px-2"
+              className="text-blue-500 disabled:text-blue-300 flex-shrink-0"
             >
-              Отправить
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+              </svg>
             </button>
           </form>
         </div>
