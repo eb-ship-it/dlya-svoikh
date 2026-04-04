@@ -14,6 +14,7 @@ export default function FriendsPage() {
   const [searchError, setSearchError] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   useEffect(() => {
     loadAll()
@@ -124,6 +125,7 @@ export default function FriendsPage() {
 
   async function removeFriend(friendshipId) {
     await supabase.from('friendships').delete().eq('id', friendshipId)
+    setDeleteConfirm(null)
     loadAll()
   }
 
@@ -233,7 +235,7 @@ export default function FriendsPage() {
                   </div>
                   <span className="flex-1 font-medium text-gray-800 text-sm">{f.username}</span>
                   <button
-                    onClick={() => removeFriend(f.friendshipId)}
+                    onClick={() => setDeleteConfirm(f)}
                     className="text-gray-300 hover:text-red-400 transition-colors p-1"
                     title="Удалить из друзей"
                   >
@@ -270,6 +272,29 @@ export default function FriendsPage() {
           </div>
         )}
       </div>
+
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setDeleteConfirm(null)}>
+          <div className="bg-white rounded-2xl p-6 max-w-xs w-full shadow-xl" onClick={e => e.stopPropagation()}>
+            <p className="text-gray-800 font-medium text-center mb-1">Удалить из друзей?</p>
+            <p className="text-gray-400 text-sm text-center mb-5">{deleteConfirm.username} будет удалён из списка друзей</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="flex-1 py-2.5 rounded-xl bg-gray-100 text-gray-600 text-sm font-medium"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={() => removeFriend(deleteConfirm.friendshipId)}
+                className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-medium"
+              >
+                Удалить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
