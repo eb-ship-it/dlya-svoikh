@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Иконки — Свои</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; background: #f0f2f5; margin: 0; padding: 40px 20px; }
+    h1 { text-align: center; color: #333; margin-bottom: 40px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; max-width: 900px; margin: 0 auto; }
+    .card { background: white; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    .card h3 { margin: 16px 0 4px; color: #333; font-size: 16px; }
+    .card p { color: #888; font-size: 13px; margin: 0; }
+    .icon-wrap { width: 100px; height: 100px; margin: 0 auto; border-radius: 22px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+    .small-preview { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
+    .small-preview .mini { width: 40px; height: 40px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+  <h1>Варианты иконки для "Свои"</h1>
+  <div class="grid">
+
+    <!-- 1. Бумажный самолётик -->
+    <div class="card">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#3b82f6"/>
+              <stop offset="100%" style="stop-color:#8b5cf6"/>
+            </linearGradient>
+          </defs>
+          <rect width="100" height="100" fill="url(#g1)"/>
+          <g transform="translate(50,50) rotate(-15)">
+            <path d="M-30 5 L30 -15 L-10 5 Z" fill="white" opacity="0.95"/>
+            <path d="M-10 5 L30 -15 L5 25 Z" fill="white" opacity="0.75"/>
+            <path d="M-10 5 L5 25 L-5 10 Z" fill="white" opacity="0.55"/>
+          </g>
+        </svg>
+      </div>
+      <h3>1. Самолётик</h3>
+      <p>Бумажный самолёт, градиент</p>
+      <div class="small-preview">
+        <div class="mini"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g1s" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#3b82f6"/><stop offset="100%" style="stop-color:#8b5cf6"/></linearGradient></defs><rect width="100" height="100" fill="url(#g1s)"/><g transform="translate(50,50) rotate(-15)"><path d="M-30 5 L30 -15 L-10 5 Z" fill="white" opacity="0.95"/><path d="M-10 5 L30 -15 L5 25 Z" fill="white" opacity="0.75"/><path d="M-10 5 L5 25 L-5 10 Z" fill="white" opacity="0.55"/></g></svg></div>
+      </div>
+    </div>
+
+    <!-- 2. Буква С в кружке -->
+    <div class="card">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#6366f1"/>
+              <stop offset="100%" style="stop-color:#a855f7"/>
+            </linearGradient>
+          </defs>
+          <rect width="100" height="100" fill="url(#g2)"/>
+          <text x="50" y="68" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="55" font-weight="700" fill="white">С</text>
+        </svg>
+      </div>
+      <h3>2. Буква "С"</h3>
+      <p>Минимализм, фиолетовый</p>
+      <div class="small-preview">
+        <div class="mini"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g2s" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#6366f1"/><stop offset="100%" style="stop-color:#a855f7"/></linearGradient></defs><rect width="100" height="100" fill="url(#g2s)"/><text x="50" y="68" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="55" font-weight="700" fill="white">С</text></svg></div>
+      </div>
+    </div>
+
+    <!-- 3. Облачко с буквой С -->
+    <div class="card">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#3b82f6"/>
+              <stop offset="100%" style="stop-color:#6366f1"/>
+            </linearGradient>
+          </defs>
+          <rect width="100" height="100" fill="url(#g3)"/>
+          <path d="M20 35 Q20 20 35 20 L65 20 Q80 20 80 35 L80 55 Q80 70 65 70 L40 70 L28 80 L30 70 L25 70 Q20 70 20 55 Z" fill="white" opacity="0.95"/>
+          <text x="50" y="55" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="30" font-weight="700" fill="#4f46e5">С</text>
+        </svg>
+      </div>
+      <h3>3. Облачко + С</h3>
+      <p>Чат-облачко с буквой</p>
+      <div class="small-preview">
+        <div class="mini"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g3s" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#3b82f6"/><stop offset="100%" style="stop-color:#6366f1"/></linearGradient></defs><rect width="100" height="100" fill="url(#g3s)"/><path d="M20 35 Q20 20 35 20 L65 20 Q80 20 80 35 L80 55 Q80 70 65 70 L40 70 L28 80 L30 70 L25 70 Q20 70 20 55 Z" fill="white" opacity="0.95"/><text x="50" y="55" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="30" font-weight="700" fill="#4f46e5">С</text></svg></div>
+      </div>
+    </div>
+
+    <!-- 4. Два силуэта -->
+    <div class="card">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ec4899"/>
+              <stop offset="100%" style="stop-color:#8b5cf6"/>
+            </linearGradient>
+          </defs>
+          <rect width="100" height="100" fill="url(#g4)"/>
+          <!-- Person 1 -->
+          <circle cx="38" cy="35" r="10" fill="white" opacity="0.9"/>
+          <ellipse cx="38" cy="60" rx="14" ry="12" fill="white" opacity="0.9"/>
+          <!-- Person 2 -->
+          <circle cx="62" cy="35" r="10" fill="white" opacity="0.7"/>
+          <ellipse cx="62" cy="60" rx="14" ry="12" fill="white" opacity="0.7"/>
+        </svg>
+      </div>
+      <h3>4. Для своих</h3>
+      <p>Два силуэта, розово-фиолет</p>
+      <div class="small-preview">
+        <div class="mini"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g4s" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#ec4899"/><stop offset="100%" style="stop-color:#8b5cf6"/></linearGradient></defs><rect width="100" height="100" fill="url(#g4s)"/><circle cx="38" cy="35" r="10" fill="white" opacity="0.9"/><ellipse cx="38" cy="60" rx="14" ry="12" fill="white" opacity="0.9"/><circle cx="62" cy="35" r="10" fill="white" opacity="0.7"/><ellipse cx="62" cy="60" rx="14" ry="12" fill="white" opacity="0.7"/></svg></div>
+      </div>
+    </div>
+
+    <!-- 5. Самолётик минималистичный -->
+    <div class="card">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g5" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#06b6d4"/>
+              <stop offset="100%" style="stop-color:#3b82f6"/>
+            </linearGradient>
+          </defs>
+          <rect width="100" height="100" fill="url(#g5)"/>
+          <g transform="translate(50,48) rotate(-30)">
+            <polygon points="-28,0 28,-16 28,16" fill="white" opacity="0.95"/>
+            <polygon points="10,0 28,16 15,18 8,8" fill="white" opacity="0.65"/>
+          </g>
+        </svg>
+      </div>
+      <h3>5. Стрела</h3>
+      <p>Острый самолёт, голубой</p>
+      <div class="small-preview">
+        <div class="mini"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g5s" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#06b6d4"/><stop offset="100%" style="stop-color:#3b82f6"/></linearGradient></defs><rect width="100" height="100" fill="url(#g5s)"/><g transform="translate(50,48) rotate(-30)"><polygon points="-28,0 28,-16 28,16" fill="white" opacity="0.95"/><polygon points="10,0 28,16 15,18 8,8" fill="white" opacity="0.65"/></g></svg></div>
+      </div>
+    </div>
+
+    <!-- 6. Сердце-облачко -->
+    <div class="card">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g6" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#f43f5e"/>
+              <stop offset="100%" style="stop-color:#ec4899"/>
+            </linearGradient>
+          </defs>
+          <rect width="100" height="100" fill="url(#g6)"/>
+          <path d="M50 72 C35 60, 18 48, 18 35 C18 25, 28 18, 35 18 C42 18, 47 23, 50 28 C53 23, 58 18, 65 18 C72 18, 82 25, 82 35 C82 48, 65 60, 50 72Z" fill="white" opacity="0.9"/>
+        </svg>
+      </div>
+      <h3>6. Сердце</h3>
+      <p>Для близких, красно-розовый</p>
+      <div class="small-preview">
+        <div class="mini"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g6s" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#f43f5e"/><stop offset="100%" style="stop-color:#ec4899"/></linearGradient></defs><rect width="100" height="100" fill="url(#g6s)"/><path d="M50 72 C35 60, 18 48, 18 35 C18 25, 28 18, 35 18 C42 18, 47 23, 50 28 C53 23, 58 18, 65 18 C72 18, 82 25, 82 35 C82 48, 65 60, 50 72Z" fill="white" opacity="0.9"/></svg></div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

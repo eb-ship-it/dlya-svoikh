@@ -52,7 +52,7 @@ export default function Layout({ children }) {
       {/* Top bar */}
       <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 flex-shrink-0">
         <div className="flex items-center gap-2">
-          <span className="text-lg">✈️</span>
+          <img src="/icon.svg" alt="" className="w-7 h-7 rounded-md" />
           <span className="font-semibold text-gray-800">Свои</span>
         </div>
         <div className="flex items-center gap-3">
