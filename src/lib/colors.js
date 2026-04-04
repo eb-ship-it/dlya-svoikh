@@ -1,13 +1,13 @@
 // Generate consistent gradient for username
 const GRADIENTS = [
-  'from-violet-500 to-purple-500',
-  'from-pink-500 to-rose-500',
-  'from-indigo-500 to-violet-500',
-  'from-purple-500 to-pink-500',
-  'from-fuchsia-500 to-pink-500',
-  'from-violet-600 to-indigo-500',
-  'from-rose-500 to-pink-600',
-  'from-purple-600 to-violet-500',
+  'from-violet-300 to-purple-400',
+  'from-pink-300 to-rose-400',
+  'from-indigo-300 to-violet-400',
+  'from-purple-300 to-pink-400',
+  'from-fuchsia-300 to-pink-400',
+  'from-violet-400 to-indigo-300',
+  'from-rose-300 to-pink-400',
+  'from-purple-400 to-violet-300',
 ]
 
 export function avatarGradient(username) {
