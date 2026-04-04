@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { avatarGradient } from '../lib/colors'
 import GroupSettings from './GroupSettings'
+import LinkifyText from './LinkifyText'
 
 export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName, isGroup, groupName, onBack }) {
   const { user } = useAuth()
@@ -141,7 +142,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
                 {showSender && (
                   <p className="text-xs font-medium text-violet-500 mb-0.5">{senderName(msg.sender_id)}</p>
                 )}
-                <p>{msg.content}</p>
+                <p><LinkifyText text={msg.content} /></p>
                 <p className={`text-[10px] mt-1 text-right ${isMine ? 'text-purple-200' : 'text-gray-400'}`}>
                   {formatTime(msg.created_at)}
                 </p>
