@@ -8,6 +8,7 @@ export default function FeedPage() {
   const [text, setText] = useState('')
   const [posting, setPosting] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   useEffect(() => {
@@ -28,27 +29,34 @@ export default function FeedPage() {
   }, [user])
 
   async function loadFeed() {
-    // Get posts from friends + own posts
-    const { data: friendships } = await supabase
-      .from('friendships')
-      .select('requester_id, addressee_id')
-      .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
-      .eq('status', 'accepted')
+    try {
+      const { data: friendships } = await supabase
+        .from('friendships')
+        .select('requester_id, addressee_id')
+        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
+        .eq('status', 'accepted')
 
-    const friendIds = (friendships || []).map(f =>
-      f.requester_id === user.id ? f.addressee_id : f.requester_id
-    )
-    const visibleIds = [...friendIds, user.id]
+      const friendIds = (friendships || []).map(f =>
+        f.requester_id === user.id ? f.addressee_id : f.requester_id
+      )
+      const visibleIds = [...friendIds, user.id]
 
-    const { data } = await supabase
-      .from('posts')
-      .select('*, profiles(username)')
-      .in('user_id', visibleIds)
-      .order('created_at', { ascending: false })
-      .limit(50)
+      const { data, error: e } = await supabase
+        .from('posts')
+        .select('*, profiles(username)')
+        .in('user_id', visibleIds)
+        .order('created_at', { ascending: false })
+        .limit(50)
 
-    setPosts(data || [])
-    setLoading(false)
+      if (e) throw e
+      setPosts(data || [])
+      setError('')
+    } catch (err) {
+      console.error('loadFeed error:', err)
+      setError('Не удалось загрузить ленту')
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function submitPost(e) {
@@ -114,6 +122,11 @@ export default function FeedPage() {
         {/* Posts feed */}
         {loading ? (
           <div className="text-center text-gray-400 py-8 text-sm">Загрузка...</div>
+        ) : error ? (
+          <div className="text-center py-8">
+            <p className="text-red-400 text-sm mb-3">{error}</p>
+            <button onClick={() => { setLoading(true); setError(''); loadFeed() }} className="bg-blue-500 text-white text-sm px-4 py-2 rounded-xl">Повторить</button>
+          </div>
         ) : posts.length === 0 ? (
           <div className="text-center text-gray-400 py-12">
             <div className="text-4xl mb-3">📰</div>

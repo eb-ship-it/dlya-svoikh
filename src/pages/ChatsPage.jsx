@@ -9,6 +9,7 @@ export default function ChatsPage() {
   const [activeChatId, setActiveChatId] = useState(null)
   const [friends, setFriends] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     loadChats()
@@ -16,78 +17,90 @@ export default function ChatsPage() {
   }, [user])
 
   async function loadChats() {
-    const { data: participantRows } = await supabase
-      .from('chat_participants')
-      .select('chat_id')
-      .eq('user_id', user.id)
-
-    if (!participantRows?.length) { setChats([]); setLoading(false); return }
-
-    const chatIds = participantRows.map(r => r.chat_id)
-
-    // Batch: get partners, all messages in parallel
-    const [partnersRes, messagesRes] = await Promise.all([
-      supabase
+    try {
+      const { data: participantRows, error: e1 } = await supabase
         .from('chat_participants')
-        .select('chat_id, user_id, profiles(username)')
-        .in('chat_id', chatIds)
-        .neq('user_id', user.id),
-      supabase
-        .from('messages')
-        .select('chat_id, content, created_at, sender_id, read_at')
-        .in('chat_id', chatIds)
-        .order('created_at', { ascending: false }),
-    ])
+        .select('chat_id')
+        .eq('user_id', user.id)
 
-    const partners = partnersRes.data || []
-    const allMessages = messagesRes.data || []
+      if (e1) throw e1
+      if (!participantRows?.length) { setChats([]); setLoading(false); return }
 
-    // Group messages by chat
-    const msgByChat = {}
-    for (const m of allMessages) {
-      if (!msgByChat[m.chat_id]) msgByChat[m.chat_id] = []
-      msgByChat[m.chat_id].push(m)
-    }
+      const chatIds = participantRows.map(r => r.chat_id)
 
-    const chatList = partners.map(cp => {
-      const msgs = msgByChat[cp.chat_id] || []
-      const lastMsg = msgs[0]
-      const unread = msgs.filter(m => m.sender_id !== user.id && !m.read_at).length
-      return {
-        id: cp.chat_id,
-        partnerUsername: cp.profiles?.username,
-        lastMessage: lastMsg?.content || '',
-        lastAt: lastMsg?.created_at || '',
-        unread,
+      const [partnersRes, messagesRes] = await Promise.all([
+        supabase
+          .from('chat_participants')
+          .select('chat_id, user_id, profiles(username)')
+          .in('chat_id', chatIds)
+          .neq('user_id', user.id),
+        supabase
+          .from('messages')
+          .select('chat_id, content, created_at, sender_id, read_at')
+          .in('chat_id', chatIds)
+          .order('created_at', { ascending: false }),
+      ])
+
+      if (partnersRes.error) throw partnersRes.error
+
+      const partners = partnersRes.data || []
+      const allMessages = messagesRes.data || []
+
+      const msgByChat = {}
+      for (const m of allMessages) {
+        if (!msgByChat[m.chat_id]) msgByChat[m.chat_id] = []
+        msgByChat[m.chat_id].push(m)
       }
-    })
 
-    chatList.sort((a, b) => new Date(b.lastAt) - new Date(a.lastAt))
-    setChats(chatList)
-    setLoading(false)
+      const chatList = partners.map(cp => {
+        const msgs = msgByChat[cp.chat_id] || []
+        const lastMsg = msgs[0]
+        const unread = msgs.filter(m => m.sender_id !== user.id && !m.read_at).length
+        return {
+          id: cp.chat_id,
+          partnerUsername: cp.profiles?.username,
+          lastMessage: lastMsg?.content || '',
+          lastAt: lastMsg?.created_at || '',
+          unread,
+        }
+      })
+
+      chatList.sort((a, b) => new Date(b.lastAt) - new Date(a.lastAt))
+      setChats(chatList)
+      setError('')
+    } catch (err) {
+      console.error('loadChats error:', err)
+      setError('Не удалось загрузить чаты. Потяни вниз для обновления.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function loadFriends() {
-    const { data } = await supabase
-      .from('friendships')
-      .select('requester_id, addressee_id')
-      .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
-      .eq('status', 'accepted')
+    try {
+      const { data } = await supabase
+        .from('friendships')
+        .select('requester_id, addressee_id')
+        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
+        .eq('status', 'accepted')
 
-    if (!data?.length) { setFriends([]); return }
+      if (!data?.length) { setFriends([]); return }
 
-    const otherIds = data.map(f => f.requester_id === user.id ? f.addressee_id : f.requester_id)
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, username')
-      .in('id', otherIds)
+      const otherIds = data.map(f => f.requester_id === user.id ? f.addressee_id : f.requester_id)
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, username')
+        .in('id', otherIds)
 
-    const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
-    const list = data.map(f => {
-      const otherId = f.requester_id === user.id ? f.addressee_id : f.requester_id
-      return { id: otherId, username: profileMap[otherId]?.username }
-    })
-    setFriends(list)
+      const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
+      const list = data.map(f => {
+        const otherId = f.requester_id === user.id ? f.addressee_id : f.requester_id
+        return { id: otherId, username: profileMap[otherId]?.username }
+      })
+      setFriends(list)
+    } catch (err) {
+      console.error('loadFriends error:', err)
+    }
   }
 
   async function openOrCreateChat(friendId) {
@@ -161,6 +174,11 @@ export default function ChatsPage() {
         <div className="flex-1 overflow-y-auto">
           {loading ? (
             <div className="p-4 text-center text-gray-400 text-sm">Загрузка...</div>
+          ) : error ? (
+            <div className="p-6 text-center">
+              <p className="text-red-400 text-sm mb-3">{error}</p>
+              <button onClick={() => { setLoading(true); setError(''); loadChats(); loadFriends() }} className="bg-blue-500 text-white text-sm px-4 py-2 rounded-xl">Повторить</button>
+            </div>
           ) : chats.length === 0 ? (
             <div className="p-6 text-center text-gray-400 text-sm">
               <div className="text-3xl mb-2">💬</div>

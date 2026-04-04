@@ -12,6 +12,7 @@ export default function FriendsPage() {
   const [searchLoading, setSearchLoading] = useState(false)
   const [searchError, setSearchError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     loadAll()
@@ -29,41 +30,49 @@ export default function FriendsPage() {
   }, [user])
 
   async function loadAll() {
-    const { data } = await supabase
-      .from('friendships')
-      .select('id, status, requester_id, addressee_id')
-      .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
+    try {
+      const { data, error: e } = await supabase
+        .from('friendships')
+        .select('id, status, requester_id, addressee_id')
+        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
 
-    if (!data?.length) {
-      setFriends([]); setIncoming([]); setOutgoing([]); setLoading(false); return
+      if (e) throw e
+
+      if (!data?.length) {
+        setFriends([]); setIncoming([]); setOutgoing([]); setError(''); setLoading(false); return
+      }
+
+      const otherIds = [...new Set(data.map(f =>
+        f.requester_id === user.id ? f.addressee_id : f.requester_id
+      ))]
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, username')
+        .in('id', otherIds)
+
+      const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
+
+      const accepted = [], inc = [], out = []
+      for (const f of data) {
+        const isMine = f.requester_id === user.id
+        const otherId = isMine ? f.addressee_id : f.requester_id
+        const other = { id: otherId, username: profileMap[otherId]?.username, friendshipId: f.id }
+
+        if (f.status === 'accepted') accepted.push(other)
+        else if (isMine) out.push(other)
+        else inc.push(other)
+      }
+
+      setFriends(accepted)
+      setIncoming(inc)
+      setOutgoing(out)
+      setError('')
+    } catch (err) {
+      console.error('loadFriends error:', err)
+      setError('Не удалось загрузить друзей')
+    } finally {
+      setLoading(false)
     }
-
-    // Fetch profiles for all other users in one query
-    const otherIds = [...new Set(data.map(f =>
-      f.requester_id === user.id ? f.addressee_id : f.requester_id
-    ))]
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, username')
-      .in('id', otherIds)
-
-    const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
-
-    const accepted = [], inc = [], out = []
-    for (const f of data) {
-      const isMine = f.requester_id === user.id
-      const otherId = isMine ? f.addressee_id : f.requester_id
-      const other = { id: otherId, username: profileMap[otherId]?.username, friendshipId: f.id }
-
-      if (f.status === 'accepted') accepted.push(other)
-      else if (isMine) out.push(other)
-      else inc.push(other)
-    }
-
-    setFriends(accepted)
-    setIncoming(inc)
-    setOutgoing(out)
-    setLoading(false)
   }
 
   async function searchUser() {
@@ -202,6 +211,11 @@ export default function FriendsPage() {
           </h3>
           {loading ? (
             <p className="text-gray-400 text-sm">Загрузка...</p>
+          ) : error ? (
+            <div className="text-center py-4">
+              <p className="text-red-400 text-sm mb-3">{error}</p>
+              <button onClick={() => { setLoading(true); setError(''); loadAll() }} className="bg-blue-500 text-white text-sm px-4 py-2 rounded-xl">Повторить</button>
+            </div>
           ) : friends.length === 0 ? (
             <div className="text-center py-6 text-gray-400">
               <div className="text-3xl mb-2">👥</div>
