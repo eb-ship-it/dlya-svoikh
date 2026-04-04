@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { avatarGradient } from '../lib/colors'
 
 export default function FriendsPage() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [friends, setFriends] = useState([])
   const [incoming, setIncoming] = useState([])
   const [outgoing, setOutgoing] = useState([])
@@ -142,6 +144,31 @@ export default function FriendsPage() {
     loadAll()
   }
 
+  async function goToChat(friendId) {
+    const { data: myChats } = await supabase
+      .from('chat_participants')
+      .select('chat_id')
+      .eq('user_id', user.id)
+
+    const myChatIds = (myChats || []).map(r => r.chat_id)
+    if (myChatIds.length > 0) {
+      const { data: shared } = await supabase
+        .from('chat_participants')
+        .select('chat_id')
+        .eq('user_id', friendId)
+        .in('chat_id', myChatIds)
+      if (shared?.length) { navigate('/chats'); return }
+    }
+
+    const chatId = crypto.randomUUID()
+    await supabase.from('chats').insert({ id: chatId })
+    await supabase.from('chat_participants').insert([
+      { chat_id: chatId, user_id: user.id },
+      { chat_id: chatId, user_id: friendId },
+    ])
+    navigate('/chats')
+  }
+
   async function removeFriend(friendshipId) {
     await supabase.from('friendships').delete().eq('id', friendshipId)
     setDeleteConfirm(null)
@@ -253,25 +280,36 @@ export default function FriendsPage() {
               <p className="text-sm font-medium text-gray-500">Друзей пока нет</p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="divide-y divide-gray-100">
               {friends.map(f => (
-                <div key={f.friendshipId} className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0">
+                <div key={f.friendshipId} className="flex items-center gap-3 py-2.5">
+                  <div className={`w-10 h-10 bg-gradient-to-br ${avatarGradient(f.username)} rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0`}>
                     {f.username?.[0]?.toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="font-medium text-gray-800 text-sm block truncate">{f.displayName || f.username}</span>
+                    <span className="font-semibold text-gray-800 text-sm block truncate">{f.displayName || f.username}</span>
                     {f.displayName && <span className="text-xs text-gray-400">@{f.username}</span>}
                   </div>
-                  <button
-                    onClick={() => setDeleteConfirm(f)}
-                    className="text-gray-300 hover:text-red-400 transition-colors p-1"
-                    title="Удалить из друзей"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => goToChat(f.id)}
+                      className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-violet-500 hover:bg-violet-50 transition-colors"
+                      title="Написать"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => setDeleteConfirm(f)}
+                      className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-red-400 hover:bg-red-50 transition-colors"
+                      title="Удалить из друзей"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
