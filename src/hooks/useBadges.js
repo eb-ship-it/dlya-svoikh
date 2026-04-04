@@ -15,6 +15,7 @@ export function useBadges(userId) {
     const channel = supabase
       .channel('badges')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => checkUnreadChats())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, () => checkUnreadChats())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' }, () => checkPendingFriends())
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, () => checkNewPosts())
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'post_comments' }, () => checkNewPosts())

@@ -21,6 +21,13 @@ export default function ChatWindow({ chatId, partnerUsername, onBack }) {
         filter: `chat_id=eq.${chatId}`,
       }, payload => {
         setMessages(prev => [...prev, payload.new])
+        // Mark incoming message as read immediately since chat is open
+        if (payload.new.sender_id !== user.id && !payload.new.read_at) {
+          supabase.from('messages')
+            .update({ read_at: new Date().toISOString() })
+            .eq('id', payload.new.id)
+            .then()
+        }
       })
       .subscribe()
 
