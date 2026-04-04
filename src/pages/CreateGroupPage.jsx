@@ -125,10 +125,7 @@ export default function CreateGroupPage({ onClose }) {
                 autoFocus
                 className="w-full bg-gray-50 rounded-2xl px-5 py-4 text-base text-center text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-200 mb-3"
               />
-              <p className="text-xs text-gray-400 mb-6">Название можно будет изменить позже</p>
-            </div>
-
-            <div className="px-4 pb-4">
+              <p className="text-xs text-gray-400 mb-5">Название можно будет изменить позже</p>
               <button
                 onClick={() => goToStep(2)}
                 disabled={!name.trim()}
