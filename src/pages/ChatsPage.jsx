@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { avatarGradient } from '../lib/colors'
 import ChatWindow from '../components/ChatWindow'
+import CreateGroupPage from './CreateGroupPage'
 
 export default function ChatsPage() {
   const { user, profile } = useAuth()
@@ -13,6 +14,7 @@ export default function ChatsPage() {
   const [friends, setFriends] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showCreateGroup, setShowCreateGroup] = useState(false)
 
   useEffect(() => {
     loadChats()
@@ -40,7 +42,7 @@ export default function ChatsPage() {
 
       const chatIds = participantRows.map(r => r.chat_id)
 
-      const [partnersRes, messagesRes] = await Promise.all([
+      const [partnersRes, messagesRes, chatsRes] = await Promise.all([
         supabase
           .from('chat_participants')
           .select('chat_id, user_id, profiles(username, display_name)')
@@ -51,12 +53,17 @@ export default function ChatsPage() {
           .select('chat_id, content, created_at, sender_id, read_at')
           .in('chat_id', chatIds)
           .order('created_at', { ascending: false }),
+        supabase
+          .from('chats')
+          .select('id, name, created_by')
+          .in('id', chatIds),
       ])
 
       if (partnersRes.error) throw partnersRes.error
 
       const partners = partnersRes.data || []
       const allMessages = messagesRes.data || []
+      const chatInfoMap = Object.fromEntries((chatsRes.data || []).map(c => [c.id, c]))
 
       const msgByChat = {}
       for (const m of allMessages) {
@@ -64,14 +71,28 @@ export default function ChatsPage() {
         msgByChat[m.chat_id].push(m)
       }
 
-      const chatList = partners.map(cp => {
-        const msgs = msgByChat[cp.chat_id] || []
+      // Group partners by chat for group chats
+      const partnersByChat = {}
+      for (const cp of partners) {
+        if (!partnersByChat[cp.chat_id]) partnersByChat[cp.chat_id] = []
+        partnersByChat[cp.chat_id].push(cp)
+      }
+
+      const chatList = [...new Set(partners.map(p => p.chat_id))].map(chatId => {
+        const chatInfo = chatInfoMap[chatId]
+        const chatPartners = partnersByChat[chatId] || []
+        const firstPartner = chatPartners[0]
+        const msgs = msgByChat[chatId] || []
         const lastMsg = msgs[0]
         const unread = msgs.filter(m => m.sender_id !== user.id && !m.read_at).length
+        const isGroup = !!chatInfo?.name
         return {
-          id: cp.chat_id,
-          partnerUsername: cp.profiles?.username,
-        partnerDisplayName: cp.profiles?.display_name,
+          id: chatId,
+          isGroup,
+          groupName: chatInfo?.name,
+          partnerUsername: firstPartner?.profiles?.username,
+          partnerDisplayName: firstPartner?.profiles?.display_name,
+          memberCount: chatPartners.length + 1,
           lastMessage: lastMsg?.content || '',
           lastAt: lastMsg?.created_at || '',
           unread,
@@ -159,8 +180,17 @@ export default function ChatsPage() {
     <div className="flex h-full bg-white">
       {/* Sidebar: chat list */}
       <div className={`${activeChatId ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-gray-100 bg-white`}>
-        <div className="px-4 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
           <h2 className="font-semibold text-gray-800 text-lg">Чаты</h2>
+          <button
+            onClick={() => setShowCreateGroup(true)}
+            className="text-violet-500 hover:text-violet-600 transition-colors"
+            title="Создать группу"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </button>
         </div>
 
         {/* Friends to start chats */}
@@ -207,11 +237,11 @@ export default function ChatsPage() {
                 onClick={() => setActiveChatId(chat.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left ${activeChatId === chat.id ? 'bg-violet-50' : ''}`}
               >
-                <div className={`w-10 h-10 bg-gradient-to-br ${avatarGradient(chat.partnerUsername)} rounded-full flex items-center justify-center text-white font-medium flex-shrink-0`}>
-                  {chat.partnerUsername?.[0]?.toUpperCase() || '?'}
+                <div className={`w-10 h-10 bg-gradient-to-br ${chat.isGroup ? 'from-violet-400 to-pink-400' : avatarGradient(chat.partnerUsername)} rounded-full flex items-center justify-center text-white font-medium flex-shrink-0`}>
+                  {chat.isGroup ? chat.groupName?.[0]?.toUpperCase() : chat.partnerUsername?.[0]?.toUpperCase() || '?'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className={`text-sm ${chat.unread > 0 ? 'font-bold text-gray-900' : 'font-medium text-gray-800'}`}>{chat.partnerDisplayName || chat.partnerUsername}</div>
+                  <div className={`text-sm ${chat.unread > 0 ? 'font-bold text-gray-900' : 'font-medium text-gray-800'}`}>{chat.isGroup ? chat.groupName : (chat.partnerDisplayName || chat.partnerUsername)}</div>
                   <div className={`text-xs truncate ${chat.unread > 0 ? 'text-gray-700 font-medium' : 'text-gray-400'}`}>{chat.lastMessage || 'Нет сообщений'}</div>
                 </div>
                 {chat.unread > 0 && (
@@ -232,6 +262,8 @@ export default function ChatsPage() {
             chatId={activeChatId}
             partnerUsername={activeChat?.partnerUsername}
             partnerDisplayName={activeChat?.partnerDisplayName}
+            isGroup={activeChat?.isGroup}
+            groupName={activeChat?.groupName}
             onBack={() => { setActiveChatId(null); loadChats() }}
           />
         ) : (
@@ -245,6 +277,10 @@ export default function ChatsPage() {
           </div>
         )}
       </div>
+
+      {showCreateGroup && (
+        <CreateGroupPage onClose={() => { setShowCreateGroup(false); loadChats() }} />
+      )}
     </div>
   )
 }

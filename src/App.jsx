@@ -6,6 +6,7 @@ import FeedPage from './pages/FeedPage'
 import FriendsPage from './pages/FriendsPage'
 import ProfilePage from './pages/ProfilePage'
 import InvitePage from './pages/InvitePage'
+import GroupInvitePage from './pages/GroupInvitePage'
 import Layout from './components/Layout'
 
 function ProtectedRoute({ children }) {
@@ -26,6 +27,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/invite/:username" element={user ? <InvitePage /> : <AuthPage />} />
+      <Route path="/group/:code" element={user ? <GroupInvitePage /> : <AuthPage />} />
       <Route path="/chats" element={<ProtectedRoute><ChatsPage /></ProtectedRoute>} />
       <Route path="/feed" element={<ProtectedRoute><FeedPage /></ProtectedRoute>} />
       <Route path="/friends" element={<ProtectedRoute><FriendsPage /></ProtectedRoute>} />
