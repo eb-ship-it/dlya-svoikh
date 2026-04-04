@@ -183,7 +183,7 @@ export default function FeedPage() {
 }
 
 /* ===================== Реакции ===================== */
-const REACTIONS = ['❤️', '😂', '😮', '😢', '👍']
+const REACTIONS = ['❤️', '🔥', '😂', '😮', '😢', '👍']
 
 function PostReactions({ postId, userId }) {
   const [reactions, setReactions] = useState([])
