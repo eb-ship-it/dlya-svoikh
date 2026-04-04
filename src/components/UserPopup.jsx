@@ -53,12 +53,11 @@ export default function UserPopup({ userId, username, displayName, onClose }) {
 
       if (shared?.length) {
         onClose()
-        navigate('/chats')
+        navigate('/chats', { state: { openChatId: shared[0].chat_id } })
         return
       }
     }
 
-    // Create new chat
     const chatId = crypto.randomUUID()
     await supabase.from('chats').insert({ id: chatId })
     await supabase.from('chat_participants').insert([
@@ -66,7 +65,7 @@ export default function UserPopup({ userId, username, displayName, onClose }) {
       { chat_id: chatId, user_id: userId },
     ])
     onClose()
-    navigate('/chats')
+    navigate('/chats', { state: { openChatId: chatId } })
   }
 
   return (

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { avatarGradient } from '../lib/colors'
@@ -6,6 +7,7 @@ import ChatWindow from '../components/ChatWindow'
 
 export default function ChatsPage() {
   const { user, profile } = useAuth()
+  const location = useLocation()
   const [chats, setChats] = useState([])
   const [activeChatId, setActiveChatId] = useState(null)
   const [friends, setFriends] = useState([])
@@ -16,6 +18,15 @@ export default function ChatsPage() {
     loadChats()
     loadFriends()
   }, [user])
+
+  // Open specific chat if navigated with state
+  useEffect(() => {
+    if (location.state?.openChatId) {
+      setActiveChatId(location.state.openChatId)
+      // Clear state so it doesn't reopen on tab switch
+      window.history.replaceState({}, '')
+    }
+  }, [location.state])
 
   async function loadChats() {
     try {

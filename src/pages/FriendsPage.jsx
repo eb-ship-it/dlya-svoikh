@@ -157,7 +157,10 @@ export default function FriendsPage() {
         .select('chat_id')
         .eq('user_id', friendId)
         .in('chat_id', myChatIds)
-      if (shared?.length) { navigate('/chats'); return }
+      if (shared?.length) {
+        navigate('/chats', { state: { openChatId: shared[0].chat_id } })
+        return
+      }
     }
 
     const chatId = crypto.randomUUID()
@@ -166,7 +169,7 @@ export default function FriendsPage() {
       { chat_id: chatId, user_id: user.id },
       { chat_id: chatId, user_id: friendId },
     ])
-    navigate('/chats')
+    navigate('/chats', { state: { openChatId: chatId } })
   }
 
   async function removeFriend(friendshipId) {
