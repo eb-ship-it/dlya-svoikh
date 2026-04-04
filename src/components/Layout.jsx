@@ -11,9 +11,8 @@ export default function Layout({ children }) {
   const { unreadChats, pendingFriends, newPosts, markFeedSeen, checkAll } = useBadges(user?.id)
   const [showAbout, setShowAbout] = useState(false)
 
-  // Recheck badges on every tab switch + mark feed seen
+  // Mark feed seen when navigating to feed tab
   useEffect(() => {
-    checkAll()
     if (location.pathname === '/feed') markFeedSeen()
   }, [location.pathname])
 
@@ -55,7 +54,7 @@ export default function Layout({ children }) {
       {/* Top bar */}
       <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 flex-shrink-0">
         <button onClick={() => setShowAbout(true)} className="flex items-center gap-2">
-          <img src="/icon.svg" alt="" className="w-7 h-7 rounded-md" />
+          <img src="/icon.svg" alt="Свои" className="w-7 h-7 rounded-md" />
           <span className="font-semibold text-gray-800">Свои</span>
         </button>
         <Link to="/profile" className="flex items-center gap-2">

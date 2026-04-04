@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { avatarGradient } from '../lib/colors'
 import UserPopup from '../components/UserPopup'
+import MayachokCard from '../components/MayachokCard'
 
 export default function FeedPage() {
   const { user, profile } = useAuth()
@@ -13,6 +14,7 @@ export default function FeedPage() {
   const [error, setError] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [selectedUser, setSelectedUser] = useState(null)
+  const [mayachokPosts, setMayachokPosts] = useState([])
 
   useEffect(() => {
     loadFeed()
@@ -54,6 +56,17 @@ export default function FeedPage() {
       if (e) throw e
       setPosts(data || [])
       setError('')
+
+      // Load today's Mayachok posts
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const { data: mPosts } = await supabase
+        .from('mayachok_posts')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('created_at', today.toISOString())
+        .order('created_at', { ascending: false })
+      setMayachokPosts(mPosts || [])
     } catch (err) {
       console.error('loadFeed error:', err)
       setError('Не удалось загрузить ленту')
@@ -66,13 +79,19 @@ export default function FeedPage() {
     e.preventDefault()
     if (!text.trim() || posting) return
     setPosting(true)
-    await supabase.from('posts').insert({
-      user_id: user.id,
-      content: text.trim(),
-    })
-    setText('')
-    setPosting(false)
-    loadFeed()
+    try {
+      const { error } = await supabase.from('posts').insert({
+        user_id: user.id,
+        content: text.trim(),
+      })
+      if (error) throw error
+      setText('')
+      loadFeed()
+    } catch (err) {
+      console.error('submitPost error:', err)
+    } finally {
+      setPosting(false)
+    }
   }
 
   async function deletePost(postId) {
@@ -82,12 +101,14 @@ export default function FeedPage() {
   }
 
   function formatDate(ts) {
+    const MINUTE = 60_000
+    const HOUR = 3_600_000
+    const DAY = 86_400_000
     const date = new Date(ts)
-    const now = new Date()
-    const diff = now - date
-    if (diff < 60000) return 'только что'
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} мин назад`
-    if (diff < 86400000) return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+    const diff = Date.now() - date
+    if (diff < MINUTE) return 'только что'
+    if (diff < HOUR) return `${Math.floor(diff / MINUTE)} мин назад`
+    if (diff < DAY) return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
     return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
   }
 
@@ -107,6 +128,7 @@ export default function FeedPage() {
                 onChange={e => setText(e.target.value)}
                 placeholder="Что новенького?.."
                 rows={2}
+                maxLength={2000}
                 className="w-full resize-none text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
               />
             </div>
@@ -121,6 +143,11 @@ export default function FeedPage() {
             </button>
           </div>
         </form>
+
+        {/* Mayachok posts */}
+        {mayachokPosts.map(mp => (
+          <MayachokCard key={mp.id} post={mp} />
+        ))}
 
         {/* Posts feed */}
         {loading ? (
@@ -163,6 +190,7 @@ export default function FeedPage() {
                           onClick={() => setDeleteConfirm(post.id)}
                           className="text-gray-300 hover:text-red-400 transition-colors"
                           title="Удалить"
+                          aria-label="Удалить пост"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -339,12 +367,14 @@ function PostComments({ postId, userId, username, onUserClick }) {
   }
 
   function formatTime(ts) {
+    const MINUTE = 60_000
+    const HOUR = 3_600_000
+    const DAY = 86_400_000
     const date = new Date(ts)
-    const now = new Date()
-    const diff = now - date
-    if (diff < 60000) return 'сейчас'
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} мин`
-    if (diff < 86400000) return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+    const diff = Date.now() - date
+    if (diff < MINUTE) return 'сейчас'
+    if (diff < HOUR) return `${Math.floor(diff / MINUTE)} мин`
+    if (diff < DAY) return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
     return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
   }
 
@@ -383,6 +413,7 @@ function PostComments({ postId, userId, username, onUserClick }) {
               value={text}
               onChange={e => setText(e.target.value)}
               placeholder="Комментарий..."
+              maxLength={1000}
               className="flex-1 min-w-0 bg-gray-50 rounded-full px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-purple-200"
             />
             <button

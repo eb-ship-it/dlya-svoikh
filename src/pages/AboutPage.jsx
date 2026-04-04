@@ -63,7 +63,7 @@ export default function AboutPage({ onClose }) {
 
         {/* Close button */}
         <div className="flex justify-end px-4 pt-3">
-          <button onClick={onClose} className="text-gray-300 hover:text-gray-500 transition-colors">
+          <button onClick={onClose} className="text-gray-300 hover:text-gray-500 transition-colors" aria-label="Закрыть">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -74,7 +74,7 @@ export default function AboutPage({ onClose }) {
 
           {/* Logo + title */}
           <div className="text-center">
-            <img src="/icon.svg" alt="" className="w-20 h-20 rounded-2xl mx-auto mb-3 shadow-lg" />
+            <img src="/icon.svg" alt="Свои" className="w-20 h-20 rounded-2xl mx-auto mb-3 shadow-lg" />
             <h2 className="text-xl font-bold text-gray-800">Свои</h2>
             <p className="text-gray-400 text-sm">Мессенджер для своих</p>
           </div>

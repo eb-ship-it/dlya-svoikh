@@ -64,10 +64,16 @@ export default function GroupSettings({ chatId, groupName: initialName, onClose,
 
   async function saveName() {
     setSaving(true)
-    await supabase.from('chats').update({ name: name.trim() }).eq('id', chatId)
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    try {
+      const { error } = await supabase.from('chats').update({ name: name.trim() }).eq('id', chatId)
+      if (error) throw error
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } catch (err) {
+      console.error('saveName error:', err)
+    } finally {
+      setSaving(false)
+    }
   }
 
   function copyLink() {
@@ -77,27 +83,43 @@ export default function GroupSettings({ chatId, groupName: initialName, onClose,
   }
 
   async function addMember(friendId) {
-    await supabase.from('chat_participants').insert({ chat_id: chatId, user_id: friendId })
-    setShowAddMember(false)
-    loadMembers()
+    try {
+      await supabase.from('chat_participants').insert({ chat_id: chatId, user_id: friendId })
+      setShowAddMember(false)
+      loadMembers()
+    } catch (err) {
+      console.error('addMember error:', err)
+    }
   }
 
   async function removeMember(memberId) {
-    await supabase.from('chat_participants').delete().eq('chat_id', chatId).eq('user_id', memberId)
-    setConfirmRemove(null)
-    loadMembers()
+    try {
+      await supabase.from('chat_participants').delete().eq('chat_id', chatId).eq('user_id', memberId)
+      setConfirmRemove(null)
+      loadMembers()
+    } catch (err) {
+      console.error('removeMember error:', err)
+    }
   }
 
   async function leaveGroup() {
-    await supabase.from('chat_participants').delete().eq('chat_id', chatId).eq('user_id', user.id)
-    onLeft()
+    try {
+      await supabase.from('chat_participants').delete().eq('chat_id', chatId).eq('user_id', user.id)
+      onLeft()
+    } catch (err) {
+      console.error('leaveGroup error:', err)
+    }
   }
 
   async function deleteGroup() {
-    await supabase.from('messages').delete().eq('chat_id', chatId)
-    await supabase.from('chat_participants').delete().eq('chat_id', chatId)
-    await supabase.from('chats').delete().eq('id', chatId)
-    onLeft()
+    try {
+      await supabase.from('messages').delete().eq('chat_id', chatId)
+      await supabase.from('chat_participants').delete().eq('chat_id', chatId)
+      await supabase.from('chats').delete().eq('id', chatId)
+      onLeft()
+    } catch (err) {
+      console.error('deleteGroup error:', err)
+    }
   }
 
   return (
@@ -129,6 +151,7 @@ export default function GroupSettings({ chatId, groupName: initialName, onClose,
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
+                  maxLength={50}
                   className="flex-1 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
                 />
                 <button

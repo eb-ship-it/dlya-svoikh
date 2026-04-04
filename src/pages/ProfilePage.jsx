@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { avatarGradient } from '../lib/colors'
+import MayachokIcon from '../components/MayachokIcon'
+import MayachokSetup from '../components/MayachokSetup'
 
 export default function ProfilePage() {
   const { user, profile, signOut } = useAuth()
@@ -9,6 +11,43 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [mayachok, setMayachok] = useState(null)
+  const [mayachokLoading, setMayachokLoading] = useState(true)
+  const [showSetup, setShowSetup] = useState(false)
+
+  useEffect(() => { loadMayachok() }, [])
+
+  async function loadMayachok() {
+    const { data } = await supabase
+      .from('mayachok_settings')
+      .select('*')
+      .eq('user_id', user.id)
+      .single()
+    setMayachok(data)
+    setMayachokLoading(false)
+  }
+
+  async function toggleMayachok() {
+    if (!mayachok || !mayachok.enabled) {
+      // Turning on — show setup if no goals yet
+      if (!mayachok?.goals) {
+        setShowSetup(true)
+        return
+      }
+      await supabase.from('mayachok_settings').upsert({
+        user_id: user.id,
+        enabled: true,
+        updated_at: new Date().toISOString(),
+      })
+    } else {
+      // Turning off
+      await supabase.from('mayachok_settings').update({
+        enabled: false,
+        updated_at: new Date().toISOString(),
+      }).eq('user_id', user.id)
+    }
+    loadMayachok()
+  }
 
   const inviteLink = `${window.location.origin}/invite/${profile?.username}`
 
@@ -22,13 +61,19 @@ export default function ProfilePage() {
     e.preventDefault()
     setSaving(true)
     setSaved(false)
-    await supabase
-      .from('profiles')
-      .update({ display_name: displayName.trim() || null })
-      .eq('id', user.id)
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ display_name: displayName.trim() || null })
+        .eq('id', user.id)
+      if (error) throw error
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } catch (err) {
+      console.error('save profile error:', err)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -84,6 +129,48 @@ export default function ProfilePage() {
             </button>
           </div>
         </div>
+
+        {/* Маячок */}
+        {!mayachokLoading && (
+          <div className="bg-white rounded-2xl shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <MayachokIcon size={24} />
+                <span className="font-semibold text-gray-800">Маячок</span>
+                <span className="bg-gradient-to-r from-violet-500 to-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide">beta</span>
+              </div>
+              <button
+                onClick={toggleMayachok}
+                className={`w-11 h-6 rounded-full transition-all relative ${mayachok?.enabled ? 'bg-gradient-to-r from-violet-500 to-pink-500' : 'bg-gray-300'}`}
+              >
+                <div className={`w-5 h-5 bg-white rounded-full shadow absolute top-0.5 transition-all ${mayachok?.enabled ? 'right-0.5' : 'left-0.5'}`} />
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 mb-3">Каждый день — персональный совет в твоей ленте</p>
+
+            {mayachok?.enabled && mayachok?.goals && (
+              <>
+                <div className="bg-gray-50 rounded-xl p-3 mb-2">
+                  <p className="text-[11px] text-gray-400 mb-1">Твои цели:</p>
+                  <p className="text-sm text-gray-700">{mayachok.goals}</p>
+                </div>
+                <button
+                  onClick={() => setShowSetup(true)}
+                  className="w-full bg-gray-100 text-gray-600 text-sm py-2 rounded-xl"
+                >
+                  Изменить цели
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
+        {showSetup && (
+          <MayachokSetup
+            onClose={() => setShowSetup(false)}
+            onSaved={loadMayachok}
+          />
+        )}
 
         {/* Logout */}
         <button

@@ -25,31 +25,36 @@ export function AuthProvider({ children }) {
   }, [])
 
   async function fetchProfile(userId) {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
-    setProfile(data)
-    setLoading(false)
-
-    // Handle pending invite from registration
-    const inviteFrom = localStorage.getItem('invite_from')
-    if (inviteFrom) {
-      localStorage.removeItem('invite_from')
-      const { data: inviter } = await supabase
+    try {
+      const { data } = await supabase
         .from('profiles')
-        .select('id')
-        .eq('username', inviteFrom)
+        .select('*')
+        .eq('id', userId)
         .single()
-      if (inviter && inviter.id !== userId) {
-        const { error } = await supabase.from('friendships').insert({
-          requester_id: userId,
-          addressee_id: inviter.id,
-          status: 'accepted',
-        })
-        if (error) console.error('invite friendship error:', error)
+      setProfile(data)
+
+      // Handle pending invite from registration
+      const inviteFrom = localStorage.getItem('invite_from')
+      if (inviteFrom) {
+        localStorage.removeItem('invite_from')
+        const { data: inviter } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('username', inviteFrom)
+          .single()
+        if (inviter && inviter.id !== userId) {
+          const { error } = await supabase.from('friendships').insert({
+            requester_id: userId,
+            addressee_id: inviter.id,
+            status: 'accepted',
+          })
+          if (error) console.error('invite friendship error:', error)
+        }
       }
+    } catch (err) {
+      console.error('fetchProfile error:', err)
+    } finally {
+      setLoading(false)
     }
   }
 

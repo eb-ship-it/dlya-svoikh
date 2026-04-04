@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
+const POLL_INTERVAL_MS = 10_000
+
 export function useBadges(userId) {
   const [unreadChats, setUnreadChats] = useState(0)
   const [pendingFriends, setPendingFriends] = useState(0)
@@ -21,7 +23,9 @@ export function useBadges(userId) {
       .subscribe()
 
     // Polling fallback for mobile browsers where realtime is unreliable
-    const interval = setInterval(checkAll, 10000)
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') checkAll()
+    }, POLL_INTERVAL_MS)
 
     return () => {
       supabase.removeChannel(channel)

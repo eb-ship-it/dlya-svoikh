@@ -19,20 +19,30 @@ export default function UserPopup({ userId, username, displayName, onClose }) {
   }, [userId])
 
   async function checkFriendship() {
-    const { data } = await supabase
-      .from('friendships')
-      .select('id, status, requester_id')
-      .or(`and(requester_id.eq.${user.id},addressee_id.eq.${userId}),and(requester_id.eq.${userId},addressee_id.eq.${user.id})`)
-      .single()
-    setFriendship(data)
-    setLoading(false)
+    try {
+      const { data } = await supabase
+        .from('friendships')
+        .select('id, status, requester_id')
+        .or(`and(requester_id.eq.${user.id},addressee_id.eq.${userId}),and(requester_id.eq.${userId},addressee_id.eq.${user.id})`)
+        .single()
+      setFriendship(data)
+    } catch (err) {
+      console.error('checkFriendship error:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function sendRequest() {
     setSending(true)
-    await supabase.from('friendships').insert({ requester_id: user.id, addressee_id: userId })
-    await checkFriendship()
-    setSending(false)
+    try {
+      await supabase.from('friendships').insert({ requester_id: user.id, addressee_id: userId })
+      await checkFriendship()
+    } catch (err) {
+      console.error('sendRequest error:', err)
+    } finally {
+      setSending(false)
+    }
   }
 
   async function startChat() {

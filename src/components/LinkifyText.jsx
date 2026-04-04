@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
 const URL_REGEX = /(https?:\/\/[^\s]+)/g
+const URL_TEST = /^https?:\/\/[^\s]+$/
 
 export default function LinkifyText({ text, className }) {
   const navigate = useNavigate()
@@ -21,7 +22,7 @@ export default function LinkifyText({ text, className }) {
   return (
     <span className={className}>
       {parts.map((part, i) =>
-        URL_REGEX.test(part) ? (
+        URL_TEST.test(part) ? (
           <a
             key={i}
             href={part}

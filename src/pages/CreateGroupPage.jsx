@@ -123,6 +123,7 @@ export default function CreateGroupPage({ onClose }) {
                 onChange={e => setName(e.target.value)}
                 placeholder="Как назовём группу?"
                 autoFocus
+                maxLength={50}
                 className="w-full bg-gray-50 rounded-2xl px-5 py-4 text-base text-center text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-200 mb-3"
               />
               <p className="text-xs text-gray-400 mb-5">Название можно будет изменить позже</p>

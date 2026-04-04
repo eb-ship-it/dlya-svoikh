@@ -31,7 +31,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
           supabase.from('messages')
             .update({ read_at: new Date().toISOString() })
             .eq('id', payload.new.id)
-            .then()
+            .then(({ error }) => { if (error) console.error('mark read error:', error) })
         }
       })
       .subscribe()
@@ -79,13 +79,19 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
     e.preventDefault()
     if (!text.trim() || sending) return
     setSending(true)
-    await supabase.from('messages').insert({
-      chat_id: chatId,
-      sender_id: user.id,
-      content: text.trim(),
-    })
-    setText('')
-    setSending(false)
+    try {
+      const { error } = await supabase.from('messages').insert({
+        chat_id: chatId,
+        sender_id: user.id,
+        content: text.trim(),
+      })
+      if (error) throw error
+      setText('')
+    } catch (err) {
+      console.error('send message error:', err)
+    } finally {
+      setSending(false)
+    }
   }
 
   function formatTime(ts) {
@@ -101,7 +107,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 bg-white">
-        <button onClick={onBack} className="md:hidden text-violet-500 p-1 -ml-1">
+        <button onClick={onBack} className="md:hidden text-violet-500 p-1 -ml-1" aria-label="Назад">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
@@ -160,6 +166,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
           value={text}
           onChange={e => setText(e.target.value)}
           placeholder="Сообщение..."
+          maxLength={5000}
           className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
         />
         <button

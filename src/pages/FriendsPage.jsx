@@ -298,6 +298,7 @@ export default function FriendsPage() {
                       onClick={() => goToChat(f.id)}
                       className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-violet-500 hover:bg-violet-50 transition-colors"
                       title="Написать"
+                      aria-label="Написать"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -307,6 +308,7 @@ export default function FriendsPage() {
                       onClick={() => setDeleteConfirm(f)}
                       className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-red-400 hover:bg-red-50 transition-colors"
                       title="Удалить из друзей"
+                      aria-label="Удалить из друзей"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -331,7 +333,7 @@ export default function FriendsPage() {
                   </div>
                   <span className="flex-1 font-medium text-gray-700 text-sm">{f.username}</span>
                   <span className="text-xs text-gray-400">ожидает...</span>
-                  <button onClick={() => decline(f.friendshipId)} className="text-gray-300 hover:text-red-400 transition-colors p-1">
+                  <button onClick={() => decline(f.friendshipId)} className="text-gray-300 hover:text-red-400 transition-colors p-1" aria-label="Отменить заявку">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>

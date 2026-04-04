@@ -51,7 +51,7 @@ export default function AuthPage() {
     <div className="min-h-dvh flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-8">
         <div className="text-center mb-8">
-          <img src="/icon.svg" alt="" className="w-16 h-16 rounded-2xl mx-auto mb-3 shadow-lg" />
+          <img src="/icon.svg" alt="Свои" className="w-16 h-16 rounded-2xl mx-auto mb-3 shadow-lg" />
           <h1 className="text-2xl font-bold text-gray-800">Свои</h1>
           <p className="text-gray-500 text-sm mt-1">
             {inviteFrom ? <><b>@{inviteFrom}</b> приглашает тебя!</> : 'Мессенджер для своих'}

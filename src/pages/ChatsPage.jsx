@@ -52,7 +52,8 @@ export default function ChatsPage() {
           .from('messages')
           .select('chat_id, content, created_at, sender_id, read_at')
           .in('chat_id', chatIds)
-          .order('created_at', { ascending: false }),
+          .order('created_at', { ascending: false })
+          .limit(chatIds.length * 20),
         supabase
           .from('chats')
           .select('id, name, created_by')
