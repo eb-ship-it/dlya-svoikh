@@ -75,7 +75,7 @@ export default function AuthPage() {
                 type="text"
                 value={displayName}
                 onChange={e => setDisplayName(e.target.value)}
-                placeholder="Елена Белова"
+                placeholder="Елена Иванова"
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
                 autoComplete="name"
               />
