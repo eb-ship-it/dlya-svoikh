@@ -43,11 +43,12 @@ export function AuthProvider({ children }) {
         .eq('username', inviteFrom)
         .single()
       if (inviter && inviter.id !== userId) {
-        await supabase.from('friendships').insert({
-          requester_id: inviter.id,
-          addressee_id: userId,
+        const { error } = await supabase.from('friendships').insert({
+          requester_id: userId,
+          addressee_id: inviter.id,
           status: 'accepted',
-        }).then(() => {})
+        })
+        if (error) console.error('invite friendship error:', error)
       }
     }
   }

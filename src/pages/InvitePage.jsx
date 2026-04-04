@@ -36,10 +36,10 @@ export default function InvitePage() {
       return
     }
 
-    // Auto-accept: create friendship as accepted
+    // Auto-accept: create friendship as accepted (current user must be requester for RLS)
     await supabase.from('friendships').insert({
-      requester_id: inviter.id,
-      addressee_id: user.id,
+      requester_id: user.id,
+      addressee_id: inviter.id,
       status: 'accepted',
     })
 
