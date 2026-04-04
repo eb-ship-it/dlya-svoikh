@@ -16,7 +16,6 @@ export default function ChatsPage() {
   }, [user])
 
   async function loadChats() {
-    // Get all chats where I'm a participant
     const { data: participantRows } = await supabase
       .from('chat_participants')
       .select('chat_id')
@@ -26,39 +25,42 @@ export default function ChatsPage() {
 
     const chatIds = participantRows.map(r => r.chat_id)
 
-    // For each chat, find the other participant
-    const { data: allParticipants } = await supabase
-      .from('chat_participants')
-      .select('chat_id, user_id, profiles(username)')
-      .in('chat_id', chatIds)
-      .neq('user_id', user.id)
-
-    // Get last message + unread count for each chat
-    const chatList = []
-    for (const cp of allParticipants || []) {
-      const { data: lastMsg } = await supabase
+    // Batch: get partners, all messages in parallel
+    const [partnersRes, messagesRes] = await Promise.all([
+      supabase
+        .from('chat_participants')
+        .select('chat_id, user_id, profiles(username)')
+        .in('chat_id', chatIds)
+        .neq('user_id', user.id),
+      supabase
         .from('messages')
-        .select('content, created_at')
-        .eq('chat_id', cp.chat_id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
+        .select('chat_id, content, created_at, sender_id, read_at')
+        .in('chat_id', chatIds)
+        .order('created_at', { ascending: false }),
+    ])
 
-      const { count: unread } = await supabase
-        .from('messages')
-        .select('id', { count: 'exact', head: true })
-        .eq('chat_id', cp.chat_id)
-        .neq('sender_id', user.id)
-        .is('read_at', null)
+    const partners = partnersRes.data || []
+    const allMessages = messagesRes.data || []
 
-      chatList.push({
+    // Group messages by chat
+    const msgByChat = {}
+    for (const m of allMessages) {
+      if (!msgByChat[m.chat_id]) msgByChat[m.chat_id] = []
+      msgByChat[m.chat_id].push(m)
+    }
+
+    const chatList = partners.map(cp => {
+      const msgs = msgByChat[cp.chat_id] || []
+      const lastMsg = msgs[0]
+      const unread = msgs.filter(m => m.sender_id !== user.id && !m.read_at).length
+      return {
         id: cp.chat_id,
         partnerUsername: cp.profiles?.username,
         lastMessage: lastMsg?.content || '',
         lastAt: lastMsg?.created_at || '',
-        unread: unread || 0,
-      })
-    }
+        unread,
+      }
+    })
 
     chatList.sort((a, b) => new Date(b.lastAt) - new Date(a.lastAt))
     setChats(chatList)
@@ -156,7 +158,7 @@ export default function ChatsPage() {
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto overflow-x-visible">
           {loading ? (
             <div className="p-4 text-center text-gray-400 text-sm">Загрузка...</div>
           ) : chats.length === 0 ? (
@@ -177,7 +179,7 @@ export default function ChatsPage() {
                     {chat.partnerUsername?.[0]?.toUpperCase() || '?'}
                   </div>
                   {chat.unread > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1">
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold min-w-5 h-5 rounded-full flex items-center justify-center px-1">
                       {chat.unread}
                     </span>
                   )}
