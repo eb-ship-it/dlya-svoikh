@@ -243,7 +243,7 @@ function PostReactions({ postId, userId }) {
         {showPicker && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setShowPicker(false)} />
-            <div className="absolute bottom-full left-0 mb-1 bg-white rounded-xl shadow-lg border border-gray-100 p-1.5 flex gap-1 z-20">
+            <div className="absolute bottom-full right-0 mb-1 bg-white rounded-xl shadow-lg border border-gray-100 p-1.5 flex gap-1 z-20">
               {REACTIONS.map(emoji => (
                 <button
                   key={emoji}
