@@ -74,7 +74,7 @@ export default function AuthPage() {
               value={username}
               onChange={e => setUsername(e.target.value)}
               placeholder="твой_логин"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
               autoComplete="username"
             />
           </div>
@@ -85,7 +85,7 @@ export default function AuthPage() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="••••••"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
               autoComplete={isLogin ? 'current-password' : 'new-password'}
             />
           </div>
@@ -99,7 +99,7 @@ export default function AuthPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white font-medium py-3 rounded-xl transition-colors"
+            className="w-full bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-all"
           >
             {loading ? '...' : isLogin ? 'Войти' : 'Зарегистрироваться'}
           </button>

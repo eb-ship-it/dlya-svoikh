@@ -83,13 +83,13 @@ export default function Layout({ children }) {
               key={tab.path}
               to={tab.path}
               className={`flex-1 flex flex-col items-center py-2 gap-0.5 transition-colors relative ${
-                active ? 'text-blue-500' : 'text-gray-400 hover:text-gray-600'
+                active ? 'text-violet-500' : 'text-gray-400 hover:text-gray-600'
               }`}
             >
               <div className="relative">
                 {tab.icon}
                 {tab.badge ? (
-                  <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[9px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1">
+                  <span className="absolute -top-1.5 -right-2 bg-gradient-to-r from-violet-500 to-pink-500 text-white text-[9px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1">
                     {tab.badge}
                   </span>
                 ) : null}

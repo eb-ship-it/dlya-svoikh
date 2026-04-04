@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Дизайн-превью — Свои</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; padding: 30px 16px; }
+    h1 { text-align: center; color: #333; margin-bottom: 10px; font-size: 24px; }
+    .subtitle { text-align: center; color: #888; font-size: 14px; margin-bottom: 40px; }
+    .section { margin-bottom: 50px; }
+    .section-title { font-size: 16px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; text-align: center; }
+    .compare { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; }
+    .phone { width: 320px; border-radius: 30px; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,0.12); background: white; border: 6px solid #1a1a1a; }
+    .phone-label { text-align: center; font-size: 13px; color: #999; margin-bottom: 8px; }
+    .notch { height: 20px; background: #1a1a1a; border-radius: 0 0 14px 14px; width: 120px; margin: 0 auto; }
+
+    /* Shared */
+    .header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: white; border-bottom: 1px solid #f0f0f0; }
+    .header-left { display: flex; align-items: center; gap: 8px; }
+    .header-logo { width: 28px; height: 28px; border-radius: 6px; }
+    .header-title { font-weight: 600; font-size: 15px; color: #1f2937; }
+    .header-user { font-size: 13px; color: #9ca3af; }
+    .tab-bar { display: flex; border-top: 1px solid #f0f0f0; background: white; }
+    .tab { flex: 1; text-align: center; padding: 8px 0 6px; font-size: 10px; font-weight: 500; }
+
+    /* ========= OLD DESIGN ========= */
+    .old .header-icon { width: 20px; height: 20px; }
+    .old .tab.active { color: #3b82f6; }
+    .old .tab { color: #9ca3af; }
+    .old .avatar { width: 36px; height: 36px; border-radius: 50%; background: #dbeafe; color: #2563eb; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; flex-shrink: 0; }
+    .old .msg-mine { background: #3b82f6; color: white; padding: 8px 14px; border-radius: 18px 18px 4px 18px; font-size: 14px; max-width: 70%; margin-left: auto; }
+    .old .msg-other { background: white; color: #1f2937; padding: 8px 14px; border-radius: 18px 18px 18px 4px; font-size: 14px; max-width: 70%; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+    .old .msg-time { font-size: 10px; color: rgba(255,255,255,0.6); text-align: right; margin-top: 2px; }
+    .old .msg-time-other { font-size: 10px; color: #9ca3af; text-align: right; margin-top: 2px; }
+    .old .btn { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 500; width: 100%; }
+    .old .badge { background: #ef4444; color: white; font-size: 9px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; }
+    .old .reaction { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 12px; font-size: 12px; background: #f3f4f6; border: 1px solid #e5e7eb; }
+    .old .reaction.active { background: #dbeafe; border-color: #93c5fd; }
+
+    /* ========= NEW DESIGN ========= */
+    .new .tab.active { color: #8b5cf6; }
+    .new .tab { color: #9ca3af; }
+    .new .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; flex-shrink: 0; color: white; }
+    .new .avatar-1 { background: linear-gradient(135deg, #8b5cf6, #a855f7); }
+    .new .avatar-2 { background: linear-gradient(135deg, #ec4899, #f43f5e); }
+    .new .avatar-3 { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .new .avatar-4 { background: linear-gradient(135deg, #a855f7, #ec4899); }
+    .new .msg-mine { background: linear-gradient(135deg, #8b5cf6, #a855f7); color: white; padding: 8px 14px; border-radius: 18px 18px 4px 18px; font-size: 14px; max-width: 70%; margin-left: auto; }
+    .new .msg-other { background: white; color: #1f2937; padding: 8px 14px; border-radius: 18px 18px 18px 4px; font-size: 14px; max-width: 70%; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .new .msg-time { font-size: 10px; color: rgba(255,255,255,0.6); text-align: right; margin-top: 2px; }
+    .new .msg-time-other { font-size: 10px; color: #9ca3af; text-align: right; margin-top: 2px; }
+    .new .btn { background: linear-gradient(135deg, #8b5cf6, #ec4899); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 500; width: 100%; }
+    .new .badge { background: linear-gradient(135deg, #8b5cf6, #ec4899); color: white; font-size: 9px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; }
+    .new .reaction { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 12px; font-size: 12px; background: #f5f3ff; border: 1px solid #e9e5fb; }
+    .new .reaction.active { background: #ede9fe; border-color: #c4b5fd; }
+    .new .send-btn { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #a855f7); border: none; display: flex; align-items: center; justify-content: center; }
+
+    /* Shared layout helpers */
+    .content { padding: 12px; background: #f8f8fa; min-height: 350px; display: flex; flex-direction: column; }
+    .chat-list-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: white; }
+    .chat-name { font-size: 14px; font-weight: 500; color: #1f2937; }
+    .chat-preview { font-size: 12px; color: #9ca3af; }
+    .chat-meta { flex: 1; }
+    .messages { display: flex; flex-direction: column; gap: 8px; flex: 1; padding: 8px 0; }
+    .input-bar { display: flex; gap: 8px; align-items: center; padding: 10px 12px; background: white; border-top: 1px solid #f0f0f0; }
+    .input-bar input { flex: 1; background: #f3f4f6; border: none; border-radius: 20px; padding: 8px 14px; font-size: 13px; outline: none; }
+    .reactions-row { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+
+    /* Login screens */
+    .login-old { background: linear-gradient(135deg, #3b82f6, #7c3aed); padding: 40px 24px; display: flex; flex-direction: column; align-items: center; min-height: 500px; justify-content: center; }
+    .login-new { background: linear-gradient(135deg, #8b5cf6, #ec4899); padding: 40px 24px; display: flex; flex-direction: column; align-items: center; min-height: 500px; justify-content: center; }
+    .login-card { background: white; border-radius: 20px; padding: 30px 24px; width: 100%; max-width: 280px; }
+    .login-card h2 { text-align: center; font-size: 20px; color: #1f2937; margin: 12px 0 4px; }
+    .login-card .sub { text-align: center; font-size: 12px; color: #9ca3af; margin-bottom: 20px; }
+    .login-card .tabs { display: flex; background: #f3f4f6; border-radius: 10px; padding: 3px; margin-bottom: 18px; }
+    .login-card .tab-btn { flex: 1; padding: 7px; border-radius: 8px; border: none; font-size: 13px; font-weight: 500; background: none; color: #9ca3af; }
+    .login-card .tab-btn.active-old { background: white; color: #1f2937; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .login-card .tab-btn.active-new { background: white; color: #1f2937; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .login-card label { font-size: 12px; color: #6b7280; display: block; margin-bottom: 4px; }
+    .login-card input { width: 100%; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 14px; font-size: 13px; margin-bottom: 12px; outline: none; }
+    .login-card .icon-wrap { text-align: center; }
+    .login-card .icon-wrap img { width: 56px; height: 56px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    /* Feed */
+    .post-card { background: white; border-radius: 14px; padding: 12px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .post-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .post-name { font-size: 13px; font-weight: 600; color: #1f2937; }
+    .post-time { font-size: 11px; color: #9ca3af; }
+    .post-text { font-size: 13px; color: #374151; line-height: 1.5; margin-bottom: 6px; }
+    .comment-btn { font-size: 11px; color: #9ca3af; background: none; border: none; margin-top: 4px; }
+
+    /* Empty states */
+    .empty-old { text-align: center; padding: 40px 20px; color: #9ca3af; }
+    .empty-old .emoji { font-size: 36px; margin-bottom: 8px; }
+    .empty-old p { font-size: 13px; }
+
+    .empty-new { text-align: center; padding: 40px 20px; }
+    .empty-new .empty-circle { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(236,72,153,0.1)); margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; }
+    .empty-new .empty-icon { font-size: 28px; }
+    .empty-new p { font-size: 13px; color: #9ca3af; }
+    .empty-new .empty-title { font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+<h1>Обновлённый дизайн</h1>
+<p class="subtitle">Слева — сейчас, справа — новый вариант</p>
+
+<!-- ============ LOGIN ============ -->
+<div class="section">
+  <div class="section-title">Экран входа</div>
+  <div class="compare">
+    <div>
+      <div class="phone-label">Сейчас</div>
+      <div class="phone old">
+        <div class="notch"></div>
+        <div class="login-old">
+          <div class="login-card">
+            <div class="icon-wrap"><div style="font-size:42px; text-align:center">✈️</div></div>
+            <h2>Свои</h2>
+            <div class="sub">Мессенджер для своих</div>
+            <div class="tabs">
+              <button class="tab-btn active-old">Войти</button>
+              <button class="tab-btn">Регистрация</button>
+            </div>
+            <label>Логин</label>
+            <input type="text" value="lenabel" readonly>
+            <label>Пароль</label>
+            <input type="password" value="••••••" readonly>
+            <button class="btn" style="background:#3b82f6">Войти</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="phone-label">Новый</div>
+      <div class="phone new">
+        <div class="notch"></div>
+        <div class="login-new">
+          <div class="login-card">
+            <div class="icon-wrap">
+              <svg viewBox="0 0 100 100" width="56" height="56" style="border-radius:14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <defs><linearGradient id="ic" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#8b5cf6"/><stop offset="100%" style="stop-color:#ec4899"/></linearGradient></defs>
+                <rect width="100" height="100" rx="20" fill="url(#ic)"/>
+                <text x="44" y="70" text-anchor="middle" font-family="-apple-system" font-size="58" font-weight="700" fill="white">С</text>
+                <path d="M72 30 C68 25, 62 22, 62 17 C62 13, 65 11, 68 11 C70 11, 72 13, 73 15 C74 13, 76 11, 78 11 C81 11, 84 13, 84 17 C84 22, 78 25, 73 30Z" fill="white" opacity="0.8"/>
+              </svg>
+            </div>
+            <h2>Свои</h2>
+            <div class="sub">Мессенджер для своих</div>
+            <div class="tabs">
+              <button class="tab-btn active-new">Войти</button>
+              <button class="tab-btn">Регистрация</button>
+            </div>
+            <label>Логин</label>
+            <input type="text" value="lenabel" readonly>
+            <label>Пароль</label>
+            <input type="password" value="••••••" readonly>
+            <button class="btn">Войти</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CHAT ============ -->
+<div class="section">
+  <div class="section-title">Сообщения</div>
+  <div class="compare">
+    <div>
+      <div class="phone-label">Сейчас</div>
+      <div class="phone old">
+        <div class="notch"></div>
+        <div class="header">
+          <div class="header-left">
+            <span style="font-size:16px">✈️</span>
+            <span class="header-title">Свои</span>
+          </div>
+          <span class="header-user">lenabel</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; padding:10px 16px; border-bottom:1px solid #f0f0f0; background:white;">
+          <span style="color:#3b82f6; font-size:20px">‹</span>
+          <div class="avatar">L</div>
+          <span style="font-weight:500; font-size:14px; color:#1f2937">lesha_nevodov</span>
+        </div>
+        <div class="content" style="background:#f8f8fa">
+          <div class="messages">
+            <div class="msg-other">Привет! Как дела?<div class="msg-time-other">00:09</div></div>
+            <div class="msg-mine">Привет! Все хорошо<div class="msg-time">00:09</div></div>
+            <div class="msg-other">Видела ленту?<div class="msg-time-other">00:10</div></div>
+            <div class="msg-mine">Да, огонь! 🔥<div class="msg-time">00:10</div></div>
+          </div>
+        </div>
+        <div class="input-bar">
+          <input placeholder="Сообщение..." readonly>
+          <div style="width:36px;height:36px;border-radius:50%;background:#3b82f6;display:flex;align-items:center;justify-content:center">
+            <span style="color:white;font-size:14px">▶</span>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab active">💬 Чаты</div>
+          <div class="tab">📰 Лента</div>
+          <div class="tab">👥 Друзья</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="phone-label">Новый</div>
+      <div class="phone new">
+        <div class="notch"></div>
+        <div class="header">
+          <div class="header-left">
+            <svg viewBox="0 0 100 100" width="28" height="28" style="border-radius:6px;">
+              <defs><linearGradient id="ic2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#8b5cf6"/><stop offset="100%" style="stop-color:#ec4899"/></linearGradient></defs>
+              <rect width="100" height="100" rx="20" fill="url(#ic2)"/>
+              <text x="44" y="70" text-anchor="middle" font-family="-apple-system" font-size="58" font-weight="700" fill="white">С</text>
+              <path d="M72 30 C68 25, 62 22, 62 17 C62 13, 65 11, 68 11 C70 11, 72 13, 73 15 C74 13, 76 11, 78 11 C81 11, 84 13, 84 17 C84 22, 78 25, 73 30Z" fill="white" opacity="0.8"/>
+            </svg>
+            <span class="header-title">Свои</span>
+          </div>
+          <span class="header-user">lenabel</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; padding:10px 16px; border-bottom:1px solid #f0f0f0; background:white;">
+          <span style="color:#8b5cf6; font-size:20px">‹</span>
+          <div class="avatar avatar-3">L</div>
+          <span style="font-weight:500; font-size:14px; color:#1f2937">lesha_nevodov</span>
+        </div>
+        <div class="content" style="background:#f8f8fa">
+          <div class="messages">
+            <div class="msg-other">Привет! Как дела?<div class="msg-time-other">00:09</div></div>
+            <div class="msg-mine">Привет! Все хорошо<div class="msg-time">00:09</div></div>
+            <div class="msg-other">Видела ленту?<div class="msg-time-other">00:10</div></div>
+            <div class="msg-mine">Да, огонь! 🔥<div class="msg-time">00:10</div></div>
+          </div>
+        </div>
+        <div class="input-bar">
+          <input placeholder="Сообщение..." readonly>
+          <div class="send-btn">
+            <span style="color:white;font-size:14px">▶</span>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab active" style="color:#8b5cf6">💬 Чаты</div>
+          <div class="tab">📰 Лента</div>
+          <div class="tab">👥 Друзья</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FEED ============ -->
+<div class="section">
+  <div class="section-title">Лента новостей</div>
+  <div class="compare">
+    <div>
+      <div class="phone-label">Сейчас</div>
+      <div class="phone old">
+        <div class="notch"></div>
+        <div class="header">
+          <div class="header-left">
+            <span style="font-size:16px">✈️</span>
+            <span class="header-title">Свои</span>
+          </div>
+          <span class="header-user">lenabel</span>
+        </div>
+        <div class="content" style="padding:12px; gap:10px; display:flex; flex-direction:column; background:#f8f8fa">
+          <div class="post-card">
+            <div class="post-header">
+              <div class="avatar">L</div>
+              <div><div class="post-name">lesha_nevodov</div></div>
+              <div style="flex:1"></div>
+              <div class="post-time">00:41</div>
+            </div>
+            <div class="post-text">Настроил мессенджер, всё работает! Ждём всех 🎉</div>
+            <div class="reactions-row">
+              <span class="reaction active">❤️ 2</span>
+              <span class="reaction">👍 1</span>
+              <span class="reaction" style="color:#9ca3af">+</span>
+            </div>
+            <button class="comment-btn">Комментарии (3)</button>
+          </div>
+          <div class="post-card">
+            <div class="post-header">
+              <div class="avatar">L</div>
+              <div><div class="post-name">lenabel</div></div>
+              <div style="flex:1"></div>
+              <div class="post-time">00:35</div>
+            </div>
+            <div class="post-text">Я сделала это мессенджер 😊🎊😉</div>
+            <div class="reactions-row">
+              <span class="reaction">🔥 3</span>
+              <span class="reaction active">❤️ 1</span>
+              <span class="reaction" style="color:#9ca3af">+</span>
+            </div>
+            <button class="comment-btn">Комментировать</button>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab">💬 Чаты</div>
+          <div class="tab active" style="color:#3b82f6">📰 Лента</div>
+          <div class="tab">👥 Друзья</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="phone-label">Новый</div>
+      <div class="phone new">
+        <div class="notch"></div>
+        <div class="header">
+          <div class="header-left">
+            <svg viewBox="0 0 100 100" width="28" height="28" style="border-radius:6px;">
+              <defs><linearGradient id="ic3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#8b5cf6"/><stop offset="100%" style="stop-color:#ec4899"/></linearGradient></defs>
+              <rect width="100" height="100" rx="20" fill="url(#ic3)"/>
+              <text x="44" y="70" text-anchor="middle" font-family="-apple-system" font-size="58" font-weight="700" fill="white">С</text>
+              <path d="M72 30 C68 25, 62 22, 62 17 C62 13, 65 11, 68 11 C70 11, 72 13, 73 15 C74 13, 76 11, 78 11 C81 11, 84 13, 84 17 C84 22, 78 25, 73 30Z" fill="white" opacity="0.8"/>
+            </svg>
+            <span class="header-title">Свои</span>
+          </div>
+          <span class="header-user">lenabel</span>
+        </div>
+        <div class="content" style="padding:12px; gap:10px; display:flex; flex-direction:column; background:#f8f8fa">
+          <div class="post-card">
+            <div class="post-header">
+              <div class="avatar avatar-3">L</div>
+              <div><div class="post-name">lesha_nevodov</div></div>
+              <div style="flex:1"></div>
+              <div class="post-time">00:41</div>
+            </div>
+            <div class="post-text">Настроил мессенджер, всё работает! Ждём всех 🎉</div>
+            <div class="reactions-row">
+              <span class="reaction active">❤️ 2</span>
+              <span class="reaction">👍 1</span>
+              <span class="reaction" style="color:#9ca3af">+</span>
+            </div>
+            <button class="comment-btn">Комментарии (3)</button>
+          </div>
+          <div class="post-card">
+            <div class="post-header">
+              <div class="avatar avatar-4">L</div>
+              <div><div class="post-name">lenabel</div></div>
+              <div style="flex:1"></div>
+              <div class="post-time">00:35</div>
+            </div>
+            <div class="post-text">Я сделала это мессенджер 😊🎊😉</div>
+            <div class="reactions-row">
+              <span class="reaction">🔥 3</span>
+              <span class="reaction active">❤️ 1</span>
+              <span class="reaction" style="color:#9ca3af">+</span>
+            </div>
+            <button class="comment-btn">Комментировать</button>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab">💬 Чаты</div>
+          <div class="tab active" style="color:#8b5cf6">📰 Лента</div>
+          <div class="tab">👥 Друзья</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CHAT LIST ============ -->
+<div class="section">
+  <div class="section-title">Список чатов + бейджи</div>
+  <div class="compare">
+    <div>
+      <div class="phone-label">Сейчас</div>
+      <div class="phone old">
+        <div class="notch"></div>
+        <div class="header">
+          <div class="header-left">
+            <span style="font-size:16px">✈️</span>
+            <span class="header-title">Свои</span>
+          </div>
+          <span class="header-user">lenabel</span>
+        </div>
+        <div style="padding:14px 16px; font-weight:600; font-size:16px; color:#1f2937; background:white; border-bottom:1px solid #f0f0f0">Чаты</div>
+        <div style="background:white">
+          <div class="chat-list-item">
+            <div class="avatar">L</div>
+            <div class="chat-meta">
+              <div class="chat-name" style="font-weight:700">lesha_nevodov</div>
+              <div class="chat-preview" style="color:#374151; font-weight:500">Как дела?</div>
+            </div>
+            <span class="badge">2</span>
+          </div>
+          <div class="chat-list-item">
+            <div class="avatar">T</div>
+            <div class="chat-meta">
+              <div class="chat-name">test1</div>
+              <div class="chat-preview">Нет сообщений</div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1; background:#f8f8fa"></div>
+        <div class="tab-bar">
+          <div class="tab active" style="color:#3b82f6">💬 Чаты <span class="badge" style="margin-left:2px">2</span></div>
+          <div class="tab">📰 Лента</div>
+          <div class="tab">👥 Друзья</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="phone-label">Новый</div>
+      <div class="phone new">
+        <div class="notch"></div>
+        <div class="header">
+          <div class="header-left">
+            <svg viewBox="0 0 100 100" width="28" height="28" style="border-radius:6px;">
+              <defs><linearGradient id="ic4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#8b5cf6"/><stop offset="100%" style="stop-color:#ec4899"/></linearGradient></defs>
+              <rect width="100" height="100" rx="20" fill="url(#ic4)"/>
+              <text x="44" y="70" text-anchor="middle" font-family="-apple-system" font-size="58" font-weight="700" fill="white">С</text>
+              <path d="M72 30 C68 25, 62 22, 62 17 C62 13, 65 11, 68 11 C70 11, 72 13, 73 15 C74 13, 76 11, 78 11 C81 11, 84 13, 84 17 C84 22, 78 25, 73 30Z" fill="white" opacity="0.8"/>
+            </svg>
+            <span class="header-title">Свои</span>
+          </div>
+          <span class="header-user">lenabel</span>
+        </div>
+        <div style="padding:14px 16px; font-weight:600; font-size:16px; color:#1f2937; background:white; border-bottom:1px solid #f0f0f0">Чаты</div>
+        <div style="background:white">
+          <div class="chat-list-item">
+            <div class="avatar avatar-3">L</div>
+            <div class="chat-meta">
+              <div class="chat-name" style="font-weight:700">lesha_nevodov</div>
+              <div class="chat-preview" style="color:#374151; font-weight:500">Как дела?</div>
+            </div>
+            <span class="badge">2</span>
+          </div>
+          <div class="chat-list-item">
+            <div class="avatar avatar-2">T</div>
+            <div class="chat-meta">
+              <div class="chat-name">test1</div>
+              <div class="chat-preview">Нет сообщений</div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1; background:#f8f8fa"></div>
+        <div class="tab-bar">
+          <div class="tab active" style="color:#8b5cf6">💬 Чаты <span class="badge" style="margin-left:2px">2</span></div>
+          <div class="tab">📰 Лента</div>
+          <div class="tab">👥 Друзья</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EMPTY STATES ============ -->
+<div class="section">
+  <div class="section-title">Пустые состояния</div>
+  <div class="compare">
+    <div>
+      <div class="phone-label">Сейчас</div>
+      <div class="phone old">
+        <div class="notch"></div>
+        <div class="header">
+          <div class="header-left">
+            <span style="font-size:16px">✈️</span>
+            <span class="header-title">Свои</span>
+          </div>
+          <span class="header-user">lenabel</span>
+        </div>
+        <div class="content" style="justify-content:center; background:white">
+          <div class="empty-old">
+            <div class="emoji">💬</div>
+            <p>Нет чатов</p>
+            <p style="font-size:11px; margin-top:4px">Добавь друзей во вкладке Друзья</p>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab active" style="color:#3b82f6">💬 Чаты</div>
+          <div class="tab">📰 Лента</div>
+          <div class="tab">👥 Друзья</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="phone-label">Новый</div>
+      <div class="phone new">
+        <div class="notch"></div>
+        <div class="header">
+          <div class="header-left">
+            <svg viewBox="0 0 100 100" width="28" height="28" style="border-radius:6px;">
+              <defs><linearGradient id="ic5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#8b5cf6"/><stop offset="100%" style="stop-color:#ec4899"/></linearGradient></defs>
+              <rect width="100" height="100" rx="20" fill="url(#ic5)"/>
+              <text x="44" y="70" text-anchor="middle" font-family="-apple-system" font-size="58" font-weight="700" fill="white">С</text>
+              <path d="M72 30 C68 25, 62 22, 62 17 C62 13, 65 11, 68 11 C70 11, 72 13, 73 15 C74 13, 76 11, 78 11 C81 11, 84 13, 84 17 C84 22, 78 25, 73 30Z" fill="white" opacity="0.8"/>
+            </svg>
+            <span class="header-title">Свои</span>
+          </div>
+          <span class="header-user">lenabel</span>
+        </div>
+        <div class="content" style="justify-content:center; background:white">
+          <div class="empty-new">
+            <div class="empty-circle">
+              <div class="empty-icon">💬</div>
+            </div>
+            <p class="empty-title">Нет чатов</p>
+            <p>Добавь друзей и начни общение</p>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab active" style="color:#8b5cf6">💬 Чаты</div>
+          <div class="tab">📰 Лента</div>
+          <div class="tab">👥 Друзья</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

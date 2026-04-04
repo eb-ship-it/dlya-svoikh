@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { avatarGradient } from '../lib/colors'
 import ChatWindow from '../components/ChatWindow'
 
 export default function ChatsPage() {
@@ -161,7 +162,7 @@ export default function ChatsPage() {
                   onClick={() => openOrCreateChat(f.id)}
                   className="flex-shrink-0 flex flex-col items-center gap-1"
                 >
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium text-sm">
+                  <div className={`w-10 h-10 bg-gradient-to-br ${avatarGradient(f.username)} rounded-full flex items-center justify-center text-white font-medium text-sm`}>
                     {f.username[0].toUpperCase()}
                   </div>
                   <span className="text-xs text-gray-500 max-w-12 truncate">{f.username}</span>
@@ -177,22 +178,24 @@ export default function ChatsPage() {
           ) : error ? (
             <div className="p-6 text-center">
               <p className="text-red-400 text-sm mb-3">{error}</p>
-              <button onClick={() => { setLoading(true); setError(''); loadChats(); loadFriends() }} className="bg-blue-500 text-white text-sm px-4 py-2 rounded-xl">Повторить</button>
+              <button onClick={() => { setLoading(true); setError(''); loadChats(); loadFriends() }} className="bg-gradient-to-r from-violet-500 to-pink-500 text-white text-sm px-4 py-2 rounded-xl">Повторить</button>
             </div>
           ) : chats.length === 0 ? (
-            <div className="p-6 text-center text-gray-400 text-sm">
-              <div className="text-3xl mb-2">💬</div>
-              <p>Нет чатов</p>
-              <p className="text-xs mt-1">Добавь друзей во вкладке Друзья</p>
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-500/10 to-pink-500/10 flex items-center justify-center mx-auto mb-3">
+                <span className="text-2xl">💬</span>
+              </div>
+              <p className="font-medium text-gray-500 text-sm">Нет чатов</p>
+              <p className="text-xs text-gray-400 mt-1">Добавь друзей и начни общение</p>
             </div>
           ) : (
             chats.map(chat => (
               <button
                 key={chat.id}
                 onClick={() => setActiveChatId(chat.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left ${activeChatId === chat.id ? 'bg-blue-50' : ''}`}
+                className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left ${activeChatId === chat.id ? 'bg-violet-50' : ''}`}
               >
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium flex-shrink-0">
+                <div className={`w-10 h-10 bg-gradient-to-br ${avatarGradient(chat.partnerUsername)} rounded-full flex items-center justify-center text-white font-medium flex-shrink-0`}>
                   {chat.partnerUsername?.[0]?.toUpperCase() || '?'}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -200,7 +203,7 @@ export default function ChatsPage() {
                   <div className={`text-xs truncate ${chat.unread > 0 ? 'text-gray-700 font-medium' : 'text-gray-400'}`}>{chat.lastMessage || 'Нет сообщений'}</div>
                 </div>
                 {chat.unread > 0 && (
-                  <span className="bg-red-500 text-white text-[10px] font-bold min-w-5 h-5 rounded-full flex items-center justify-center px-1 flex-shrink-0">
+                  <span className="bg-gradient-to-r from-violet-500 to-pink-500 text-white text-[10px] font-bold min-w-5 h-5 rounded-full flex items-center justify-center px-1 flex-shrink-0">
                     {chat.unread}
                   </span>
                 )}
@@ -221,7 +224,9 @@ export default function ChatsPage() {
         ) : (
           <div className="flex-1 flex items-center justify-center text-gray-400">
             <div className="text-center">
-              <div className="text-5xl mb-3">💬</div>
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500/10 to-pink-500/10 flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">💬</span>
+              </div>
               <p>Выбери чат слева</p>
             </div>
           </div>

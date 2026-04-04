@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { avatarGradient } from '../lib/colors'
 
 export default function FriendsPage() {
   const { user } = useAuth()
@@ -140,12 +141,12 @@ export default function FriendsPage() {
               onChange={e => { setSearch(e.target.value); setSearchResult(null); setSearchError('') }}
               onKeyDown={e => e.key === 'Enter' && searchUser()}
               placeholder="Введи логин..."
-              className="flex-1 bg-gray-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="flex-1 bg-gray-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
             />
             <button
               onClick={searchUser}
               disabled={searchLoading}
-              className="bg-blue-500 text-white px-4 py-2.5 rounded-xl text-sm font-medium disabled:bg-blue-300"
+              className="bg-gradient-to-r from-violet-500 to-pink-500 text-white px-4 py-2.5 rounded-xl text-sm font-medium disabled:opacity-50"
             >
               Найти
             </button>
@@ -156,7 +157,7 @@ export default function FriendsPage() {
           {searchResult && (
             <div className="mt-3 flex items-center justify-between bg-gray-50 rounded-xl p-3">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium text-sm">
+                <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-sm">
                   {searchResult.username[0].toUpperCase()}
                 </div>
                 <span className="font-medium text-gray-800 text-sm">{searchResult.username}</span>
@@ -164,7 +165,7 @@ export default function FriendsPage() {
               {!searchResult.friendship ? (
                 <button
                   onClick={() => sendRequest(searchResult.id)}
-                  className="bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg"
+                  className="bg-gradient-to-r from-violet-500 to-pink-500 text-white text-xs px-3 py-1.5 rounded-lg"
                 >
                   Добавить
                 </button>
@@ -182,16 +183,16 @@ export default function FriendsPage() {
           <div className="bg-white rounded-2xl shadow-sm p-4">
             <h3 className="font-semibold text-gray-800 mb-3">
               Заявки в друзья
-              <span className="ml-2 bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">{incoming.length}</span>
+              <span className="ml-2 bg-gradient-to-r from-violet-500 to-pink-500 text-white text-xs px-2 py-0.5 rounded-full">{incoming.length}</span>
             </h3>
             <div className="space-y-2">
               {incoming.map(f => (
                 <div key={f.friendshipId} className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-medium text-sm flex-shrink-0">
+                  <div className="w-9 h-9 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0">
                     {f.username?.[0]?.toUpperCase()}
                   </div>
                   <span className="flex-1 font-medium text-gray-800 text-sm">{f.username}</span>
-                  <button onClick={() => accept(f.friendshipId)} className="bg-green-500 text-white text-xs px-3 py-1.5 rounded-lg">
+                  <button onClick={() => accept(f.friendshipId)} className="bg-gradient-to-r from-violet-500 to-pink-500 text-white text-xs px-3 py-1.5 rounded-lg">
                     Принять
                   </button>
                   <button onClick={() => decline(f.friendshipId)} className="bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-lg">
@@ -214,18 +215,20 @@ export default function FriendsPage() {
           ) : error ? (
             <div className="text-center py-4">
               <p className="text-red-400 text-sm mb-3">{error}</p>
-              <button onClick={() => { setLoading(true); setError(''); loadAll() }} className="bg-blue-500 text-white text-sm px-4 py-2 rounded-xl">Повторить</button>
+              <button onClick={() => { setLoading(true); setError(''); loadAll() }} className="bg-gradient-to-r from-violet-500 to-pink-500 text-white text-sm px-4 py-2 rounded-xl">Повторить</button>
             </div>
           ) : friends.length === 0 ? (
-            <div className="text-center py-6 text-gray-400">
-              <div className="text-3xl mb-2">👥</div>
-              <p className="text-sm">Друзей пока нет</p>
+            <div className="text-center py-6">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500/10 to-pink-500/10 flex items-center justify-center mx-auto mb-3">
+                <span className="text-xl">👥</span>
+              </div>
+              <p className="text-sm font-medium text-gray-500">Друзей пока нет</p>
             </div>
           ) : (
             <div className="space-y-2">
               {friends.map(f => (
                 <div key={f.friendshipId} className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium text-sm flex-shrink-0">
+                  <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0">
                     {f.username?.[0]?.toUpperCase()}
                   </div>
                   <span className="flex-1 font-medium text-gray-800 text-sm">{f.username}</span>
@@ -251,7 +254,7 @@ export default function FriendsPage() {
             <div className="space-y-2">
               {outgoing.map(f => (
                 <div key={f.friendshipId} className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 font-medium text-sm flex-shrink-0">
+                  <div className="w-9 h-9 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0">
                     {f.username?.[0]?.toUpperCase()}
                   </div>
                   <span className="flex-1 font-medium text-gray-700 text-sm">{f.username}</span>

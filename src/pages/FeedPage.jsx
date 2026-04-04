@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { avatarGradient } from '../lib/colors'
 
 export default function FeedPage() {
   const { user, profile } = useAuth()
@@ -95,7 +96,7 @@ export default function FeedPage() {
         {/* Post composer */}
         <form onSubmit={submitPost} className="bg-white rounded-2xl shadow-sm p-4">
           <div className="flex gap-3">
-            <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium flex-shrink-0 text-sm">
+            <div className={`w-9 h-9 bg-gradient-to-br ${avatarGradient(profile?.username)} rounded-full flex items-center justify-center text-white font-medium flex-shrink-0 text-sm`}>
               {profile?.username?.[0]?.toUpperCase() || '?'}
             </div>
             <div className="flex-1">
@@ -112,7 +113,7 @@ export default function FeedPage() {
             <button
               type="submit"
               disabled={!text.trim() || posting}
-              className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white text-sm font-medium px-5 py-2 rounded-full transition-colors"
+              className="bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-full transition-all"
             >
               {posting ? '...' : 'Поделиться'}
             </button>
@@ -125,19 +126,21 @@ export default function FeedPage() {
         ) : error ? (
           <div className="text-center py-8">
             <p className="text-red-400 text-sm mb-3">{error}</p>
-            <button onClick={() => { setLoading(true); setError(''); loadFeed() }} className="bg-blue-500 text-white text-sm px-4 py-2 rounded-xl">Повторить</button>
+            <button onClick={() => { setLoading(true); setError(''); loadFeed() }} className="bg-gradient-to-r from-violet-500 to-pink-500 text-white text-sm px-4 py-2 rounded-xl">Повторить</button>
           </div>
         ) : posts.length === 0 ? (
-          <div className="text-center text-gray-400 py-12">
-            <div className="text-4xl mb-3">📰</div>
-            <p className="font-medium">Лента пуста</p>
-            <p className="text-xs mt-1">Здесь будут новости твоих друзей</p>
+          <div className="text-center py-12">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-500/10 to-pink-500/10 flex items-center justify-center mx-auto mb-3">
+              <span className="text-2xl">📰</span>
+            </div>
+            <p className="font-medium text-gray-500">Лента пуста</p>
+            <p className="text-xs text-gray-400 mt-1">Здесь будут новости твоих друзей</p>
           </div>
         ) : (
           posts.map(post => (
             <div key={post.id} className="bg-white rounded-2xl shadow-sm p-4">
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium flex-shrink-0 text-sm">
+                <div className={`w-9 h-9 bg-gradient-to-br ${avatarGradient(post.profiles?.username)} rounded-full flex items-center justify-center text-white font-medium flex-shrink-0 text-sm`}>
                   {post.profiles?.username?.[0]?.toUpperCase() || '?'}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -239,11 +242,11 @@ function PostReactions({ postId, userId }) {
           key={emoji}
           onClick={() => toggle(emoji)}
           className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-all ${
-            myReactions.has(emoji) ? 'bg-blue-100 border border-blue-300' : 'bg-gray-50 border border-gray-100 hover:bg-gray-100'
+            myReactions.has(emoji) ? 'bg-purple-50 border border-purple-300' : 'bg-gray-50 border border-gray-100 hover:bg-gray-100'
           }`}
         >
           <span>{emoji}</span>
-          <span className={myReactions.has(emoji) ? 'text-blue-600' : 'text-gray-500'}>{counts[emoji]}</span>
+          <span className={myReactions.has(emoji) ? 'text-purple-600' : 'text-gray-500'}>{counts[emoji]}</span>
         </button>
       ))}
       <button
@@ -260,7 +263,7 @@ function PostReactions({ postId, userId }) {
               <button
                 key={emoji}
                 onClick={() => toggle(emoji)}
-                className={`w-10 h-10 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors text-lg ${myReactions.has(emoji) ? 'bg-blue-50' : ''}`}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors text-lg ${myReactions.has(emoji) ? 'bg-purple-50' : ''}`}
               >
                 {emoji}
               </button>
@@ -335,7 +338,7 @@ function PostComments({ postId, userId, username }) {
         <div className="mt-2 space-y-2">
           {comments.map(c => (
             <div key={c.id} className="flex gap-2">
-              <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 text-[10px] font-medium flex-shrink-0">
+              <div className={`w-6 h-6 bg-gradient-to-br ${avatarGradient(c.profiles?.username)} rounded-full flex items-center justify-center text-white text-[10px] font-medium flex-shrink-0`}>
                 {c.profiles?.username?.[0]?.toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
@@ -353,12 +356,12 @@ function PostComments({ postId, userId, username }) {
               value={text}
               onChange={e => setText(e.target.value)}
               placeholder="Комментарий..."
-              className="flex-1 min-w-0 bg-gray-50 rounded-full px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-200"
+              className="flex-1 min-w-0 bg-gray-50 rounded-full px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-purple-200"
             />
             <button
               type="submit"
               disabled={!text.trim()}
-              className="text-blue-500 disabled:text-blue-300 flex-shrink-0"
+              className="text-violet-500 disabled:text-violet-300 flex-shrink-0"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
