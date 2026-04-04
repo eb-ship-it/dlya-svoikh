@@ -33,7 +33,7 @@ export default function ChatsPage() {
       .in('chat_id', chatIds)
       .neq('user_id', user.id)
 
-    // Get last message for each chat
+    // Get last message + unread count for each chat
     const chatList = []
     for (const cp of allParticipants || []) {
       const { data: lastMsg } = await supabase
@@ -44,11 +44,19 @@ export default function ChatsPage() {
         .limit(1)
         .single()
 
+      const { count: unread } = await supabase
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .eq('chat_id', cp.chat_id)
+        .neq('sender_id', user.id)
+        .is('read_at', null)
+
       chatList.push({
         id: cp.chat_id,
         partnerUsername: cp.profiles?.username,
         lastMessage: lastMsg?.content || '',
         lastAt: lastMsg?.created_at || '',
+        unread: unread || 0,
       })
     }
 
@@ -164,12 +172,19 @@ export default function ChatsPage() {
                 onClick={() => setActiveChatId(chat.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left ${activeChatId === chat.id ? 'bg-blue-50' : ''}`}
               >
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium flex-shrink-0">
-                  {chat.partnerUsername?.[0]?.toUpperCase() || '?'}
+                <div className="relative w-10 h-10 flex-shrink-0">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium">
+                    {chat.partnerUsername?.[0]?.toUpperCase() || '?'}
+                  </div>
+                  {chat.unread > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1">
+                      {chat.unread}
+                    </span>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-gray-800 text-sm">{chat.partnerUsername}</div>
-                  <div className="text-xs text-gray-400 truncate">{chat.lastMessage || 'Нет сообщений'}</div>
+                  <div className={`text-sm ${chat.unread > 0 ? 'font-bold text-gray-900' : 'font-medium text-gray-800'}`}>{chat.partnerUsername}</div>
+                  <div className={`text-xs truncate ${chat.unread > 0 ? 'text-gray-700 font-medium' : 'text-gray-400'}`}>{chat.lastMessage || 'Нет сообщений'}</div>
                 </div>
               </button>
             ))
