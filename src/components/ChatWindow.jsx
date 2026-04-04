@@ -38,6 +38,16 @@ export default function ChatWindow({ chatId, partnerUsername, onBack }) {
       .eq('chat_id', chatId)
       .order('created_at', { ascending: true })
     setMessages(data || [])
+    markAsRead(data)
+  }
+
+  async function markAsRead(msgs) {
+    const unread = (msgs || []).filter(m => m.sender_id !== user.id && !m.read_at)
+    if (unread.length === 0) return
+    await supabase
+      .from('messages')
+      .update({ read_at: new Date().toISOString() })
+      .in('id', unread.map(m => m.id))
   }
 
   async function send(e) {
