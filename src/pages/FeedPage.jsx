@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { avatarGradient } from '../lib/colors'
+import UserPopup from '../components/UserPopup'
 
 export default function FeedPage() {
   const { user, profile } = useAuth()
@@ -11,6 +12,7 @@ export default function FeedPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [selectedUser, setSelectedUser] = useState(null)
 
   useEffect(() => {
     loadFeed()
@@ -44,7 +46,7 @@ export default function FeedPage() {
 
       const { data, error: e } = await supabase
         .from('posts')
-        .select('*, profiles(username)')
+        .select('*, profiles(username, display_name)')
         .in('user_id', visibleIds)
         .order('created_at', { ascending: false })
         .limit(50)
@@ -145,7 +147,12 @@ export default function FeedPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-gray-800 text-sm">{post.profiles?.username}</span>
+                    <button
+                      onClick={() => setSelectedUser({ id: post.user_id, username: post.profiles?.username, displayName: post.profiles?.display_name })}
+                      className="font-medium text-gray-800 text-sm hover:text-violet-500 transition-colors text-left"
+                    >
+                      {post.profiles?.display_name || post.profiles?.username}
+                    </button>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-400">{formatDate(post.created_at)}</span>
                       {post.user_id === user.id && (
@@ -163,7 +170,7 @@ export default function FeedPage() {
                   </div>
                   <p className="text-gray-700 text-sm mt-1 leading-relaxed whitespace-pre-wrap">{post.content}</p>
                   <PostReactions postId={post.id} userId={user.id} />
-                  <PostComments postId={post.id} userId={user.id} username={profile?.username} />
+                  <PostComments postId={post.id} userId={user.id} username={profile?.username} onUserClick={setSelectedUser} />
                 </div>
               </div>
             </div>
@@ -193,6 +200,15 @@ export default function FeedPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {selectedUser && (
+        <UserPopup
+          userId={selectedUser.id}
+          username={selectedUser.username}
+          displayName={selectedUser.displayName}
+          onClose={() => setSelectedUser(null)}
+        />
       )}
     </div>
   )
@@ -276,7 +292,7 @@ function PostReactions({ postId, userId }) {
 }
 
 /* ===================== Комментарии ===================== */
-function PostComments({ postId, userId, username }) {
+function PostComments({ postId, userId, username, onUserClick }) {
   const [comments, setComments] = useState([])
   const [text, setText] = useState('')
   const [open, setOpen] = useState(false)
@@ -295,7 +311,7 @@ function PostComments({ postId, userId, username }) {
   async function loadComments() {
     const { data } = await supabase
       .from('post_comments')
-      .select('*, profiles(username)')
+      .select('*, profiles(username, display_name)')
       .eq('post_id', postId)
       .order('created_at', { ascending: true })
     setComments(data || [])
@@ -343,7 +359,12 @@ function PostComments({ postId, userId, username }) {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-xs font-medium text-gray-700">{c.profiles?.username}</span>
+                  <button
+                    onClick={() => onUserClick?.({ id: c.user_id, username: c.profiles?.username, displayName: c.profiles?.display_name })}
+                    className="text-xs font-medium text-gray-700 hover:text-violet-500 transition-colors"
+                  >
+                    {c.profiles?.display_name || c.profiles?.username}
+                  </button>
                   <span className="text-[10px] text-gray-300">{formatTime(c.created_at)}</span>
                 </div>
                 <p className="text-xs text-gray-600">{c.content}</p>
