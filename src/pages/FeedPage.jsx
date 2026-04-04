@@ -142,9 +142,12 @@ export default function FeedPage() {
           posts.map(post => (
             <div key={post.id} className="bg-white rounded-2xl shadow-sm p-4">
               <div className="flex items-start gap-3">
-                <div className={`w-9 h-9 bg-gradient-to-br ${avatarGradient(post.profiles?.username)} rounded-full flex items-center justify-center text-white font-medium flex-shrink-0 text-sm`}>
+                <button
+                  onClick={() => setSelectedUser({ id: post.user_id, username: post.profiles?.username, displayName: post.profiles?.display_name })}
+                  className={`w-9 h-9 bg-gradient-to-br ${avatarGradient(post.profiles?.username)} rounded-full flex items-center justify-center text-white font-medium flex-shrink-0 text-sm`}
+                >
                   {post.profiles?.username?.[0]?.toUpperCase() || '?'}
-                </div>
+                </button>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <button
@@ -354,9 +357,12 @@ function PostComments({ postId, userId, username, onUserClick }) {
         <div className="mt-2 space-y-2">
           {comments.map(c => (
             <div key={c.id} className="flex gap-2">
-              <div className={`w-6 h-6 bg-gradient-to-br ${avatarGradient(c.profiles?.username)} rounded-full flex items-center justify-center text-white text-[10px] font-medium flex-shrink-0`}>
+              <button
+                onClick={() => onUserClick?.({ id: c.user_id, username: c.profiles?.username, displayName: c.profiles?.display_name })}
+                className={`w-6 h-6 bg-gradient-to-br ${avatarGradient(c.profiles?.username)} rounded-full flex items-center justify-center text-white text-[10px] font-medium flex-shrink-0`}
+              >
                 {c.profiles?.username?.[0]?.toUpperCase()}
-              </div>
+              </button>
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2">
                   <button
