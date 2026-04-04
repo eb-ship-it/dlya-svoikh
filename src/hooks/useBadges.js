@@ -20,7 +20,13 @@ export function useBadges(userId) {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'post_comments' }, () => checkNewPosts())
       .subscribe()
 
-    return () => supabase.removeChannel(channel)
+    // Polling fallback for mobile browsers where realtime is unreliable
+    const interval = setInterval(checkAll, 10000)
+
+    return () => {
+      supabase.removeChannel(channel)
+      clearInterval(interval)
+    }
   }, [userId])
 
   function checkAll() {

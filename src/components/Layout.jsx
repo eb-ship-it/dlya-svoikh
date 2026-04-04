@@ -6,10 +6,11 @@ import { useEffect } from 'react'
 export default function Layout({ children }) {
   const location = useLocation()
   const { user, profile, signOut } = useAuth()
-  const { unreadChats, pendingFriends, newPosts, markFeedSeen } = useBadges(user?.id)
+  const { unreadChats, pendingFriends, newPosts, markFeedSeen, checkAll } = useBadges(user?.id)
 
-  // Mark feed as seen when user visits feed page
+  // Recheck badges on every tab switch + mark feed seen
   useEffect(() => {
+    checkAll()
     if (location.pathname === '/feed') markFeedSeen()
   }, [location.pathname])
 

@@ -51,10 +51,11 @@ export default function ChatWindow({ chatId, partnerUsername, onBack }) {
   async function markAsRead(msgs) {
     const unread = (msgs || []).filter(m => m.sender_id !== user.id && !m.read_at)
     if (unread.length === 0) return
-    await supabase
+    const { error } = await supabase
       .from('messages')
       .update({ read_at: new Date().toISOString() })
       .in('id', unread.map(m => m.id))
+    if (error) console.error('markAsRead failed:', error)
   }
 
   async function send(e) {
