@@ -20,6 +20,7 @@ export function useBadges(userId) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' }, () => checkPendingFriends())
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, () => checkNewPosts())
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'post_comments' }, () => checkNewPosts())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mayachok_posts', filter: `user_id=eq.${userId}` }, () => checkNewPosts())
       .subscribe()
 
     // Polling fallback for mobile browsers where realtime is unreliable
@@ -100,21 +101,45 @@ export function useBadges(userId) {
         f.requester_id === userId ? f.addressee_id : f.requester_id
       )
 
-      if (!friendIds.length) { setNewPosts(false); return }
-
-      const { count: newPostCount } = await supabase
-        .from('posts')
+      // New Mayachok posts (personal, don't require friends)
+      const { count: newMayachokCount } = await supabase
+        .from('mayachok_posts')
         .select('id', { count: 'exact', head: true })
-        .in('user_id', friendIds)
+        .eq('user_id', userId)
         .gt('created_at', lastSeen.seen_at)
 
-      const { count: newCommentCount } = await supabase
-        .from('post_comments')
-        .select('id', { count: 'exact', head: true })
-        .neq('user_id', userId)
-        .gt('created_at', lastSeen.seen_at)
+      let newPostCount = 0
+      let newCommentCount = 0
 
-      setNewPosts((newPostCount || 0) + (newCommentCount || 0) > 0)
+      if (friendIds.length) {
+        const { count: pc } = await supabase
+          .from('posts')
+          .select('id', { count: 'exact', head: true })
+          .in('user_id', friendIds)
+          .gt('created_at', lastSeen.seen_at)
+        newPostCount = pc || 0
+
+        // Count comments only on posts visible in the user's feed (own + friends')
+        const visibleUserIds = [...friendIds, userId]
+        const { data: visiblePosts } = await supabase
+          .from('posts')
+          .select('id')
+          .in('user_id', visibleUserIds)
+
+        const visiblePostIds = (visiblePosts || []).map(p => p.id)
+
+        if (visiblePostIds.length) {
+          const { count } = await supabase
+            .from('post_comments')
+            .select('id', { count: 'exact', head: true })
+            .in('post_id', visiblePostIds)
+            .neq('user_id', userId)
+            .gt('created_at', lastSeen.seen_at)
+          newCommentCount = count || 0
+        }
+      }
+
+      setNewPosts((newMayachokCount || 0) + newPostCount + newCommentCount > 0)
     } catch (err) {
       console.error('checkNewPosts error:', err)
     }

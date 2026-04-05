@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { avatarGradient } from '../lib/colors'
@@ -15,18 +15,26 @@ export default function FeedPage() {
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [selectedUser, setSelectedUser] = useState(null)
   const [mayachokPosts, setMayachokPosts] = useState([])
+  const visibleIdsRef = useRef(new Set())
 
   useEffect(() => {
+    if (!user) return
     loadFeed()
 
     const channel = supabase
-      .channel('feed')
+      .channel(`feed:${user.id}`)
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
         table: 'posts',
-      }, payload => {
-        loadFeed() // reload to get profile join
+      }, async payload => {
+        if (!visibleIdsRef.current.has(payload.new.user_id)) return
+        const { data } = await supabase
+          .from('posts')
+          .select('*, profiles(username, display_name)')
+          .eq('id', payload.new.id)
+          .maybeSingle()
+        if (data) setPosts(prev => prev.some(p => p.id === data.id) ? prev : [data, ...prev])
       })
       .subscribe()
 
@@ -45,6 +53,7 @@ export default function FeedPage() {
         f.requester_id === user.id ? f.addressee_id : f.requester_id
       )
       const visibleIds = [...friendIds, user.id]
+      visibleIdsRef.current = new Set(visibleIds)
 
       const { data, error: e } = await supabase
         .from('posts')

@@ -17,8 +17,18 @@ export default function ChatsPage() {
   const [showCreateGroup, setShowCreateGroup] = useState(false)
 
   useEffect(() => {
+    if (!user) return
     loadChats()
     loadFriends()
+
+    const channel = supabase
+      .channel(`chats-list:${user.id}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => loadChats())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, () => loadChats())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_participants', filter: `user_id=eq.${user.id}` }, () => loadChats())
+      .subscribe()
+
+    return () => supabase.removeChannel(channel)
   }, [user])
 
   // Open specific chat if navigated with state
