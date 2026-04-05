@@ -153,12 +153,7 @@ export default function FeedPage() {
           </div>
         </form>
 
-        {/* Mayachok posts */}
-        {mayachokPosts.map(mp => (
-          <MayachokCard key={mp.id} post={mp} />
-        ))}
-
-        {/* Posts feed */}
+        {/* Feed: posts + mayachok merged by created_at */}
         {loading ? (
           <div className="text-center text-gray-400 py-8 text-sm">Загрузка...</div>
         ) : error ? (
@@ -166,7 +161,7 @@ export default function FeedPage() {
             <p className="text-red-400 text-sm mb-3">{error}</p>
             <button onClick={() => { setLoading(true); setError(''); loadFeed() }} className="bg-gradient-to-r from-violet-500 to-pink-500 text-white text-sm px-4 py-2 rounded-xl">Повторить</button>
           </div>
-        ) : posts.length === 0 ? (
+        ) : posts.length === 0 && mayachokPosts.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-500/10 to-pink-500/10 flex items-center justify-center mx-auto mb-3">
               <span className="text-2xl">📰</span>
@@ -175,8 +170,15 @@ export default function FeedPage() {
             <p className="text-xs text-gray-400 mt-1">Здесь будут новости твоих друзей</p>
           </div>
         ) : (
-          posts.map(post => (
-            <div key={post.id} className="bg-white rounded-2xl shadow-sm p-4">
+          [
+            ...posts.map(p => ({ ...p, _kind: 'post' })),
+            ...mayachokPosts.map(m => ({ ...m, _kind: 'mayachok' })),
+          ]
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .map(post => post._kind === 'mayachok' ? (
+              <MayachokCard key={`m-${post.id}`} post={post} />
+            ) : (
+              <div key={post.id} className="bg-white rounded-2xl shadow-sm p-4">
               <div className="flex items-start gap-3">
                 <button
                   onClick={() => setSelectedUser({ id: post.user_id, username: post.profiles?.username, displayName: post.profiles?.display_name })}
@@ -214,7 +216,7 @@ export default function FeedPage() {
                 </div>
               </div>
             </div>
-          ))
+            ))
         )}
       </div>
 
