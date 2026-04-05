@@ -3,34 +3,69 @@ import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext(null)
 
+function withTimeout(promise, ms, label = 'request') {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`${label} timeout`)), ms)),
+  ])
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [authError, setAuthError] = useState('')
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      if (session?.user) fetchProfile(session.user.id)
-      else setLoading(false)
-    })
+    let cancelled = false
+
+    withTimeout(supabase.auth.getSession(), 10000, 'getSession')
+      .then(({ data: { session } }) => {
+        if (cancelled) return
+        setUser(session?.user ?? null)
+        if (session?.user) fetchProfile(session.user.id)
+        else setLoading(false)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        console.error('getSession failed:', err)
+        setAuthError('Не удаётся подключиться. Проверь интернет.')
+        setLoading(false)
+      })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (cancelled) return
       setUser(session?.user ?? null)
       if (session?.user) fetchProfile(session.user.id)
       else { setProfile(null); setLoading(false) }
     })
 
-    return () => subscription.unsubscribe()
+    // Safety timeout: force loading off even if everything else hangs
+    const safety = setTimeout(() => {
+      if (cancelled) return
+      setLoading(prev => {
+        if (prev) {
+          console.warn('Safety timeout: forcing loading=false')
+          setAuthError('Не удаётся подключиться. Проверь интернет.')
+        }
+        return false
+      })
+    }, 15000)
+
+    return () => {
+      cancelled = true
+      clearTimeout(safety)
+      subscription.unsubscribe()
+    }
   }, [])
 
   async function fetchProfile(userId) {
     try {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
+      const { data } = await withTimeout(
+        supabase.from('profiles').select('*').eq('id', userId).single(),
+        10000,
+        'fetchProfile'
+      )
       setProfile(data)
 
       // Handle pending invite from registration
@@ -53,6 +88,7 @@ export function AuthProvider({ children }) {
       }
     } catch (err) {
       console.error('fetchProfile error:', err)
+      setAuthError('Не удаётся загрузить профиль. Проверь интернет.')
     } finally {
       setLoading(false)
     }
@@ -86,7 +122,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, authError, signUp, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   )
