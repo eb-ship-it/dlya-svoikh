@@ -136,7 +136,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
             (i === 0 || messages[i - 1].sender_id !== msg.sender_id)
           return (
             <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm leading-relaxed ${
+              <div className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm leading-relaxed break-words overflow-hidden ${
                 isMine
                   ? 'bg-gradient-to-br from-violet-500 to-purple-500 text-white rounded-br-sm'
                   : 'bg-white text-gray-800 shadow-sm rounded-bl-sm'
