@@ -162,8 +162,8 @@ export default function Avatar({ username, size = 'md', isGroup = false, groupNa
   if (isGroup) {
     return (
       <div
-        className={`bg-gradient-to-br from-violet-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 ${className}`}
-        style={{ width: pixelSize, height: pixelSize, fontSize: pixelSize * 0.38 }}
+        className={`bg-gradient-to-br from-violet-400 to-pink-400 flex items-center justify-center text-white font-bold flex-shrink-0 ${className}`}
+        style={{ width: pixelSize, height: pixelSize, fontSize: pixelSize * 0.38, borderRadius: '25%' }}
       >
         {(groupName || '?')[0].toUpperCase()}
       </div>

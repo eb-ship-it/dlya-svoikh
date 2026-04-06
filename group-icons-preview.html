@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Иконки групп — варианты формы</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 30px 16px; }
+    h1 { text-align: center; color: #333; margin-bottom: 10px; font-size: 22px; }
+    .subtitle { text-align: center; color: #888; font-size: 14px; margin-bottom: 40px; }
+    .section { margin-bottom: 40px; }
+    .section-title { font-size: 14px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; text-align: center; }
+    .section-desc { font-size: 12px; color: #999; text-align: center; margin-bottom: 16px; }
+    .row { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; align-items: end; }
+    .avatar-card { text-align: center; }
+    .avatar-card .name { font-size: 11px; color: #888; margin-top: 6px; max-width: 70px; }
+    .compare-row { display: flex; gap: 12px; align-items: center; justify-content: center; margin-bottom: 30px; background: white; padding: 16px 24px; border-radius: 16px; max-width: 500px; margin-left: auto; margin-right: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .compare-label { font-size: 11px; color: #999; }
+    .vs { color: #ccc; font-size: 12px; margin: 0 4px; }
+  </style>
+</head>
+<body>
+
+<h1>Форма иконок групп</h1>
+<p class="subtitle">Личные чаты — круг. Группы — ?</p>
+
+<!-- Сравнение в контексте -->
+<div class="section">
+  <div class="section-title">Как выглядит рядом с личным чатом</div>
+
+  <div class="compare-row">
+    <div style="text-align:center">
+      <canvas id="personal" width="80" height="80" style="border-radius:50%; width:40px; height:40px;"></canvas>
+      <div class="compare-label">Личный</div>
+    </div>
+    <span class="vs">+</span>
+    <div style="text-align:center">
+      <div id="compare-slot" style="width:40px; height:40px;"></div>
+      <div class="compare-label">Группа</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">A — Скруглённый квадрат</div>
+  <div class="section-desc">Как в Slack и Discord. Квадрат с большим радиусом</div>
+  <div class="row" id="rounded-square"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">B — Квадрат с маленьким радиусом</div>
+  <div class="section-desc">Более строгий, как в Teams</div>
+  <div class="row" id="square"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">C — Шестиугольник</div>
+  <div class="section-desc">Уникальная форма, сразу отличается от круга</div>
+  <div class="row" id="hexagon"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">D — Капля / органическая форма</div>
+  <div class="section-desc">Мягкая асимметричная форма</div>
+  <div class="row" id="blob"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">E — Круг с рамкой</div>
+  <div class="section-desc">Та же форма, но с градиентной рамкой — сразу видно что группа</div>
+  <div class="row" id="bordered"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">F — Щит</div>
+  <div class="section-desc">Форма щита/герба — ассоциация с командой</div>
+  <div class="row" id="shield"></div>
+</div>
+
+<script>
+const groups = [
+  { name: 'Работа', letter: 'Р' },
+  { name: 'Семья', letter: 'С' },
+  { name: 'Поход', letter: 'П' },
+  { name: 'Спорт', letter: 'С' },
+]
+
+const S = 72
+const grad = ['#8b5cf6', '#ec4899']
+
+function addCard(container, el, name) {
+  const card = document.createElement('div')
+  card.className = 'avatar-card'
+  card.appendChild(el)
+  const label = document.createElement('div')
+  label.className = 'name'
+  label.textContent = name
+  card.appendChild(label)
+  container.appendChild(card)
+}
+
+// Draw personal face for comparison
+const pc = document.getElementById('personal')
+const pctx = pc.getContext('2d')
+const pg = pctx.createLinearGradient(0, 0, 80, 80)
+pg.addColorStop(0, '#8b5cf6'); pg.addColorStop(1, '#ec4899')
+pctx.beginPath(); pctx.arc(40, 40, 40, 0, Math.PI*2); pctx.fillStyle = pg; pctx.fill()
+pctx.fillStyle = 'white'; pctx.beginPath(); pctx.arc(30, 34, 3, 0, Math.PI*2); pctx.fill()
+pctx.beginPath(); pctx.arc(50, 34, 3, 0, Math.PI*2); pctx.fill()
+pctx.strokeStyle = 'white'; pctx.lineWidth = 2; pctx.lineCap = 'round'
+pctx.beginPath(); pctx.arc(40, 42, 8, 0.15*Math.PI, 0.85*Math.PI); pctx.stroke()
+
+function makeCanvas(size) {
+  const c = document.createElement('canvas')
+  c.width = size * 2; c.height = size * 2
+  c.style.width = size + 'px'; c.style.height = size + 'px'
+  return c
+}
+
+function drawGrad(ctx, path, size) {
+  const g = ctx.createLinearGradient(0, 0, size*2, size*2)
+  g.addColorStop(0, grad[0]); g.addColorStop(1, grad[1])
+  ctx.fillStyle = g
+  ctx.fill()
+}
+
+function drawLetter(ctx, letter, size) {
+  ctx.fillStyle = 'white'
+  ctx.font = `700 ${size*0.8}px -apple-system, sans-serif`
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillText(letter, size, size + size*0.04)
+}
+
+// A — Rounded square
+groups.forEach(g => {
+  const c = makeCanvas(S); const ctx = c.getContext('2d')
+  const r = S * 0.35, s = S * 2
+  ctx.beginPath()
+  ctx.roundRect(s*0.05, s*0.05, s*0.9, s*0.9, r * 2)
+  drawGrad(ctx, null, S)
+  drawLetter(ctx, g.letter, S)
+  addCard(document.getElementById('rounded-square'), c, g.name)
+})
+
+// B — Square with small radius
+groups.forEach(g => {
+  const c = makeCanvas(S); const ctx = c.getContext('2d')
+  const s = S * 2
+  ctx.beginPath()
+  ctx.roundRect(s*0.05, s*0.05, s*0.9, s*0.9, S * 0.2 * 2)
+  drawGrad(ctx, null, S)
+  drawLetter(ctx, g.letter, S)
+  addCard(document.getElementById('square'), c, g.name)
+})
+
+// C — Hexagon
+groups.forEach(g => {
+  const c = makeCanvas(S); const ctx = c.getContext('2d')
+  const s = S * 2, cx = s/2, cy = s/2, r = s * 0.44
+  ctx.beginPath()
+  for (let i = 0; i < 6; i++) {
+    const angle = (i / 6) * Math.PI * 2 - Math.PI / 2
+    ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r)
+  }
+  ctx.closePath()
+  drawGrad(ctx, null, S)
+  drawLetter(ctx, g.letter, S)
+  addCard(document.getElementById('hexagon'), c, g.name)
+})
+
+// D — Blob
+groups.forEach((g, i) => {
+  const c = makeCanvas(S); const ctx = c.getContext('2d')
+  const s = S * 2, cx = s/2, cy = s/2
+  ctx.beginPath()
+  // Organic blob using bezier curves
+  const r = s * 0.42
+  const offsets = [0.95, 1.05, 0.98, 1.03, 0.97, 1.02, 0.96, 1.04]
+  ctx.moveTo(cx + r * offsets[0], cy)
+  for (let j = 0; j < 8; j++) {
+    const a1 = (j / 8) * Math.PI * 2
+    const a2 = ((j + 1) / 8) * Math.PI * 2
+    const amid = (a1 + a2) / 2
+    const r1 = r * offsets[j]
+    const r2 = r * offsets[(j+1)%8]
+    const rmid = r * offsets[(j+4)%8] * 1.05
+    ctx.quadraticCurveTo(
+      cx + Math.cos(amid) * rmid,
+      cy + Math.sin(amid) * rmid,
+      cx + Math.cos(a2) * r2,
+      cy + Math.sin(a2) * r2
+    )
+  }
+  ctx.closePath()
+  drawGrad(ctx, null, S)
+  drawLetter(ctx, g.letter, S)
+  addCard(document.getElementById('blob'), c, g.name)
+})
+
+// E — Bordered circle
+groups.forEach(g => {
+  const c = makeCanvas(S); const ctx = c.getContext('2d')
+  const s = S * 2, cx = s/2, cy = s/2
+  // Outer border ring
+  const gg = ctx.createLinearGradient(0, 0, s, s)
+  gg.addColorStop(0, grad[0]); gg.addColorStop(1, grad[1])
+  ctx.beginPath(); ctx.arc(cx, cy, s*0.48, 0, Math.PI*2)
+  ctx.fillStyle = gg; ctx.fill()
+  // Inner white gap
+  ctx.beginPath(); ctx.arc(cx, cy, s*0.42, 0, Math.PI*2)
+  ctx.fillStyle = '#f8f8fa'; ctx.fill()
+  // Inner gradient circle
+  ctx.beginPath(); ctx.arc(cx, cy, s*0.38, 0, Math.PI*2)
+  ctx.fillStyle = gg; ctx.fill()
+  drawLetter(ctx, g.letter, S)
+  addCard(document.getElementById('bordered'), c, g.name)
+})
+
+// F — Shield
+groups.forEach(g => {
+  const c = makeCanvas(S); const ctx = c.getContext('2d')
+  const s = S * 2, cx = s/2
+  ctx.beginPath()
+  ctx.moveTo(s*0.1, s*0.12)
+  ctx.lineTo(s*0.9, s*0.12)
+  ctx.lineTo(s*0.9, s*0.55)
+  ctx.quadraticCurveTo(s*0.9, s*0.8, cx, s*0.92)
+  ctx.quadraticCurveTo(s*0.1, s*0.8, s*0.1, s*0.55)
+  ctx.closePath()
+  drawGrad(ctx, null, S)
+  drawLetter(ctx, g.letter, S)
+  addCard(document.getElementById('shield'), c, g.name)
+})
+
+// Set comparison slot to rounded square (most popular choice)
+const compC = makeCanvas(40); const compCtx = compC.getContext('2d')
+const compS = 80
+compCtx.beginPath()
+compCtx.roundRect(compS*0.05, compS*0.05, compS*0.9, compS*0.9, 14*2)
+const cg = compCtx.createLinearGradient(0, 0, compS, compS)
+cg.addColorStop(0, grad[0]); cg.addColorStop(1, grad[1])
+compCtx.fillStyle = cg; compCtx.fill()
+compCtx.fillStyle = 'white'
+compCtx.font = '700 32px -apple-system'; compCtx.textAlign = 'center'; compCtx.textBaseline = 'middle'
+compCtx.fillText('Р', 40, 42)
+document.getElementById('compare-slot').appendChild(compC)
+</script>
+</body>
+</html>

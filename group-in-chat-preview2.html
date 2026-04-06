@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Группа в чатах — вариант A vs D</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 30px 16px; display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; }
+    .phone { width: 360px; border-radius: 30px; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,0.12); background: white; border: 6px solid #1a1a1a; }
+    .phone-label { text-align: center; font-size: 13px; color: #999; margin-bottom: 8px; font-weight: 500; }
+    .notch { height: 20px; background: #1a1a1a; border-radius: 0 0 14px 14px; width: 120px; margin: 0 auto; }
+    .header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: white; border-bottom: 1px solid #f0f0f0; }
+    .header-left { display: flex; align-items: center; gap: 8px; }
+    .tab-bar { display: flex; border-top: 1px solid #f0f0f0; background: white; }
+    .tab { flex: 1; text-align: center; padding: 8px 0 6px; font-size: 10px; font-weight: 500; color: #9ca3af; }
+    .tab.active { color: #8b5cf6; }
+    .chat-header { padding: 14px 16px; font-weight: 600; font-size: 16px; color: #1f2937; background: white; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+    .chat-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: white; }
+    .chat-item:not(:last-child) { border-bottom: 1px solid #f8f8f8; }
+    .chat-meta { flex: 1; min-width: 0; }
+    .chat-name { font-size: 14px; font-weight: 500; color: #1f2937; }
+    .chat-name.bold { font-weight: 700; color: #111827; }
+    .chat-preview { font-size: 12px; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chat-preview.bold { color: #374151; font-weight: 500; }
+    .badge { background: linear-gradient(135deg, #8b5cf6, #ec4899); color: white; font-size: 10px; font-weight: 700; min-width: 20px; height: 20px; border-radius: 10px; display: flex; align-items: center; justify-content: center; padding: 0 5px; flex-shrink: 0; }
+    .group-btn { display: flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #8b5cf6, #ec4899); color: white; font-size: 11px; font-weight: 500; padding: 5px 10px; border-radius: 20px; border: none; }
+  </style>
+</head>
+<body>
+
+<!-- Вариант A — Скруглённый квадрат -->
+<div>
+  <div class="phone-label">A — Скруглённый квадрат</div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="header">
+      <div class="header-left">
+        <svg viewBox="0 0 100 100" width="28" height="28" style="border-radius:6px;"><defs><linearGradient id="ic1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#8b5cf6"/><stop offset="100%" style="stop-color:#ec4899"/></linearGradient></defs><rect width="100" height="100" rx="20" fill="url(#ic1)"/><text x="44" y="70" text-anchor="middle" font-family="-apple-system" font-size="58" font-weight="700" fill="white">С</text></svg>
+        <span style="font-weight:600; font-size:15px; color:#1f2937">Свои</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:13px; color:#9ca3af">Елена</span>
+        <canvas id="my-avatar-a" style="width:32px; height:32px; border-radius:50%;"></canvas>
+      </div>
+    </div>
+    <div class="chat-header">Чаты <button class="group-btn"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg> Группа</button></div>
+    <div>
+      <div class="chat-item">
+        <canvas id="a-group1" style="width:44px; height:44px;"></canvas>
+        <div class="chat-meta"><div class="chat-name bold">Семья</div><div class="chat-preview bold">Мама: Кто придёт в воскресенье?</div></div>
+        <span class="badge">3</span>
+      </div>
+      <div class="chat-item">
+        <canvas id="a-face1" style="width:44px; height:44px; border-radius:50%;"></canvas>
+        <div class="chat-meta"><div class="chat-name">Лёша Неводов</div><div class="chat-preview">Окей, договорились!</div></div>
+      </div>
+      <div class="chat-item">
+        <canvas id="a-group2" style="width:44px; height:44px;"></canvas>
+        <div class="chat-meta"><div class="chat-name bold">Работа</div><div class="chat-preview bold">Антон: Завтра созвон в 10</div></div>
+        <span class="badge">1</span>
+      </div>
+      <div class="chat-item">
+        <canvas id="a-face2" style="width:44px; height:44px; border-radius:50%;"></canvas>
+        <div class="chat-meta"><div class="chat-name">Анна Смирнова</div><div class="chat-preview">Фото отправила!</div></div>
+      </div>
+      <div class="chat-item">
+        <canvas id="a-group3" style="width:44px; height:44px;"></canvas>
+        <div class="chat-meta"><div class="chat-name">Поход</div><div class="chat-preview">Нет сообщений</div></div>
+      </div>
+      <div class="chat-item">
+        <canvas id="a-face3" style="width:44px; height:44px; border-radius:50%;"></canvas>
+        <div class="chat-meta"><div class="chat-name">Марина К.</div><div class="chat-preview">Спасибо большое! 💜</div></div>
+      </div>
+    </div>
+    <div class="tab-bar"><div class="tab active">💬 Чаты</div><div class="tab">📰 Лента</div><div class="tab">👥 Друзья</div></div>
+  </div>
+</div>
+
+<!-- Вариант D — Капля -->
+<div>
+  <div class="phone-label">D — Капля</div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="header">
+      <div class="header-left">
+        <svg viewBox="0 0 100 100" width="28" height="28" style="border-radius:6px;"><defs><linearGradient id="ic2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#8b5cf6"/><stop offset="100%" style="stop-color:#ec4899"/></linearGradient></defs><rect width="100" height="100" rx="20" fill="url(#ic2)"/><text x="44" y="70" text-anchor="middle" font-family="-apple-system" font-size="58" font-weight="700" fill="white">С</text></svg>
+        <span style="font-weight:600; font-size:15px; color:#1f2937">Свои</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:13px; color:#9ca3af">Елена</span>
+        <canvas id="my-avatar-d" style="width:32px; height:32px; border-radius:50%;"></canvas>
+      </div>
+    </div>
+    <div class="chat-header">Чаты <button class="group-btn"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg> Группа</button></div>
+    <div>
+      <div class="chat-item">
+        <canvas id="d-group1" style="width:44px; height:44px;"></canvas>
+        <div class="chat-meta"><div class="chat-name bold">Семья</div><div class="chat-preview bold">Мама: Кто придёт в воскресенье?</div></div>
+        <span class="badge">3</span>
+      </div>
+      <div class="chat-item">
+        <canvas id="d-face1" style="width:44px; height:44px; border-radius:50%;"></canvas>
+        <div class="chat-meta"><div class="chat-name">Лёша Неводов</div><div class="chat-preview">Окей, договорились!</div></div>
+      </div>
+      <div class="chat-item">
+        <canvas id="d-group2" style="width:44px; height:44px;"></canvas>
+        <div class="chat-meta"><div class="chat-name bold">Работа</div><div class="chat-preview bold">Антон: Завтра созвон в 10</div></div>
+        <span class="badge">1</span>
+      </div>
+      <div class="chat-item">
+        <canvas id="d-face2" style="width:44px; height:44px; border-radius:50%;"></canvas>
+        <div class="chat-meta"><div class="chat-name">Анна Смирнова</div><div class="chat-preview">Фото отправила!</div></div>
+      </div>
+      <div class="chat-item">
+        <canvas id="d-group3" style="width:44px; height:44px;"></canvas>
+        <div class="chat-meta"><div class="chat-name">Поход</div><div class="chat-preview">Нет сообщений</div></div>
+      </div>
+      <div class="chat-item">
+        <canvas id="d-face3" style="width:44px; height:44px; border-radius:50%;"></canvas>
+        <div class="chat-meta"><div class="chat-name">Марина К.</div><div class="chat-preview">Спасибо большое! 💜</div></div>
+      </div>
+    </div>
+    <div class="tab-bar"><div class="tab active">💬 Чаты</div><div class="tab">📰 Лента</div><div class="tab">👥 Друзья</div></div>
+  </div>
+</div>
+
+<script>
+const grad = ['#8b5cf6', '#ec4899']
+function hash(str) { let h = 0; for (let i = 0; i < str.length; i++) h = str.charCodeAt(i) + ((h << 5) - h); return Math.abs(h) }
+
+function drawRoundedSquare(canvasId, letter) {
+  const c = document.getElementById(canvasId)
+  const s = 88; c.width = s; c.height = s
+  const ctx = c.getContext('2d')
+  const r = s * 0.25
+  ctx.beginPath(); ctx.roundRect(s*0.04, s*0.04, s*0.92, s*0.92, r)
+  const g = ctx.createLinearGradient(0, 0, s, s)
+  g.addColorStop(0, grad[0]); g.addColorStop(1, grad[1])
+  ctx.fillStyle = g; ctx.fill()
+  ctx.fillStyle = 'white'; ctx.font = '700 34px -apple-system'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillText(letter, s/2, s/2 + 2)
+}
+
+function drawBlob(canvasId, letter, seed) {
+  const c = document.getElementById(canvasId)
+  const s = 88; c.width = s; c.height = s
+  const ctx = c.getContext('2d')
+  const cx = s/2, cy = s/2, r = s * 0.42
+  const h = hash(seed)
+  ctx.beginPath()
+  const points = 8
+  for (let j = 0; j <= points; j++) {
+    const a1 = (j / points) * Math.PI * 2
+    const a2 = ((j + 1) / points) * Math.PI * 2
+    const amid = (a1 + a2) / 2
+    const r2 = r * (0.93 + ((h >> ((j+1)%8)) & 7) / 80)
+    const rmid = r * (0.97 + ((h >> (j+4)) & 7) / 90) * 1.08
+    if (j === 0) ctx.moveTo(cx + r2 * Math.cos(a1), cy + r2 * Math.sin(a1))
+    ctx.quadraticCurveTo(cx + Math.cos(amid)*rmid, cy + Math.sin(amid)*rmid, cx + Math.cos(a2)*r2, cy + Math.sin(a2)*r2)
+  }
+  ctx.closePath()
+  const g = ctx.createLinearGradient(0, 0, s, s)
+  g.addColorStop(0, grad[0]); g.addColorStop(1, grad[1])
+  ctx.fillStyle = g; ctx.fill()
+  ctx.fillStyle = 'white'; ctx.font = '700 34px -apple-system'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillText(letter, cx, cy + 2)
+}
+
+function drawFace(canvasId, username) {
+  const c = document.getElementById(canvasId)
+  const s = 88; c.width = s; c.height = s
+  const ctx = c.getContext('2d')
+  const h = hash(username)
+  const pals = [['#8b5cf6','#ec4899'],['#6366f1','#8b5cf6'],['#ec4899','#f43f5e'],['#a855f7','#6366f1'],['#f472b6','#a855f7']]
+  const pal = pals[h % pals.length]
+  const g = ctx.createLinearGradient(0, 0, s, s); g.addColorStop(0, pal[0]); g.addColorStop(1, pal[1])
+  ctx.beginPath(); ctx.arc(s/2, s/2, s/2, 0, Math.PI*2); ctx.fillStyle = g; ctx.fill()
+  const cx = s/2, faceY = s * 0.44, eyeSpread = s * 0.13, eyeY = faceY - s * 0.02
+  ctx.fillStyle = 'white'
+  if (h%3===0) { ctx.beginPath();ctx.arc(cx-eyeSpread,eyeY,3.5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(cx+eyeSpread,eyeY,3.5,0,Math.PI*2);ctx.fill() }
+  else if (h%3===1) { ctx.strokeStyle='white';ctx.lineWidth=2;ctx.lineCap='round';ctx.beginPath();ctx.arc(cx-eyeSpread,eyeY,3,Math.PI,2*Math.PI);ctx.stroke();ctx.beginPath();ctx.arc(cx+eyeSpread,eyeY,3,Math.PI,2*Math.PI);ctx.stroke() }
+  else { ctx.beginPath();ctx.arc(cx-eyeSpread,eyeY,2,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(cx+eyeSpread,eyeY,2,0,Math.PI*2);ctx.fill() }
+  ctx.strokeStyle='white';ctx.lineWidth=2;ctx.lineCap='round';const mY=faceY+s*0.13
+  if(h%2===0){ctx.beginPath();ctx.arc(cx,mY-3,7,0.15*Math.PI,0.85*Math.PI);ctx.stroke()}else{ctx.beginPath();ctx.moveTo(cx-5,mY);ctx.lineTo(cx+5,mY);ctx.stroke()}
+  if(h%3!==2){ctx.fillStyle='rgba(255,255,255,0.13)';ctx.beginPath();ctx.arc(cx-eyeSpread-3,faceY+5,4,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(cx+eyeSpread+3,faceY+5,4,0,Math.PI*2);ctx.fill()}
+}
+
+function drawMyAvatar(canvasId) {
+  const c = document.getElementById(canvasId); c.width=64;c.height=64
+  const ctx=c.getContext('2d'); const g=ctx.createLinearGradient(0,0,64,64);g.addColorStop(0,'#a855f7');g.addColorStop(1,'#ec4899')
+  ctx.beginPath();ctx.arc(32,32,32,0,Math.PI*2);ctx.fillStyle=g;ctx.fill()
+  ctx.fillStyle='white';ctx.beginPath();ctx.arc(24,27,3,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(40,27,3,0,Math.PI*2);ctx.fill()
+  ctx.strokeStyle='white';ctx.lineWidth=2;ctx.lineCap='round';ctx.beginPath();ctx.arc(32,36,7,0.15*Math.PI,0.85*Math.PI);ctx.stroke()
+}
+
+// Вариант A
+drawRoundedSquare('a-group1', 'С'); drawRoundedSquare('a-group2', 'Р'); drawRoundedSquare('a-group3', 'П')
+drawFace('a-face1','lesha_nevodov'); drawFace('a-face2','anna'); drawFace('a-face3','marina_k')
+drawMyAvatar('my-avatar-a')
+
+// Вариант D
+drawBlob('d-group1', 'С', 'family'); drawBlob('d-group2', 'Р', 'work'); drawBlob('d-group3', 'П', 'hiking')
+drawFace('d-face1','lesha_nevodov'); drawFace('d-face2','anna'); drawFace('d-face3','marina_k')
+drawMyAvatar('my-avatar-d')
+</script>
+</body>
+</html>
