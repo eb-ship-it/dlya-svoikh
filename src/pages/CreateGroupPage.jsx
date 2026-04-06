@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { avatarGradient } from '../lib/colors'
+import Avatar from '../components/Avatar'
 
 export default function CreateGroupPage({ onClose }) {
   const { user } = useAuth()
@@ -92,8 +92,8 @@ export default function CreateGroupPage({ onClose }) {
         {/* Step 3: Success */}
         {step === 3 && (
           <div className="flex-1 flex flex-col items-center justify-center p-8">
-            <div className="w-20 h-20 bg-gradient-to-br from-violet-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-2xl mb-4 animate-bounce">
-              {name.trim()[0].toUpperCase()}
+            <div className="mb-4 animate-bounce">
+              <Avatar isGroup groupName={name.trim()} size="xxl" />
             </div>
             <p className="text-xl font-bold text-gray-800 mb-1">Группа создана!</p>
             <p className="text-gray-400 text-sm">«{name.trim()}» — {selected.size + 1} участников</p>
@@ -110,12 +110,8 @@ export default function CreateGroupPage({ onClose }) {
             </div>
 
             <div className="flex-1 flex flex-col items-center justify-center p-8">
-              <div className="w-24 h-24 bg-gradient-to-br from-violet-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-3xl mb-6 shadow-lg transition-all">
-                {name.trim() ? name.trim()[0].toUpperCase() : (
-                  <svg className="w-10 h-10 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                )}
+              <div className="mb-6">
+                <Avatar isGroup groupName={name.trim() || '?'} size="xxl" className="shadow-lg" />
               </div>
               <input
                 type="text"
@@ -156,9 +152,7 @@ export default function CreateGroupPage({ onClose }) {
             {/* Group preview */}
             <div className="px-4 py-3 bg-gradient-to-r from-violet-50 to-pink-50 border-b border-gray-100">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-violet-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                  {name.trim()[0].toUpperCase()}
-                </div>
+                <Avatar isGroup groupName={name.trim()} size="lg" />
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-gray-800 text-sm truncate">{name.trim()}</div>
                   <div className="text-xs text-gray-500">
@@ -181,9 +175,7 @@ export default function CreateGroupPage({ onClose }) {
                         onClick={() => toggle(id)}
                         className="flex items-center gap-1 bg-white text-violet-700 text-xs px-2 py-1 rounded-full flex-shrink-0 shadow-sm"
                       >
-                        <div className={`w-4 h-4 bg-gradient-to-br ${avatarGradient(f?.username)} rounded-full flex items-center justify-center text-white text-[8px] font-bold`}>
-                          {f?.username?.[0]?.toUpperCase()}
-                        </div>
+                        <Avatar username={f?.username} size="xs" />
                         {f?.display_name?.split(' ')[0] || f?.username}
                         <span className="text-violet-300 ml-0.5">×</span>
                       </button>
@@ -219,9 +211,7 @@ export default function CreateGroupPage({ onClose }) {
                       onClick={() => toggle(f.id)}
                       className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all ${isSelected ? 'bg-violet-50' : 'hover:bg-gray-50 active:bg-gray-100'}`}
                     >
-                      <div className={`w-10 h-10 bg-gradient-to-br ${avatarGradient(f.username)} rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0`}>
-                        {f.username[0].toUpperCase()}
-                      </div>
+                      <Avatar username={f.username} size="lg" />
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-gray-800 text-sm">{f.display_name || f.username}</div>
                         {f.display_name && <div className="text-xs text-gray-400">@{f.username}</div>}

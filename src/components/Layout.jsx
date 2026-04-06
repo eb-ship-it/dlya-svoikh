@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useBadges } from '../hooks/useBadges'
-import { avatarGradient } from '../lib/colors'
+import Avatar from './Avatar'
 import { useEffect, useState } from 'react'
 import AboutPage from '../pages/AboutPage'
 
@@ -59,9 +59,7 @@ export default function Layout({ children }) {
         </button>
         <Link to="/profile" className="flex items-center gap-2">
           <span className="text-sm text-gray-500">{profile?.display_name || profile?.username}</span>
-          <div className={`w-8 h-8 bg-gradient-to-br ${avatarGradient(profile?.username)} rounded-full flex items-center justify-center text-white font-medium text-xs`}>
-            {profile?.username?.[0]?.toUpperCase()}
-          </div>
+          <Avatar username={profile?.username} size="md" />
         </Link>
       </header>
 

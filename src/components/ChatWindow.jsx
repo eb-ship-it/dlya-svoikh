@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { avatarGradient } from '../lib/colors'
+import Avatar from './Avatar'
 import GroupSettings from './GroupSettings'
 import LinkifyText from './LinkifyText'
 
@@ -114,9 +114,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
         </button>
         {isGroup ? (
           <button onClick={() => setShowSettings(true)} className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-9 h-9 bg-gradient-to-br from-violet-400 to-pink-400 rounded-full flex items-center justify-center text-white font-medium">
-              {groupName?.[0]?.toUpperCase() || '?'}
-            </div>
+            <Avatar isGroup groupName={groupName} size="md" />
             <div className="text-left min-w-0">
               <div className="font-medium text-gray-800 truncate">{groupName}</div>
               <div className="text-xs text-gray-400">{Object.keys(members).length} участников</div>
@@ -124,9 +122,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
           </button>
         ) : (
           <>
-            <div className={`w-9 h-9 bg-gradient-to-br ${avatarGradient(partnerUsername)} rounded-full flex items-center justify-center text-white font-medium`}>
-              {partnerUsername?.[0]?.toUpperCase() || '?'}
-            </div>
+            <Avatar username={partnerUsername} size="md" />
             <div className="font-medium text-gray-800">{partnerDisplayName || partnerUsername}</div>
           </>
         )}

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Аватарки v2 — варианты</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 30px 16px; }
+    h1 { text-align: center; color: #333; margin-bottom: 10px; font-size: 22px; }
+    .subtitle { text-align: center; color: #888; font-size: 14px; margin-bottom: 40px; }
+    .section { margin-bottom: 40px; }
+    .section-title { font-size: 14px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; text-align: center; }
+    .section-desc { font-size: 12px; color: #999; text-align: center; margin-bottom: 16px; }
+    .row { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+    .avatar-card { text-align: center; }
+    .avatar-card .name { font-size: 11px; color: #888; margin-top: 6px; }
+    canvas { border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .sizes-row { display: flex; gap: 16px; justify-content: center; align-items: end; flex-wrap: wrap; margin-top: 20px; }
+    .sizes-row canvas { box-shadow: none; }
+    .sizes-label { font-size: 10px; color: #aaa; text-align: center; margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+<h1>Аватарки v2</h1>
+<p class="subtitle">Новые варианты</p>
+
+<div class="section">
+  <div class="section-title">A — Мягкие градиенты + тень буквы</div>
+  <div class="section-desc">Буква с лёгкой тенью, более насыщенные градиенты</div>
+  <div class="row" id="shadow-letter"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">B — Кольцо + буква</div>
+  <div class="section-desc">Белое кольцо по краю, буква в центре</div>
+  <div class="row" id="ring"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">C — Двухцветный круг</div>
+  <div class="section-desc">Половина одного цвета, половина другого, белая буква</div>
+  <div class="row" id="split"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">D — Волны + буква</div>
+  <div class="section-desc">Мягкие волнистые линии на фоне</div>
+  <div class="row" id="waves"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">E — Боке / пузыри</div>
+  <div class="section-desc">Мягкие светящиеся пузыри на градиенте</div>
+  <div class="row" id="bokeh"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">F — Геометрия + инициалы</div>
+  <div class="section-desc">Абстрактные формы на фоне, две буквы инициалов</div>
+  <div class="row" id="geo"></div>
+</div>
+
+<script>
+const users = [
+  { username: 'lenabel', display: 'Елена Беляева' },
+  { username: 'lesha_nevodov', display: 'Лёша Неводов' },
+  { username: 'anna', display: 'Анна Смирнова' },
+  { username: 'test1', display: 'Тест Первый' },
+  { username: 'marina_k', display: 'Марина К.' },
+]
+
+const palettes = [
+  { from: '#8b5cf6', to: '#ec4899', light: '#c4b5fd' },
+  { from: '#6366f1', to: '#8b5cf6', light: '#a5b4fc' },
+  { from: '#ec4899', to: '#f43f5e', light: '#f9a8d4' },
+  { from: '#a855f7', to: '#6366f1', light: '#d8b4fe' },
+  { from: '#f472b6', to: '#a855f7', light: '#f9a8d4' },
+]
+
+function hash(str) {
+  let h = 0
+  for (let i = 0; i < str.length; i++) h = str.charCodeAt(i) + ((h << 5) - h)
+  return Math.abs(h)
+}
+
+function getInitials(display) {
+  return display.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+}
+
+function addCard(container, canvas, name) {
+  const card = document.createElement('div')
+  card.className = 'avatar-card'
+  card.appendChild(canvas)
+  const label = document.createElement('div')
+  label.className = 'name'
+  label.textContent = name
+  card.appendChild(label)
+  container.appendChild(card)
+}
+
+const S = 72
+
+// A — Shadow letter
+function drawShadowLetter(size, pal, letter) {
+  const c = document.createElement('canvas'); c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const g = ctx.createLinearGradient(0, 0, size, size)
+  g.addColorStop(0, pal.from); g.addColorStop(1, pal.to)
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+  ctx.fillStyle = g; ctx.fill()
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.15)'
+  ctx.font = `700 ${size*0.42}px -apple-system, sans-serif`
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillText(letter, size/2 + 1, size/2 + 2)
+  // Letter
+  ctx.fillStyle = 'white'
+  ctx.fillText(letter, size/2, size/2 + 1)
+  return c
+}
+
+// B — Ring
+function drawRing(size, pal, letter) {
+  const c = document.createElement('canvas'); c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const g = ctx.createLinearGradient(0, 0, size, size)
+  g.addColorStop(0, pal.from); g.addColorStop(1, pal.to)
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+  ctx.fillStyle = g; ctx.fill()
+  // Inner white ring
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2 - 3, 0, Math.PI*2)
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 2; ctx.stroke()
+  // Letter
+  ctx.fillStyle = 'white'
+  ctx.font = `600 ${size*0.38}px -apple-system, sans-serif`
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillText(letter, size/2, size/2 + 1)
+  return c
+}
+
+// C — Split
+function drawSplit(size, pal, letter) {
+  const c = document.createElement('canvas'); c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  // Clip circle
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2); ctx.clip()
+  // Left half
+  ctx.fillStyle = pal.from
+  ctx.fillRect(0, 0, size/2, size)
+  // Right half
+  ctx.fillStyle = pal.to
+  ctx.fillRect(size/2, 0, size/2, size)
+  // Soft blend in middle
+  const g = ctx.createLinearGradient(size*0.35, 0, size*0.65, 0)
+  g.addColorStop(0, pal.from); g.addColorStop(1, pal.to)
+  ctx.fillStyle = g; ctx.fillRect(size*0.35, 0, size*0.3, size)
+  // Letter
+  ctx.fillStyle = 'white'
+  ctx.font = `600 ${size*0.4}px -apple-system, sans-serif`
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillText(letter, size/2, size/2 + 1)
+  return c
+}
+
+// D — Waves
+function drawWaves(size, pal, letter, username) {
+  const c = document.createElement('canvas'); c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const g = ctx.createLinearGradient(0, 0, size, size)
+  g.addColorStop(0, pal.from); g.addColorStop(1, pal.to)
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+  ctx.fillStyle = g; ctx.fill()
+  // Waves
+  const h = hash(username)
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'
+  ctx.lineWidth = 2
+  for (let w = 0; w < 4; w++) {
+    const y0 = size * 0.2 + w * size * 0.18
+    ctx.beginPath()
+    ctx.moveTo(0, y0)
+    for (let x = 0; x <= size; x += 2) {
+      const y = y0 + Math.sin((x + h * w) * 0.08) * (size * 0.06)
+      ctx.lineTo(x, y)
+    }
+    ctx.stroke()
+  }
+  // Letter
+  ctx.fillStyle = 'rgba(255,255,255,0.95)'
+  ctx.font = `700 ${size*0.4}px -apple-system, sans-serif`
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillText(letter, size/2, size/2 + 1)
+  return c
+}
+
+// E — Bokeh
+function drawBokeh(size, pal, letter, username) {
+  const c = document.createElement('canvas'); c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const g = ctx.createLinearGradient(0, 0, size, size)
+  g.addColorStop(0, pal.from); g.addColorStop(1, pal.to)
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+  ctx.fillStyle = g; ctx.fill()
+  // Bokeh bubbles
+  const h = hash(username)
+  for (let i = 0; i < 6; i++) {
+    const bx = ((h * (i+1) * 17) % (size * 0.8)) + size * 0.1
+    const by = ((h * (i+1) * 23) % (size * 0.8)) + size * 0.1
+    const br = size * 0.06 + (i % 3) * size * 0.04
+    const bg = ctx.createRadialGradient(bx, by, 0, bx, by, br)
+    bg.addColorStop(0, 'rgba(255,255,255,0.25)')
+    bg.addColorStop(1, 'rgba(255,255,255,0)')
+    ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI*2)
+    ctx.fillStyle = bg; ctx.fill()
+  }
+  // Letter
+  ctx.fillStyle = 'white'
+  ctx.font = `700 ${size*0.4}px -apple-system, sans-serif`
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillText(letter, size/2, size/2 + 1)
+  return c
+}
+
+// F — Geo + initials
+function drawGeo(size, pal, initials, username) {
+  const c = document.createElement('canvas'); c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const g = ctx.createLinearGradient(0, 0, size, size)
+  g.addColorStop(0, pal.from); g.addColorStop(1, pal.to)
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+  ctx.fillStyle = g; ctx.fill()
+  // Geometric shapes
+  const h = hash(username)
+  ctx.fillStyle = 'rgba(255,255,255,0.08)'
+  // Big circle
+  ctx.beginPath()
+  ctx.arc(size * 0.7, size * 0.3, size * 0.25, 0, Math.PI*2)
+  ctx.fill()
+  // Triangle
+  ctx.beginPath()
+  ctx.moveTo(size * 0.1, size * 0.7)
+  ctx.lineTo(size * 0.35, size * 0.3)
+  ctx.lineTo(size * 0.5, size * 0.8)
+  ctx.fill()
+  // Small circle
+  ctx.fillStyle = 'rgba(255,255,255,0.12)'
+  ctx.beginPath()
+  ctx.arc(size * 0.25, size * 0.25, size * 0.12, 0, Math.PI*2)
+  ctx.fill()
+  // Initials
+  ctx.fillStyle = 'white'
+  ctx.font = `700 ${size*0.34}px -apple-system, sans-serif`
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillText(initials, size/2, size/2 + 1)
+  return c
+}
+
+users.forEach((u, i) => {
+  const pal = palettes[i % palettes.length]
+  const letter = u.username[0].toUpperCase()
+  const initials = getInitials(u.display)
+
+  addCard(document.getElementById('shadow-letter'), drawShadowLetter(S, pal, letter), u.display)
+  addCard(document.getElementById('ring'), drawRing(S, pal, letter), u.display)
+  addCard(document.getElementById('split'), drawSplit(S, pal, letter), u.display)
+  addCard(document.getElementById('waves'), drawWaves(S, pal, letter, u.username), u.display)
+  addCard(document.getElementById('bokeh'), drawBokeh(S, pal, letter, u.username), u.display)
+  addCard(document.getElementById('geo'), drawGeo(S, pal, initials, u.username), u.display)
+})
+</script>
+</body>
+</html>

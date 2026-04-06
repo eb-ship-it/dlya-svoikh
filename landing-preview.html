@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Свои — Мессенджер для своих</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @supports (height: 100dvh) { .min-h-dvh { min-height: 100dvh; } }
+    @supports not (height: 100dvh) { .min-h-dvh { min-height: 100vh; } }
+  </style>
+</head>
+<body class="min-h-dvh bg-white antialiased">
+
+  <!-- Hero -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-violet-500 to-pink-500 text-white">
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
+      <div class="absolute bottom-10 right-10 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="relative max-w-4xl mx-auto px-6 py-20 md:py-32 text-center">
+      <!-- Inline icon instead of /icon.svg -->
+      <div class="w-24 h-24 md:w-28 md:h-28 bg-gradient-to-br from-violet-600 to-pink-500 rounded-3xl mx-auto mb-6 shadow-2xl shadow-black/20 flex items-center justify-center">
+        <span class="text-white text-5xl md:text-6xl font-bold" style="font-family: system-ui">С</span>
+      </div>
+      <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">Свои</h1>
+      <p class="text-lg md:text-xl text-white/80 max-w-md mx-auto mb-10 leading-relaxed">
+        Мессенджер для близких друзей. Никакой рекламы, алгоритмов и лишних людей — только свои.
+      </p>
+      <a href="#" class="inline-flex items-center gap-2 bg-white text-violet-600 font-semibold px-8 py-3.5 rounded-2xl shadow-lg shadow-black/10 hover:shadow-xl hover:scale-105 transition-all text-base">
+        Начать общение
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="max-w-4xl mx-auto px-6 py-16 md:py-24">
+    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 text-center mb-4">Всё для общения</h2>
+    <p class="text-gray-400 text-center mb-12 max-w-lg mx-auto">
+      Простой и уютный мессенджер, где нет ничего лишнего
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- Чаты -->
+      <div class="group bg-gray-50 hover:bg-gradient-to-br hover:from-violet-50 hover:to-pink-50 rounded-2xl p-6 transition-all">
+        <div class="w-12 h-12 bg-gradient-to-br from-violet-500 to-pink-500 text-white rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-1">Чаты</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">Личные и групповые чаты с мгновенной доставкой сообщений</p>
+      </div>
+
+      <!-- Лента -->
+      <div class="group bg-gray-50 hover:bg-gradient-to-br hover:from-violet-50 hover:to-pink-50 rounded-2xl p-6 transition-all">
+        <div class="w-12 h-12 bg-gradient-to-br from-violet-500 to-pink-500 text-white rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-1">Лента</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">Делись мыслями и моментами с друзьями, реагируй и комментируй</p>
+      </div>
+
+      <!-- Друзья -->
+      <div class="group bg-gray-50 hover:bg-gradient-to-br hover:from-violet-50 hover:to-pink-50 rounded-2xl p-6 transition-all">
+        <div class="w-12 h-12 bg-gradient-to-br from-violet-500 to-pink-500 text-white rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-1">Друзья</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">Добавляй друзей по логину или приглашай по ссылке</p>
+      </div>
+
+      <!-- Маячок -->
+      <div class="group bg-gray-50 hover:bg-gradient-to-br hover:from-violet-50 hover:to-pink-50 rounded-2xl p-6 transition-all">
+        <div class="w-12 h-12 bg-gradient-to-br from-violet-500 to-pink-500 text-white rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-7 h-7" viewBox="0 0 100 100">
+            <path d="M50 8 L58 18 L55 18 L60 85 L40 85 L45 18 L42 18 Z" fill="currentColor" />
+            <rect x="35" y="85" width="30" height="8" rx="2" fill="currentColor" />
+            <circle cx="50" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="3" opacity="0.4" />
+            <line x1="30" y1="6" x2="38" y2="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.5" />
+            <line x1="70" y1="6" x2="62" y2="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.5" />
+            <line x1="50" y1="-2" x2="50" y2="3" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.5" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-1">Маячок</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">Ежедневные советы и мотивация на основе твоих целей</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="bg-gray-50">
+    <div class="max-w-4xl mx-auto px-6 py-16 md:py-24">
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-800 text-center mb-12">Как начать</h2>
+
+      <div class="flex flex-col md:flex-row items-center md:items-start justify-center gap-8 md:gap-12">
+
+        <div class="flex flex-col items-center text-center max-w-[200px]">
+          <div class="w-14 h-14 bg-gradient-to-br from-violet-500 to-pink-500 text-white rounded-2xl flex items-center justify-center text-xl font-bold mb-4 shadow-lg shadow-violet-200">1</div>
+          <p class="text-gray-700 text-sm font-medium">Зарегистрируйся за 30 секунд</p>
+          <svg class="w-6 h-6 text-gray-300 mt-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </div>
+
+        <div class="flex flex-col items-center text-center max-w-[200px]">
+          <div class="w-14 h-14 bg-gradient-to-br from-violet-500 to-pink-500 text-white rounded-2xl flex items-center justify-center text-xl font-bold mb-4 shadow-lg shadow-violet-200">2</div>
+          <p class="text-gray-700 text-sm font-medium">Пригласи друзей по ссылке</p>
+          <svg class="w-6 h-6 text-gray-300 mt-4 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </div>
+
+        <div class="flex flex-col items-center text-center max-w-[200px]">
+          <div class="w-14 h-14 bg-gradient-to-br from-violet-500 to-pink-500 text-white rounded-2xl flex items-center justify-center text-xl font-bold mb-4 shadow-lg shadow-violet-200">3</div>
+          <p class="text-gray-700 text-sm font-medium">Общайся, делись и вдохновляйся</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="max-w-4xl mx-auto px-6 py-16 md:py-24 text-center">
+    <div class="bg-gradient-to-br from-violet-500 to-pink-500 rounded-3xl px-8 py-12 md:py-16 text-white">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">Присоединяйся</h2>
+      <p class="text-white/80 mb-8 max-w-md mx-auto">
+        Создай аккаунт и пригласи тех, с кем хочешь быть на связи
+      </p>
+      <a href="#" class="inline-flex items-center gap-2 bg-white text-violet-600 font-semibold px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all text-base">
+        Создать аккаунт
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-100 py-8">
+    <div class="max-w-4xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 bg-gradient-to-br from-violet-500 to-pink-500 rounded-lg flex items-center justify-center">
+          <span class="text-white text-xs font-bold">С</span>
+        </div>
+        <span class="text-sm font-semibold text-gray-700">Свои</span>
+      </div>
+      <p class="text-xs text-gray-400">Мессенджер для своих</p>
+    </div>
+  </footer>
+
+</body>
+</html>

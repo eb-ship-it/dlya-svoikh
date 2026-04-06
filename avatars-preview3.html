@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Аватарки v3 — образы</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 30px 16px; }
+    h1 { text-align: center; color: #333; margin-bottom: 10px; font-size: 22px; }
+    .subtitle { text-align: center; color: #888; font-size: 14px; margin-bottom: 40px; }
+    .section { margin-bottom: 40px; }
+    .section-title { font-size: 14px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; text-align: center; }
+    .section-desc { font-size: 12px; color: #999; text-align: center; margin-bottom: 16px; }
+    .row { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+    .avatar-card { text-align: center; }
+    .avatar-card .name { font-size: 11px; color: #888; margin-top: 6px; }
+    canvas { border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+
+<h1>Аватарки v3</h1>
+<p class="subtitle">Совсем другие подходы</p>
+
+<!-- A: Абстрактные лица -->
+<div class="section">
+  <div class="section-title">A — Абстрактные лица</div>
+  <div class="section-desc">Минималистичные лица из простых форм, каждое уникально по хешу имени</div>
+  <div class="row" id="faces"></div>
+</div>
+
+<!-- B: Планеты -->
+<div class="section">
+  <div class="section-title">B — Планеты</div>
+  <div class="section-desc">Каждый пользователь — уникальная планета с кольцами и пятнами</div>
+  <div class="row" id="planets"></div>
+</div>
+
+<!-- C: Цветы -->
+<div class="section">
+  <div class="section-title">C — Цветы</div>
+  <div class="section-desc">Генеративные цветы с лепестками, количество и цвет по хешу</div>
+  <div class="row" id="flowers"></div>
+</div>
+
+<!-- D: Абстрактные пейзажи -->
+<div class="section">
+  <div class="section-title">D — Закаты</div>
+  <div class="section-desc">Мини-пейзажи: горы, солнце, вода</div>
+  <div class="row" id="sunsets"></div>
+</div>
+
+<!-- E: Драгоценные камни -->
+<div class="section">
+  <div class="section-title">E — Кристаллы</div>
+  <div class="section-desc">Драгоценные камни с гранями и блеском</div>
+  <div class="row" id="gems"></div>
+</div>
+
+<!-- F: Абстрактное искусство -->
+<div class="section">
+  <div class="section-title">F — Мазки краски</div>
+  <div class="section-desc">Абстрактная живопись — мягкие цветовые пятна</div>
+  <div class="row" id="paint"></div>
+</div>
+
+<script>
+const users = [
+  { username: 'lenabel', display: 'Елена Беляева' },
+  { username: 'lesha_nevodov', display: 'Лёша Неводов' },
+  { username: 'anna', display: 'Анна Смирнова' },
+  { username: 'test1', display: 'Тест Первый' },
+  { username: 'marina_k', display: 'Марина К.' },
+]
+
+const palettes = [
+  { a: '#8b5cf6', b: '#ec4899', c: '#fbbf24', d: '#f9a8d4' },
+  { a: '#6366f1', b: '#06b6d4', c: '#a78bfa', d: '#67e8f9' },
+  { a: '#f43f5e', b: '#fb923c', c: '#fbbf24', d: '#fda4af' },
+  { a: '#a855f7', b: '#3b82f6', c: '#c084fc', d: '#93c5fd' },
+  { a: '#ec4899', b: '#8b5cf6', c: '#f9a8d4', d: '#c4b5fd' },
+]
+
+function hash(str) {
+  let h = 0
+  for (let i = 0; i < str.length; i++) h = str.charCodeAt(i) + ((h << 5) - h)
+  return Math.abs(h)
+}
+
+function addCard(container, canvas, name) {
+  const card = document.createElement('div')
+  card.className = 'avatar-card'
+  card.appendChild(canvas)
+  const label = document.createElement('div')
+  label.className = 'name'
+  label.textContent = name
+  card.appendChild(label)
+  container.appendChild(card)
+}
+
+const S = 80
+
+// A — Абстрактные лица
+function drawFace(size, pal, username) {
+  const c = document.createElement('canvas'); c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const h = hash(username)
+  // Background
+  const g = ctx.createLinearGradient(0, 0, size, size)
+  g.addColorStop(0, pal.a); g.addColorStop(1, pal.b)
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+  ctx.fillStyle = g; ctx.fill()
+  // Face
+  const faceY = size * 0.42
+  // Eyes
+  const eyeSpread = size * 0.12 + (h % 5) * 1
+  const eyeY = faceY - size * 0.02
+  const eyeSize = size * 0.04 + (h % 3) * 0.5
+  ctx.fillStyle = 'white'
+  // Left eye
+  if (h % 3 === 0) { // round eyes
+    ctx.beginPath(); ctx.arc(size/2 - eyeSpread, eyeY, eyeSize, 0, Math.PI*2); ctx.fill()
+    ctx.beginPath(); ctx.arc(size/2 + eyeSpread, eyeY, eyeSize, 0, Math.PI*2); ctx.fill()
+  } else if (h % 3 === 1) { // line eyes
+    ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.lineCap = 'round'
+    ctx.beginPath(); ctx.moveTo(size/2 - eyeSpread - 4, eyeY); ctx.lineTo(size/2 - eyeSpread + 4, eyeY); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(size/2 + eyeSpread - 4, eyeY); ctx.lineTo(size/2 + eyeSpread + 4, eyeY); ctx.stroke()
+  } else { // dot eyes
+    ctx.beginPath(); ctx.arc(size/2 - eyeSpread, eyeY, 2, 0, Math.PI*2); ctx.fill()
+    ctx.beginPath(); ctx.arc(size/2 + eyeSpread, eyeY, 2, 0, Math.PI*2); ctx.fill()
+  }
+  // Mouth
+  ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.lineCap = 'round'
+  const mouthY = faceY + size * 0.12
+  const mouthW = size * 0.1 + (h % 4) * 2
+  if (h % 4 < 2) { // smile
+    ctx.beginPath()
+    ctx.arc(size/2, mouthY - 4, mouthW, 0.1 * Math.PI, 0.9 * Math.PI)
+    ctx.stroke()
+  } else if (h % 4 === 2) { // line
+    ctx.beginPath()
+    ctx.moveTo(size/2 - mouthW/2, mouthY); ctx.lineTo(size/2 + mouthW/2, mouthY)
+    ctx.stroke()
+  } else { // small circle
+    ctx.beginPath(); ctx.arc(size/2, mouthY, 3, 0, Math.PI*2); ctx.stroke()
+  }
+  // Cheeks
+  if (h % 2 === 0) {
+    ctx.fillStyle = 'rgba(255,255,255,0.15)'
+    ctx.beginPath(); ctx.arc(size/2 - eyeSpread - 4, faceY + 6, 5, 0, Math.PI*2); ctx.fill()
+    ctx.beginPath(); ctx.arc(size/2 + eyeSpread + 4, faceY + 6, 5, 0, Math.PI*2); ctx.fill()
+  }
+  return c
+}
+
+// B — Планеты
+function drawPlanet(size, pal, username) {
+  const c = document.createElement('canvas'); c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const h = hash(username)
+  // Space bg
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+  ctx.fillStyle = '#1a1a2e'; ctx.fill()
+  // Planet
+  const pr = size * 0.32
+  const g = ctx.createRadialGradient(size*0.4, size*0.4, pr*0.1, size/2, size/2, pr)
+  g.addColorStop(0, pal.d); g.addColorStop(0.5, pal.a); g.addColorStop(1, pal.b)
+  ctx.beginPath(); ctx.arc(size/2, size/2, pr, 0, Math.PI*2)
+  ctx.fillStyle = g; ctx.fill()
+  // Surface details
+  ctx.fillStyle = 'rgba(255,255,255,0.1)'
+  for (let i = 0; i < 3; i++) {
+    const sx = size/2 + Math.cos(h + i * 2) * pr * 0.4
+    const sy = size/2 + Math.sin(h + i * 2) * pr * 0.3
+    ctx.beginPath(); ctx.arc(sx, sy, pr * 0.15, 0, Math.PI*2); ctx.fill()
+  }
+  // Ring
+  if (h % 2 === 0) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.ellipse(size/2, size/2, pr * 1.4, pr * 0.3, (h % 30) * 0.1, 0, Math.PI * 2)
+    ctx.stroke()
+  }
+  // Stars
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'
+  for (let i = 0; i < 8; i++) {
+    const sx = (h * (i+1) * 17) % size
+    const sy = (h * (i+1) * 23) % size
+    const dx = sx - size/2, dy = sy - size/2
+    if (dx*dx + dy*dy > pr*pr && dx*dx + dy*dy < (size/2)*(size/2)) {
+      ctx.beginPath(); ctx.arc(sx, sy, 1, 0, Math.PI*2); ctx.fill()
+    }
+  }
+  return c
+}
+
+// C — Цветы
+function drawFlower(size, pal, username) {
+  const c = document.createElement('canvas'); c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const h = hash(username)
+  // Soft bg
+  const bg = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2)
+  bg.addColorStop(0, '#fef3f8'); bg.addColorStop(1, '#f0e6ff')
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+  ctx.fillStyle = bg; ctx.fill()
+  // Petals
+  const petals = 5 + (h % 4)
+  const petalR = size * 0.16
+  const centerR = size * 0.1
+  for (let i = 0; i < petals; i++) {
+    const angle = (i / petals) * Math.PI * 2 - Math.PI/2
+    const px = size/2 + Math.cos(angle) * (size * 0.18)
+    const py = size/2 + Math.sin(angle) * (size * 0.18)
+    ctx.fillStyle = i % 2 === 0 ? pal.a + '99' : pal.b + '99'
+    ctx.beginPath(); ctx.arc(px, py, petalR, 0, Math.PI*2); ctx.fill()
+  }
+  // Center
+  const cg = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, centerR)
+  cg.addColorStop(0, pal.c); cg.addColorStop(1, pal.a)
+  ctx.beginPath(); ctx.arc(size/2, size/2, centerR, 0, Math.PI*2)
+  ctx.fillStyle = cg; ctx.fill()
+  // Dots in center
+  ctx.fillStyle = 'rgba(255,255,255,0.4)'
+  for (let i = 0; i < 5; i++) {
+    const dx = size/2 + Math.cos(i * 1.2) * centerR * 0.4
+    const dy = size/2 + Math.sin(i * 1.2) * centerR * 0.4
+    ctx.beginPath(); ctx.arc(dx, dy, 1.5, 0, Math.PI*2); ctx.fill()
+  }
+  return c
+}
+
+// D — Закаты
+function drawSunset(size, pal, username) {
+  const c = document.createElement('canvas'); c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const h = hash(username)
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2); ctx.clip()
+  // Sky
+  const sky = ctx.createLinearGradient(0, 0, 0, size)
+  sky.addColorStop(0, pal.a); sky.addColorStop(0.5, pal.b); sky.addColorStop(0.8, pal.c); sky.addColorStop(1, pal.a + '44')
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, size, size)
+  // Sun
+  const sunY = size * 0.38 + (h % 10)
+  const sunR = size * 0.1 + (h % 5)
+  const sg = ctx.createRadialGradient(size/2, sunY, 0, size/2, sunY, sunR * 2)
+  sg.addColorStop(0, '#fff9'); sg.addColorStop(0.3, pal.c + '66'); sg.addColorStop(1, 'transparent')
+  ctx.fillStyle = sg; ctx.fillRect(0, 0, size, size)
+  ctx.fillStyle = 'rgba(255,255,255,0.8)'
+  ctx.beginPath(); ctx.arc(size/2, sunY, sunR, 0, Math.PI*2); ctx.fill()
+  // Mountains
+  ctx.fillStyle = pal.a + '88'
+  ctx.beginPath()
+  ctx.moveTo(0, size * 0.7)
+  ctx.lineTo(size * 0.2, size * 0.45 + (h % 8))
+  ctx.lineTo(size * 0.45, size * 0.6)
+  ctx.lineTo(size * 0.65, size * 0.4 + (h % 6))
+  ctx.lineTo(size * 0.85, size * 0.55)
+  ctx.lineTo(size, size * 0.65)
+  ctx.lineTo(size, size); ctx.lineTo(0, size)
+  ctx.fill()
+  // Water
+  ctx.fillStyle = pal.b + '33'
+  ctx.fillRect(0, size * 0.72, size, size * 0.3)
+  // Water reflection
+  ctx.fillStyle = 'rgba(255,255,255,0.15)'
+  for (let i = 0; i < 4; i++) {
+    const wy = size * 0.75 + i * 5
+    ctx.fillRect(size * 0.3 + i * 3, wy, size * 0.4 - i * 6, 1.5)
+  }
+  return c
+}
+
+// E — Кристаллы
+function drawGem(size, pal, username) {
+  const c = document.createElement('canvas'); c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const h = hash(username)
+  // Dark bg
+  const bg = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2)
+  bg.addColorStop(0, '#2d1b4e'); bg.addColorStop(1, '#1a1028')
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+  ctx.fillStyle = bg; ctx.fill()
+  // Gem shape
+  const cx = size/2, cy = size/2
+  const gr = size * 0.28
+  const sides = 5 + (h % 3)
+  const angleOff = (h % 60) * 0.1
+  // Gem body
+  const gg = ctx.createLinearGradient(cx - gr, cy - gr, cx + gr, cy + gr)
+  gg.addColorStop(0, pal.a); gg.addColorStop(0.5, pal.d); gg.addColorStop(1, pal.b)
+  ctx.beginPath()
+  for (let i = 0; i < sides; i++) {
+    const a = angleOff + (i / sides) * Math.PI * 2
+    const r = gr * (0.85 + ((h >> i) & 1) * 0.15)
+    ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r)
+  }
+  ctx.closePath()
+  ctx.fillStyle = gg; ctx.fill()
+  // Facets
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1
+  for (let i = 0; i < sides; i++) {
+    const a = angleOff + (i / sides) * Math.PI * 2
+    ctx.beginPath(); ctx.moveTo(cx, cy)
+    const r = gr * (0.85 + ((h >> i) & 1) * 0.15)
+    ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r)
+    ctx.stroke()
+  }
+  // Shine
+  ctx.fillStyle = 'rgba(255,255,255,0.3)'
+  ctx.beginPath()
+  ctx.arc(cx - gr * 0.25, cy - gr * 0.3, gr * 0.15, 0, Math.PI*2)
+  ctx.fill()
+  ctx.fillStyle = 'rgba(255,255,255,0.15)'
+  ctx.beginPath()
+  ctx.arc(cx - gr * 0.1, cy - gr * 0.15, gr * 0.08, 0, Math.PI*2)
+  ctx.fill()
+  // Sparkles
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'
+  for (let i = 0; i < 3; i++) {
+    const sx = (h * (i+3) * 13) % (size * 0.6) + size * 0.2
+    const sy = (h * (i+3) * 19) % (size * 0.6) + size * 0.2
+    ctx.beginPath(); ctx.arc(sx, sy, 1, 0, Math.PI*2); ctx.fill()
+  }
+  return c
+}
+
+// F — Мазки краски
+function drawPaint(size, pal, username) {
+  const c = document.createElement('canvas'); c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const h = hash(username)
+  // White/cream bg
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+  ctx.fillStyle = '#faf8f5'; ctx.fill()
+  ctx.save(); ctx.clip()
+  // Paint blobs
+  const colors = [pal.a + 'aa', pal.b + '88', pal.c + '77', pal.d + '99', pal.a + '55']
+  for (let i = 0; i < 5; i++) {
+    const bx = size * 0.15 + ((h * (i+1) * 17) % (size * 0.7))
+    const by = size * 0.15 + ((h * (i+1) * 23) % (size * 0.7))
+    const bw = size * 0.25 + (i % 3) * size * 0.1
+    const bh = size * 0.15 + (i % 2) * size * 0.1
+    const angle = ((h * (i+1)) % 60) * 0.1
+    ctx.save()
+    ctx.translate(bx, by)
+    ctx.rotate(angle)
+    ctx.fillStyle = colors[i]
+    ctx.beginPath()
+    ctx.ellipse(0, 0, bw/2, bh/2, 0, 0, Math.PI*2)
+    ctx.fill()
+    ctx.restore()
+  }
+  // Texture dots
+  ctx.fillStyle = 'rgba(255,255,255,0.3)'
+  for (let i = 0; i < 15; i++) {
+    const dx = (h * (i+10) * 11) % size
+    const dy = (h * (i+10) * 7) % size
+    ctx.beginPath(); ctx.arc(dx, dy, 1 + i % 2, 0, Math.PI*2); ctx.fill()
+  }
+  ctx.restore()
+  return c
+}
+
+users.forEach((u, i) => {
+  const pal = palettes[i % palettes.length]
+  addCard(document.getElementById('faces'), drawFace(S, pal, u.username), u.display)
+  addCard(document.getElementById('planets'), drawPlanet(S, pal, u.username), u.display)
+  addCard(document.getElementById('flowers'), drawFlower(S, pal, u.username), u.display)
+  addCard(document.getElementById('sunsets'), drawSunset(S, pal, u.username), u.display)
+  addCard(document.getElementById('gems'), drawGem(S, pal, u.username), u.display)
+  addCard(document.getElementById('paint'), drawPaint(S, pal, u.username), u.display)
+})
+</script>
+</body>
+</html>

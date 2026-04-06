@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { avatarGradient } from '../lib/colors'
+import Avatar from '../components/Avatar'
 import MayachokIcon from '../components/MayachokIcon'
 import MayachokSetup from '../components/MayachokSetup'
 
@@ -82,8 +82,8 @@ export default function ProfilePage() {
 
         {/* Avatar + info */}
         <div className="bg-white rounded-2xl shadow-sm p-6 text-center">
-          <div className={`w-20 h-20 bg-gradient-to-br ${avatarGradient(profile?.username)} rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-3`}>
-            {profile?.username?.[0]?.toUpperCase()}
+          <div className="mx-auto mb-3 flex justify-center">
+            <Avatar username={profile?.username} size="xxl" />
           </div>
           <p className="font-semibold text-gray-800">@{profile?.username}</p>
           {profile?.display_name && (

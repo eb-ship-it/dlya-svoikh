@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Аватарки — варианты</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 30px 16px; }
+    h1 { text-align: center; color: #333; margin-bottom: 10px; font-size: 22px; }
+    .subtitle { text-align: center; color: #888; font-size: 14px; margin-bottom: 40px; }
+    .section { margin-bottom: 40px; }
+    .section-title { font-size: 14px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; text-align: center; }
+    .row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+    .avatar-card { text-align: center; }
+    .avatar-card .name { font-size: 12px; color: #888; margin-top: 6px; }
+    canvas { border-radius: 50%; }
+  </style>
+</head>
+<body>
+
+<h1>Варианты аватарок</h1>
+<p class="subtitle">Сравнение текущих и новых вариантов</p>
+
+<!-- Текущие -->
+<div class="section">
+  <div class="section-title">Сейчас — буква на градиенте</div>
+  <div class="row" id="current"></div>
+</div>
+
+<!-- Вариант 1: Инициалы -->
+<div class="section">
+  <div class="section-title">Вариант 1 — Двойные инициалы</div>
+  <div class="row" id="initials"></div>
+</div>
+
+<!-- Вариант 4: Identicons (как GitHub) -->
+<div class="section">
+  <div class="section-title">Вариант 4 — Генеративные (как GitHub)</div>
+  <div class="row" id="identicons"></div>
+</div>
+
+<!-- Вариант 4b: Identicons на градиенте -->
+<div class="section">
+  <div class="section-title">Вариант 4b — Генеративные на градиенте</div>
+  <div class="row" id="identicons-gradient"></div>
+</div>
+
+<!-- Вариант 2: Эмодзи -->
+<div class="section">
+  <div class="section-title">Вариант 2 — Эмодзи на градиенте</div>
+  <div class="row" id="emoji"></div>
+</div>
+
+<!-- Вариант 3: Паттерны -->
+<div class="section">
+  <div class="section-title">Вариант 3 — Буква + паттерн</div>
+  <div class="row" id="patterns"></div>
+</div>
+
+<script>
+const users = [
+  { username: 'lenabel', display: 'Елена Беляева', emoji: '🦊' },
+  { username: 'lesha_nevodov', display: 'Лёша Неводов', emoji: '🐻' },
+  { username: 'anna', display: 'Анна Смирнова', emoji: '🦋' },
+  { username: 'test1', display: 'Тест Первый', emoji: '🌟' },
+  { username: 'marina_k', display: 'Марина К.', emoji: '🌸' },
+]
+
+const gradients = [
+  ['#c084fc', '#e879a8'],
+  ['#f472b6', '#fb7185'],
+  ['#818cf8', '#a78bfa'],
+  ['#a855f7', '#ec4899'],
+  ['#e879f9', '#f472b6'],
+]
+
+function hash(str) {
+  let h = 0
+  for (let i = 0; i < str.length; i++) h = str.charCodeAt(i) + ((h << 5) - h)
+  return Math.abs(h)
+}
+
+function drawCircle(size, gradient, text, fontSize) {
+  const c = document.createElement('canvas')
+  c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const g = ctx.createLinearGradient(0, 0, size, size)
+  g.addColorStop(0, gradient[0]); g.addColorStop(1, gradient[1])
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+  ctx.fillStyle = g; ctx.fill()
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'
+  ctx.font = `600 ${fontSize}px -apple-system, sans-serif`
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillText(text, size/2, size/2 + 1)
+  return c
+}
+
+function drawIdenticon(size, username, bgGradient) {
+  const c = document.createElement('canvas')
+  c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const h = hash(username)
+
+  // Background
+  if (bgGradient) {
+    const g = ctx.createLinearGradient(0, 0, size, size)
+    g.addColorStop(0, bgGradient[0]); g.addColorStop(1, bgGradient[1])
+    ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+    ctx.fillStyle = g; ctx.fill()
+  } else {
+    ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+    ctx.fillStyle = '#eee'; ctx.fill()
+  }
+
+  // Grid: 5x5 but symmetric (only need 3 cols)
+  const grid = 5
+  const cellSize = size * 0.6 / grid
+  const offsetX = size * 0.2
+  const offsetY = size * 0.2
+  const color = bgGradient ? 'rgba(255,255,255,0.7)' : gradients[h % gradients.length][0]
+
+  ctx.fillStyle = color
+  for (let row = 0; row < grid; row++) {
+    for (let col = 0; col < Math.ceil(grid / 2); col++) {
+      const bit = (h >> (row * 3 + col)) & 1
+      if (bit) {
+        // Left side
+        const x1 = offsetX + col * cellSize
+        const y = offsetY + row * cellSize
+        ctx.fillRect(x1, y, cellSize - 1, cellSize - 1)
+
+        // Mirror right side
+        const x2 = offsetX + (grid - 1 - col) * cellSize
+        ctx.fillRect(x2, y, cellSize - 1, cellSize - 1)
+      }
+    }
+    // Center column
+    const centerBit = (h >> (row * 3 + 2)) & 1
+    if (centerBit) {
+      const cx = offsetX + Math.floor(grid / 2) * cellSize
+      const cy = offsetY + row * cellSize
+      ctx.fillRect(cx, cy, cellSize - 1, cellSize - 1)
+    }
+  }
+
+  return c
+}
+
+function drawEmojiAvatar(size, gradient, emoji) {
+  const c = document.createElement('canvas')
+  c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const g = ctx.createLinearGradient(0, 0, size, size)
+  g.addColorStop(0, gradient[0]); g.addColorStop(1, gradient[1])
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+  ctx.fillStyle = g; ctx.fill()
+  ctx.font = `${size * 0.5}px -apple-system`
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillText(emoji, size/2, size/2 + 2)
+  return c
+}
+
+function drawPatternAvatar(size, gradient, letter, username) {
+  const c = document.createElement('canvas')
+  c.width = size; c.height = size
+  const ctx = c.getContext('2d')
+  const g = ctx.createLinearGradient(0, 0, size, size)
+  g.addColorStop(0, gradient[0]); g.addColorStop(1, gradient[1])
+  ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2)
+  ctx.fillStyle = g; ctx.fill()
+
+  // Pattern dots
+  const h = hash(username)
+  ctx.fillStyle = 'rgba(255,255,255,0.15)'
+  for (let i = 0; i < 20; i++) {
+    const x = ((h * (i + 1) * 13) % size)
+    const y = ((h * (i + 1) * 7) % size)
+    const r = 2 + (i % 3) * 2
+    const dx = x - size/2, dy = y - size/2
+    if (dx*dx + dy*dy < (size/2)*(size/2)) {
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill()
+    }
+  }
+
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'
+  ctx.font = `600 ${size * 0.4}px -apple-system, sans-serif`
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillText(letter, size/2, size/2 + 1)
+  return c
+}
+
+function addCard(container, canvas, name) {
+  const card = document.createElement('div')
+  card.className = 'avatar-card'
+  card.appendChild(canvas)
+  const label = document.createElement('div')
+  label.className = 'name'
+  label.textContent = name
+  card.appendChild(label)
+  container.appendChild(card)
+}
+
+const SIZE = 64
+
+users.forEach((u, i) => {
+  const grad = gradients[i % gradients.length]
+  const letter = u.username[0].toUpperCase()
+  const initials = u.display.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+
+  // Current
+  addCard(document.getElementById('current'), drawCircle(SIZE, grad, letter, SIZE * 0.4), u.display)
+
+  // Initials
+  addCard(document.getElementById('initials'), drawCircle(SIZE, grad, initials, SIZE * 0.32), u.display)
+
+  // Identicons
+  addCard(document.getElementById('identicons'), drawIdenticon(SIZE, u.username, null), u.display)
+
+  // Identicons on gradient
+  addCard(document.getElementById('identicons-gradient'), drawIdenticon(SIZE, u.username, grad), u.display)
+
+  // Emoji
+  addCard(document.getElementById('emoji'), drawEmojiAvatar(SIZE, grad, u.emoji), u.display)
+
+  // Patterns
+  addCard(document.getElementById('patterns'), drawPatternAvatar(SIZE, grad, letter, u.username), u.display)
+})
+</script>
+</body>
+</html>

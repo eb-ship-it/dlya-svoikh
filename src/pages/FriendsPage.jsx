@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { avatarGradient } from '../lib/colors'
+import Avatar from '../components/Avatar'
 
 export default function FriendsPage() {
   const { user } = useAuth()
@@ -210,9 +210,7 @@ export default function FriendsPage() {
               {searchResults.map(result => (
                 <div key={result.id} className="flex items-center justify-between bg-gray-50 rounded-xl p-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className={`w-9 h-9 bg-gradient-to-br ${avatarGradient(result.username)} rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0`}>
-                      {result.username[0].toUpperCase()}
-                    </div>
+                    <Avatar username={result.username} size="md" />
                     <div className="min-w-0">
                       {result.display_name && <div className="font-medium text-gray-800 text-sm truncate">{result.display_name}</div>}
                       <div className={`text-gray-400 truncate ${result.display_name ? 'text-xs' : 'text-sm font-medium text-gray-800'}`}>@{result.username}</div>
@@ -246,9 +244,7 @@ export default function FriendsPage() {
             <div className="space-y-2">
               {incoming.map(f => (
                 <div key={f.friendshipId} className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0">
-                    {f.username?.[0]?.toUpperCase()}
-                  </div>
+                  <Avatar username={f.username} size="md" />
                   <span className="flex-1 font-medium text-gray-800 text-sm">{f.username}</span>
                   <button onClick={() => accept(f.friendshipId)} className="bg-gradient-to-r from-violet-500 to-pink-500 text-white text-xs px-3 py-1.5 rounded-lg">
                     Принять
@@ -286,9 +282,7 @@ export default function FriendsPage() {
             <div className="divide-y divide-gray-100">
               {friends.map(f => (
                 <div key={f.friendshipId} className="flex items-center gap-3 py-2.5">
-                  <div className={`w-10 h-10 bg-gradient-to-br ${avatarGradient(f.username)} rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0`}>
-                    {f.username?.[0]?.toUpperCase()}
-                  </div>
+                  <Avatar username={f.username} size="lg" />
                   <div className="flex-1 min-w-0">
                     <span className="font-semibold text-gray-800 text-sm block truncate">{f.displayName || f.username}</span>
                     {f.displayName && <span className="text-xs text-gray-400">@{f.username}</span>}
@@ -328,9 +322,7 @@ export default function FriendsPage() {
             <div className="space-y-2">
               {outgoing.map(f => (
                 <div key={f.friendshipId} className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0">
-                    {f.username?.[0]?.toUpperCase()}
-                  </div>
+                  <Avatar username={f.username} size="md" />
                   <span className="flex-1 font-medium text-gray-700 text-sm">{f.username}</span>
                   <span className="text-xs text-gray-400">ожидает...</span>
                   <button onClick={() => decline(f.friendshipId)} className="text-gray-300 hover:text-red-400 transition-colors p-1" aria-label="Отменить заявку">

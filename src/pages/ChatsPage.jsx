@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { avatarGradient } from '../lib/colors'
+import Avatar from '../components/Avatar'
 import ChatWindow from '../components/ChatWindow'
 import CreateGroupPage from './CreateGroupPage'
 
@@ -215,9 +215,7 @@ export default function ChatsPage() {
                   onClick={() => openOrCreateChat(f.id)}
                   className="flex-shrink-0 flex flex-col items-center gap-1"
                 >
-                  <div className={`w-10 h-10 bg-gradient-to-br ${avatarGradient(f.username)} rounded-full flex items-center justify-center text-white font-medium text-sm`}>
-                    {f.username[0].toUpperCase()}
-                  </div>
+                  <Avatar username={f.username} size="lg" />
                   <span className="text-xs text-gray-500 max-w-12 truncate">{f.displayName || f.username}</span>
                 </button>
               ))}
@@ -248,9 +246,7 @@ export default function ChatsPage() {
                 onClick={() => setActiveChatId(chat.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left ${activeChatId === chat.id ? 'bg-violet-50' : ''}`}
               >
-                <div className={`w-10 h-10 bg-gradient-to-br ${chat.isGroup ? 'from-violet-400 to-pink-400' : avatarGradient(chat.partnerUsername)} rounded-full flex items-center justify-center text-white font-medium flex-shrink-0`}>
-                  {chat.isGroup ? chat.groupName?.[0]?.toUpperCase() : chat.partnerUsername?.[0]?.toUpperCase() || '?'}
-                </div>
+                <Avatar username={chat.partnerUsername} size="lg" isGroup={chat.isGroup} groupName={chat.groupName} />
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm ${chat.unread > 0 ? 'font-bold text-gray-900' : 'font-medium text-gray-800'}`}>{chat.isGroup ? chat.groupName : (chat.partnerDisplayName || chat.partnerUsername)}</div>
                   <div className={`text-xs truncate ${chat.unread > 0 ? 'text-gray-700 font-medium' : 'text-gray-400'}`}>{chat.lastMessage || 'Нет сообщений'}</div>

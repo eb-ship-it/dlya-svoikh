@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { avatarGradient } from '../lib/colors'
+import Avatar from '../components/Avatar'
 import UserPopup from '../components/UserPopup'
 import MayachokCard from '../components/MayachokCard'
 
@@ -126,9 +126,7 @@ export default function FeedPage() {
         {/* Post composer */}
         <form onSubmit={submitPost} className="bg-white rounded-2xl shadow-sm p-4">
           <div className="flex gap-3">
-            <div className={`w-9 h-9 bg-gradient-to-br ${avatarGradient(profile?.username)} rounded-full flex items-center justify-center text-white font-medium flex-shrink-0 text-sm`}>
-              {profile?.username?.[0]?.toUpperCase() || '?'}
-            </div>
+            <Avatar username={profile?.username} size="md" />
             <div className="flex-1">
               <textarea
                 value={text}
@@ -178,11 +176,8 @@ export default function FeedPage() {
             ) : (
               <div key={post.id} className="bg-white rounded-2xl shadow-sm p-4">
               <div className="flex items-start gap-3">
-                <button
-                  onClick={() => setSelectedUser({ id: post.user_id, username: post.profiles?.username, displayName: post.profiles?.display_name })}
-                  className={`w-9 h-9 bg-gradient-to-br ${avatarGradient(post.profiles?.username)} rounded-full flex items-center justify-center text-white font-medium flex-shrink-0 text-sm`}
-                >
-                  {post.profiles?.username?.[0]?.toUpperCase() || '?'}
+                <button onClick={() => setSelectedUser({ id: post.user_id, username: post.profiles?.username, displayName: post.profiles?.display_name })}>
+                  <Avatar username={post.profiles?.username} size="md" />
                 </button>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
@@ -396,11 +391,8 @@ function PostComments({ postId, userId, username, onUserClick }) {
         <div className="mt-2 space-y-2">
           {comments.map(c => (
             <div key={c.id} className="flex gap-2">
-              <button
-                onClick={() => onUserClick?.({ id: c.user_id, username: c.profiles?.username, displayName: c.profiles?.display_name })}
-                className={`w-6 h-6 bg-gradient-to-br ${avatarGradient(c.profiles?.username)} rounded-full flex items-center justify-center text-white text-[10px] font-medium flex-shrink-0`}
-              >
-                {c.profiles?.username?.[0]?.toUpperCase()}
+              <button onClick={() => onUserClick?.({ id: c.user_id, username: c.profiles?.username, displayName: c.profiles?.display_name })}>
+                <Avatar username={c.profiles?.username} size="sm" />
               </button>
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2">

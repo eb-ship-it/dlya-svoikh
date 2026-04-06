@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { avatarGradient } from '../lib/colors'
+import Avatar from './Avatar'
 
 export default function GroupSettings({ chatId, groupName: initialName, onClose, onLeft }) {
   const { user } = useAuth()
@@ -137,8 +137,8 @@ export default function GroupSettings({ chatId, groupName: initialName, onClose,
 
           {/* Group avatar + name */}
           <div className="text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-violet-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-3">
-              {name?.[0]?.toUpperCase() || '?'}
+            <div className="mx-auto mb-3 flex justify-center">
+              <Avatar isGroup groupName={name} size="xxl" />
             </div>
           </div>
 
@@ -206,9 +206,7 @@ export default function GroupSettings({ chatId, groupName: initialName, onClose,
             <div className="divide-y divide-gray-100">
               {members.map(m => (
                 <div key={m.id} className="flex items-center gap-3 py-2.5">
-                  <div className={`w-9 h-9 bg-gradient-to-br ${avatarGradient(m.username)} rounded-full flex items-center justify-center text-white font-medium text-sm flex-shrink-0`}>
-                    {m.username?.[0]?.toUpperCase()}
-                  </div>
+                  <Avatar username={m.username} size="md" />
                   <div className="flex-1 min-w-0">
                     <span className="text-sm font-medium text-gray-800 block truncate">{m.display_name || m.username}</span>
                     {m.display_name && <span className="text-xs text-gray-400">@{m.username}</span>}
@@ -265,9 +263,7 @@ export default function GroupSettings({ chatId, groupName: initialName, onClose,
                       onClick={() => addMember(f.id)}
                       className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-left"
                     >
-                      <div className={`w-9 h-9 bg-gradient-to-br ${avatarGradient(f.username)} rounded-full flex items-center justify-center text-white font-medium text-sm`}>
-                        {f.username[0].toUpperCase()}
-                      </div>
+                      <Avatar username={f.username} size="md" />
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium text-gray-800">{f.display_name || f.username}</div>
                         {f.display_name && <div className="text-xs text-gray-400">@{f.username}</div>}

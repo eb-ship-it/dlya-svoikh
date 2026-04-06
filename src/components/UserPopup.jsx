@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { avatarGradient } from '../lib/colors'
+import Avatar from './Avatar'
 import { useNavigate } from 'react-router-dom'
 
 export default function UserPopup({ userId, username, displayName, onClose }) {
@@ -82,8 +82,8 @@ export default function UserPopup({ userId, username, displayName, onClose }) {
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl p-6 max-w-xs w-full shadow-xl" onClick={e => e.stopPropagation()}>
         <div className="text-center mb-4">
-          <div className={`w-16 h-16 bg-gradient-to-br ${avatarGradient(username)} rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-3`}>
-            {username?.[0]?.toUpperCase()}
+          <div className="mx-auto mb-3 flex justify-center">
+            <Avatar username={username} size="xl" />
           </div>
           {displayName && <p className="font-semibold text-gray-800">{displayName}</p>}
           <p className={displayName ? 'text-gray-400 text-sm' : 'font-semibold text-gray-800'}>@{username}</p>
