@@ -30,7 +30,7 @@ export default function AuthPage() {
         await signIn(username.trim().toLowerCase(), password)
       } else {
         if (!/^[a-z0-9_]{3,20}$/.test(username.trim().toLowerCase())) {
-          setError('Логин: 3-20 символов, только буквы, цифры, _')
+          setError('Логин: 3-20 символов, только латинские буквы, цифры и _')
           setLoading(false)
           return
         }
@@ -93,7 +93,7 @@ export default function AuthPage() {
               type="text"
               value={username}
               onChange={e => setUsername(e.target.value)}
-              placeholder="твой_логин"
+              placeholder="my_login"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
               autoComplete="username"
             />
