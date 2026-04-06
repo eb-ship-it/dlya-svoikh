@@ -56,7 +56,7 @@ export default function LandingPage() {
             Мессенджер для близких друзей. Никакой рекламы, алгоритмов и лишних людей — только свои.
           </p>
           <button
-            onClick={() => navigate('/auth')}
+            onClick={() => navigate('/auth?tab=register')}
             className="inline-flex items-center gap-2 bg-white text-violet-600 font-semibold px-8 py-3.5 rounded-2xl shadow-lg shadow-black/10 hover:shadow-xl hover:scale-105 transition-all text-base"
           >
             Начать общение
@@ -232,7 +232,7 @@ export default function LandingPage() {
             Создай аккаунт и пригласи тех, с кем хочешь быть на связи
           </p>
           <button
-            onClick={() => navigate('/auth')}
+            onClick={() => navigate('/auth?tab=register')}
             className="inline-flex items-center gap-2 bg-white text-violet-600 font-semibold px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all text-base"
           >
             Создать аккаунт

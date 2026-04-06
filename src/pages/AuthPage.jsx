@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function AuthPage() {
   const params = useParams()
+  const [searchParams] = useSearchParams()
   const inviteFrom = params.username || null
-  const [isLogin, setIsLogin] = useState(inviteFrom ? false : true)
+  const [isLogin, setIsLogin] = useState(inviteFrom || searchParams.get('tab') === 'register' ? false : true)
   const [username, setUsername] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [password, setPassword] = useState('')
