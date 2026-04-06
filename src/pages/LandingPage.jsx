@@ -42,7 +42,7 @@ export default function LandingPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-dvh bg-white">
+    <div className="bg-white" style={{ height: 'auto', overflow: 'auto', minHeight: '100dvh' }}>
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-violet-500 to-pink-500 text-white">
         <div className="absolute inset-0 opacity-10">
