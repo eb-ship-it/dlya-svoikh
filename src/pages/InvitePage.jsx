@@ -36,12 +36,8 @@ export default function InvitePage() {
       return
     }
 
-    // Auto-accept: create friendship as accepted (current user must be requester for RLS)
-    await supabase.from('friendships').insert({
-      requester_id: user.id,
-      addressee_id: inviter.id,
-      status: 'accepted',
-    })
+    // Auto-accept via secure RPC
+    await supabase.rpc('accept_friend_invite', { inviter_username_param: username })
 
     setStatus('done')
     setTimeout(() => navigate('/friends', { replace: true }), 1500)

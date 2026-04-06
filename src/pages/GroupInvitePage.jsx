@@ -38,8 +38,9 @@ export default function GroupInvitePage() {
       return
     }
 
-    // Join the group
-    await supabase.from('chat_participants').insert({ chat_id: chat.id, user_id: user.id })
+    // Join the group via secure RPC
+    const { error } = await supabase.rpc('join_group_by_invite', { invite_code_param: code })
+    if (error) { setStatus('not_found'); return }
     setStatus('done')
     setTimeout(() => navigate('/chats', { state: { openChatId: chat.id }, replace: true }), 1500)
   }

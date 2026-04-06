@@ -69,7 +69,7 @@ export default function UserPopup({ userId, username, displayName, onClose }) {
     }
 
     const chatId = crypto.randomUUID()
-    await supabase.from('chats').insert({ id: chatId })
+    await supabase.from('chats').insert({ id: chatId, created_by: user.id })
     await supabase.from('chat_participants').insert([
       { chat_id: chatId, user_id: user.id },
       { chat_id: chatId, user_id: userId },
