@@ -66,15 +66,13 @@ export default function FeedPage() {
       setPosts(data || [])
       setError('')
 
-      // Load today's Mayachok posts
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
+      // Load only the latest Mayachok post
       const { data: mPosts } = await supabase
         .from('mayachok_posts')
         .select('*')
         .eq('user_id', user.id)
-        .gte('created_at', today.toISOString())
         .order('created_at', { ascending: false })
+        .limit(1)
       setMayachokPosts(mPosts || [])
     } catch (err) {
       console.error('loadFeed error:', err)
