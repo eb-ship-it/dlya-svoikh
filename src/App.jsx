@@ -7,6 +7,7 @@ import FriendsPage from './pages/FriendsPage'
 import ProfilePage from './pages/ProfilePage'
 import InvitePage from './pages/InvitePage'
 import GroupInvitePage from './pages/GroupInvitePage'
+import LandingPage from './pages/LandingPage'
 import Layout from './components/Layout'
 
 function LoadingScreen() {
@@ -54,7 +55,8 @@ function AppRoutes() {
       <Route path="/feed" element={<ProtectedRoute><FeedPage /></ProtectedRoute>} />
       <Route path="/friends" element={<ProtectedRoute><FriendsPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-      <Route path="*" element={user ? <Navigate to="/feed" replace /> : <AuthPage />} />
+      <Route path="/auth" element={user ? <Navigate to="/feed" replace /> : <AuthPage />} />
+      <Route path="*" element={user ? <Navigate to="/feed" replace /> : <LandingPage />} />
     </Routes>
   )
 }
