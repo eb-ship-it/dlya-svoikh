@@ -9,10 +9,7 @@ import InvitePage from './pages/InvitePage'
 import GroupInvitePage from './pages/GroupInvitePage'
 import LandingPage from './pages/LandingPage'
 import Layout from './components/Layout'
-
-function LoadingScreen() {
-  return <div className="min-h-dvh flex items-center justify-center bg-gray-50"><div className="text-gray-400 text-sm">Загрузка...</div></div>
-}
+import SplashScreen from './components/SplashScreen'
 
 function ErrorScreen({ message }) {
   return (
@@ -34,7 +31,7 @@ function ErrorScreen({ message }) {
 
 function ProtectedRoute({ children }) {
   const { user, loading, authError } = useAuth()
-  if (loading) return <LoadingScreen />
+  if (loading) return <SplashScreen />
   if (authError) return <ErrorScreen message={authError} />
   if (!user) return <AuthPage />
   return <Layout>{children}</Layout>
@@ -43,7 +40,7 @@ function ProtectedRoute({ children }) {
 function AppRoutes() {
   const { user, loading, authError } = useAuth()
 
-  if (loading) return <LoadingScreen />
+  if (loading) return <SplashScreen />
   if (authError) return <ErrorScreen message={authError} />
 
   // Invite page works for both logged in and not
