@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import AuthPage from './pages/AuthPage'
 import ChatsPage from './pages/ChatsPage'
@@ -39,8 +40,14 @@ function ProtectedRoute({ children }) {
 
 function AppRoutes() {
   const { user, loading, authError } = useAuth()
+  const [splashDone, setSplashDone] = useState(false)
 
-  if (loading) return <SplashScreen />
+  useEffect(() => {
+    const timer = setTimeout(() => setSplashDone(true), 1500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (loading || !splashDone) return <SplashScreen />
   if (authError) return <ErrorScreen message={authError} />
 
   // Invite page works for both logged in and not
