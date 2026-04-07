@@ -12,7 +12,12 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [replyTo, setReplyTo] = useState(null)
   const bottomRef = useRef(null)
+  const messagesRef = useRef([])
+  const inputRef = useRef(null)
+
+  useEffect(() => { messagesRef.current = messages }, [messages])
 
   useEffect(() => {
     loadMessages()
@@ -25,12 +30,23 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
         schema: 'public',
         table: 'messages',
         filter: `chat_id=eq.${chatId}`,
-      }, payload => {
-        setMessages(prev => [...prev, payload.new])
-        if (payload.new.sender_id !== user.id && !payload.new.read_at) {
+      }, async (payload) => {
+        let newMsg = payload.new
+        // Enrich reply_to from existing messages or fetch
+        if (newMsg.reply_to_id) {
+          const existing = messagesRef.current.find(m => m.id === newMsg.reply_to_id)
+          if (existing) {
+            newMsg = { ...newMsg, reply_to: { id: existing.id, sender_id: existing.sender_id, content: existing.content } }
+          } else {
+            const { data } = await supabase.from('messages').select('id, sender_id, content').eq('id', newMsg.reply_to_id).single()
+            newMsg = { ...newMsg, reply_to: data }
+          }
+        }
+        setMessages(prev => [...prev, newMsg])
+        if (newMsg.sender_id !== user.id && !newMsg.read_at) {
           supabase.from('messages')
             .update({ read_at: new Date().toISOString() })
-            .eq('id', payload.new.id)
+            .eq('id', newMsg.id)
             .then(({ error }) => { if (error) console.error('mark read error:', error) })
         }
       })
@@ -46,7 +62,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
   async function loadMessages() {
     const { data } = await supabase
       .from('messages')
-      .select('*')
+      .select('*, reply_to:reply_to_id(id, sender_id, content)')
       .eq('chat_id', chatId)
       .order('created_at', { ascending: true })
     setMessages(data || [])
@@ -84,13 +100,29 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
         chat_id: chatId,
         sender_id: user.id,
         content: text.trim(),
+        ...(replyTo && { reply_to_id: replyTo.id }),
       })
       if (error) throw error
       setText('')
+      setReplyTo(null)
     } catch (err) {
       console.error('send message error:', err)
     } finally {
       setSending(false)
+    }
+  }
+
+  function handleReply(msg) {
+    setReplyTo({ id: msg.id, sender_id: msg.sender_id, content: msg.content })
+    inputRef.current?.focus()
+  }
+
+  function scrollToMessage(msgId) {
+    const el = document.getElementById(`msg-${msgId}`)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el.classList.add('highlight-flash')
+      setTimeout(() => el.classList.remove('highlight-flash'), 1500)
     }
   }
 
@@ -101,6 +133,12 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
   function senderName(senderId) {
     const m = members[senderId]
     return m?.display_name || m?.username || '?'
+  }
+
+  function replySenderName(senderId) {
+    if (senderId === user.id) return 'Вы'
+    if (isGroup) return senderName(senderId)
+    return partnerDisplayName || partnerUsername || '?'
   }
 
   return (
@@ -135,7 +173,20 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
           const showSender = isGroup && !isMine &&
             (i === 0 || messages[i - 1].sender_id !== msg.sender_id)
           return (
-            <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+            <div key={msg.id} id={`msg-${msg.id}`} className={`flex group ${isMine ? 'justify-end' : 'justify-start'}`}>
+              {/* Reply button — left side for own messages */}
+              {isMine && (
+                <button
+                  onClick={() => handleReply(msg)}
+                  className="self-center opacity-0 group-hover:opacity-100 mr-2 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:text-violet-500 transition-all flex-shrink-0"
+                  aria-label="Ответить"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a5 5 0 015 5v4M3 10l6-6M3 10l6 6" />
+                  </svg>
+                </button>
+              )}
+
               <div className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm leading-relaxed break-words overflow-hidden ${
                 isMine
                   ? 'bg-gradient-to-br from-violet-500 to-purple-500 text-white rounded-br-sm'
@@ -144,20 +195,72 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
                 {showSender && (
                   <p className="text-xs font-medium text-violet-500 mb-0.5">{senderName(msg.sender_id)}</p>
                 )}
+
+                {/* Reply quote */}
+                {msg.reply_to && (
+                  <div
+                    onClick={() => scrollToMessage(msg.reply_to.id)}
+                    className={`mb-1.5 p-2 rounded-lg cursor-pointer border-l-2 ${
+                      isMine
+                        ? 'border-purple-300 bg-white/15'
+                        : 'border-violet-400 bg-violet-50'
+                    }`}
+                  >
+                    <p className={`text-[11px] font-medium ${isMine ? 'text-purple-200' : 'text-violet-600'}`}>
+                      {replySenderName(msg.reply_to.sender_id)}
+                    </p>
+                    <p className={`text-[11px] truncate ${isMine ? 'text-purple-200/70' : 'text-gray-500'}`}>
+                      {msg.reply_to.content}
+                    </p>
+                  </div>
+                )}
+
                 <p><LinkifyText text={msg.content} /></p>
                 <p className={`text-[10px] mt-1 text-right ${isMine ? 'text-purple-200' : 'text-gray-400'}`}>
                   {formatTime(msg.created_at)}
                 </p>
               </div>
+
+              {/* Reply button — right side for other's messages */}
+              {!isMine && (
+                <button
+                  onClick={() => handleReply(msg)}
+                  className="self-center opacity-0 group-hover:opacity-100 ml-2 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:text-violet-500 transition-all flex-shrink-0"
+                  aria-label="Ответить"
+                >
+                  <svg className="w-3.5 h-3.5 scale-x-[-1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a5 5 0 015 5v4M3 10l6-6M3 10l6 6" />
+                  </svg>
+                </button>
+              )}
             </div>
           )
         })}
         <div ref={bottomRef} />
       </div>
 
+      {/* Reply preview */}
+      {replyTo && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-violet-50 border-t border-violet-100">
+          <div className="w-1 self-stretch bg-violet-400 rounded-full flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium text-violet-600 truncate">
+              {replySenderName(replyTo.sender_id)}
+            </p>
+            <p className="text-xs text-gray-500 truncate">{replyTo.content}</p>
+          </div>
+          <button onClick={() => setReplyTo(null)} className="text-gray-400 p-1 flex-shrink-0" aria-label="Отменить ответ">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* Input */}
       <form onSubmit={send} className="flex items-end gap-2 px-4 py-3 bg-white border-t border-gray-100">
         <input
+          ref={inputRef}
           type="text"
           value={text}
           onChange={e => setText(e.target.value)}
