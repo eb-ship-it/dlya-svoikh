@@ -167,13 +167,13 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-2 bg-gray-50">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-2 bg-gray-50 min-w-0 w-full">
         {messages.map((msg, i) => {
           const isMine = msg.sender_id === user.id
           const showSender = isGroup && !isMine &&
             (i === 0 || messages[i - 1].sender_id !== msg.sender_id)
           return (
-            <div key={msg.id} id={`msg-${msg.id}`} className={`flex ${isMine ? 'justify-end' : 'justify-start'} group relative`}>
+            <div key={msg.id} id={`msg-${msg.id}`} className={`flex ${isMine ? 'justify-end' : 'justify-start'} group relative w-full min-w-0`}>
               {/* Reply button — desktop only, absolute positioned */}
               {isMine && (
                 <button

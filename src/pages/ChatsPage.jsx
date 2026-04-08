@@ -263,7 +263,7 @@ export default function ChatsPage() {
       </div>
 
       {/* Chat window */}
-      <div className={`${activeChatId ? 'flex' : 'hidden md:flex'} flex-col flex-1`}>
+      <div className={`${activeChatId ? 'flex' : 'hidden md:flex'} flex-col flex-1 min-w-0`}>
         {activeChatId ? (
           <ChatWindow
             chatId={activeChatId}
