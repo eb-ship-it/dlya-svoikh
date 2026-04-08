@@ -188,8 +188,8 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
               )}
 
               <div
-                style={{ maxWidth: '75%', wordBreak: 'break-word', overflowWrap: 'break-word' }}
-                className={`min-w-0 px-4 py-2 rounded-2xl text-sm leading-relaxed overflow-hidden ${
+                style={{ maxWidth: '75%', wordBreak: 'break-word', overflowWrap: 'anywhere', overflow: 'hidden' }}
+                className={`px-4 py-2 rounded-2xl text-sm leading-relaxed ${
                 isMine
                   ? 'bg-gradient-to-br from-violet-500 to-purple-500 text-white rounded-br-sm'
                   : 'bg-white text-gray-800 shadow-sm rounded-bl-sm'
@@ -202,22 +202,23 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
                 {msg.reply_to && (
                   <div
                     onClick={() => scrollToMessage(msg.reply_to.id)}
-                    className={`mb-1.5 p-2 rounded-lg cursor-pointer border-l-2 overflow-hidden ${
+                    style={{ overflow: 'hidden' }}
+                    className={`mb-1.5 p-2 rounded-lg cursor-pointer border-l-2 ${
                       isMine
                         ? 'border-purple-300 bg-white/15'
                         : 'border-violet-400 bg-violet-50'
                     }`}
                   >
-                    <p className={`text-[11px] font-medium truncate ${isMine ? 'text-purple-200' : 'text-violet-600'}`}>
+                    <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '11px', fontWeight: 500 }} className={isMine ? 'text-purple-200' : 'text-violet-600'}>
                       {replySenderName(msg.reply_to.sender_id)}
                     </p>
-                    <p className={`text-[11px] truncate ${isMine ? 'text-purple-200/70' : 'text-gray-500'}`}>
-                      {msg.reply_to.content.length > 100 ? msg.reply_to.content.slice(0, 100) + '...' : msg.reply_to.content}
+                    <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '11px' }} className={isMine ? 'text-purple-200/70' : 'text-gray-500'}>
+                      {msg.reply_to.content.slice(0, 80)}
                     </p>
                   </div>
                 )}
 
-                <p style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}><LinkifyText text={msg.content} /></p>
+                <p><LinkifyText text={msg.content} /></p>
                 <div className={`flex items-center justify-end gap-2 mt-1 ${isMine ? 'text-purple-200' : 'text-gray-400'}`}>
                   <button
                     onClick={() => handleReply(msg)}
