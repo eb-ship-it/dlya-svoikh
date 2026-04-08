@@ -187,7 +187,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
                 </button>
               )}
 
-              <div className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm leading-relaxed break-words overflow-hidden ${
+              <div className={`max-w-[75%] min-w-0 px-4 py-2 rounded-2xl text-sm leading-relaxed break-words overflow-hidden ${
                 isMine
                   ? 'bg-gradient-to-br from-violet-500 to-purple-500 text-white rounded-br-sm'
                   : 'bg-white text-gray-800 shadow-sm rounded-bl-sm'
@@ -200,17 +200,17 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
                 {msg.reply_to && (
                   <div
                     onClick={() => scrollToMessage(msg.reply_to.id)}
-                    className={`mb-1.5 p-2 rounded-lg cursor-pointer border-l-2 ${
+                    className={`mb-1.5 p-2 rounded-lg cursor-pointer border-l-2 overflow-hidden ${
                       isMine
                         ? 'border-purple-300 bg-white/15'
                         : 'border-violet-400 bg-violet-50'
                     }`}
                   >
-                    <p className={`text-[11px] font-medium ${isMine ? 'text-purple-200' : 'text-violet-600'}`}>
+                    <p className={`text-[11px] font-medium truncate ${isMine ? 'text-purple-200' : 'text-violet-600'}`}>
                       {replySenderName(msg.reply_to.sender_id)}
                     </p>
                     <p className={`text-[11px] truncate ${isMine ? 'text-purple-200/70' : 'text-gray-500'}`}>
-                      {msg.reply_to.content}
+                      {msg.reply_to.content.length > 100 ? msg.reply_to.content.slice(0, 100) + '...' : msg.reply_to.content}
                     </p>
                   </div>
                 )}
