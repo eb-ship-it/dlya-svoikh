@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Bubble</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #f8f8fa; padding: 16px; font-size: 14px; }
+h3 { font-size: 13px; color: #999; margin: 20px 0 8px; text-transform: uppercase; }
+
+.chat { display: flex; flex-direction: column; gap: 8px; }
+
+/* Вариант A: текущий подход */
+.row-a { display: flex; justify-content: flex-end; }
+.bubble-a {
+  max-width: 75%;
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  padding: 8px 16px;
+  border-radius: 18px 18px 4px 18px;
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  color: white; font-size: 14px; line-height: 1.5;
+}
+.quote-a {
+  overflow: hidden;
+  margin-bottom: 6px; padding: 6px 8px;
+  border-left: 2px solid rgba(200,180,255,0.6);
+  background: rgba(255,255,255,0.15);
+  border-radius: 6px;
+}
+.quote-a p {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 11px;
+}
+
+/* Вариант B: display table trick */
+.row-b { display: flex; justify-content: flex-end; }
+.wrap-b { max-width: 75%; }
+.bubble-b {
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  padding: 8px 16px;
+  border-radius: 18px 18px 4px 18px;
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  color: white; font-size: 14px; line-height: 1.5;
+}
+.quote-b {
+  overflow: hidden;
+  margin-bottom: 6px; padding: 6px 8px;
+  border-left: 2px solid rgba(200,180,255,0.6);
+  background: rgba(255,255,255,0.15);
+  border-radius: 6px;
+}
+.quote-b p {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 11px;
+}
+
+/* Вариант C: width calc */
+.row-c { display: flex; justify-content: flex-end; }
+.bubble-c {
+  width: fit-content;
+  max-width: min(75%, 280px);
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  padding: 8px 16px;
+  border-radius: 18px 18px 4px 18px;
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  color: white; font-size: 14px; line-height: 1.5;
+}
+.quote-c {
+  overflow: hidden;
+  margin-bottom: 6px; padding: 6px 8px;
+  border-left: 2px solid rgba(200,180,255,0.6);
+  background: rgba(255,255,255,0.15);
+  border-radius: 6px;
+}
+.quote-c p {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 11px;
+}
+
+/* Вариант D: margin-left auto вместо flex justify-end */
+.row-d { }
+.bubble-d {
+  margin-left: auto;
+  max-width: 75%;
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  padding: 8px 16px;
+  border-radius: 18px 18px 4px 18px;
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  color: white; font-size: 14px; line-height: 1.5;
+}
+.quote-d {
+  overflow: hidden;
+  margin-bottom: 6px; padding: 6px 8px;
+  border-left: 2px solid rgba(200,180,255,0.6);
+  background: rgba(255,255,255,0.15);
+  border-radius: 6px;
+}
+.quote-d p {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 11px;
+}
+</style>
+</head>
+<body>
+
+<h3>A — Текущий (flex justify-end + max-width 75%)</h3>
+<div class="chat">
+  <div class="row-a">
+    <div class="bubble-a">
+      <div class="quote-a">
+        <p style="font-weight:600; color:rgba(200,180,255,0.9);">Ванечка Бурмистров</p>
+        <p style="color:rgba(200,180,255,0.7);">Инпут текстовый, между прочим, приятнее чем у нас в клубе, в коммент-секции!</p>
+      </div>
+      Не очень понимаю что это, но спасибо за отзыв!
+    </div>
+  </div>
+  <div class="row-a">
+    <div class="bubble-a">
+      <div class="quote-a">
+        <p style="font-weight:600; color:rgba(200,180,255,0.9);">lesha_nevodov</p>
+        <p style="color:rgba(200,180,255,0.7);">оооооооооооооооооочен дллллллллллллллллллллллллллллллинное сообщене</p>
+      </div>
+      Ага, вижу, и что?
+    </div>
+  </div>
+</div>
+
+<h3>B — Обёртка с max-width</h3>
+<div class="chat">
+  <div class="row-b">
+    <div class="wrap-b">
+      <div class="bubble-b">
+        <div class="quote-b">
+          <p style="font-weight:600; color:rgba(200,180,255,0.9);">Ванечка Бурмистров</p>
+          <p style="color:rgba(200,180,255,0.7);">Инпут текстовый, между прочим, приятнее чем у нас в клубе, в коммент-секции!</p>
+        </div>
+        Не очень понимаю что это, но спасибо за отзыв!
+      </div>
+    </div>
+  </div>
+  <div class="row-b">
+    <div class="wrap-b">
+      <div class="bubble-b">
+        <div class="quote-b">
+          <p style="font-weight:600; color:rgba(200,180,255,0.9);">lesha_nevodov</p>
+          <p style="color:rgba(200,180,255,0.7);">оооооооооооооооооочен дллллллллллллллллллллллллллллллинное сообщене</p>
+        </div>
+        Ага, вижу, и что?
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3>C — min(75%, 280px)</h3>
+<div class="chat">
+  <div class="row-c">
+    <div class="bubble-c">
+      <div class="quote-c">
+        <p style="font-weight:600; color:rgba(200,180,255,0.9);">Ванечка Бурмистров</p>
+        <p style="color:rgba(200,180,255,0.7);">Инпут текстовый, между прочим, приятнее чем у нас в клубе, в коммент-секции!</p>
+      </div>
+      Не очень понимаю что это, но спасибо за отзыв!
+    </div>
+  </div>
+  <div class="row-c">
+    <div class="bubble-c">
+      <div class="quote-c">
+        <p style="font-weight:600; color:rgba(200,180,255,0.9);">lesha_nevodov</p>
+        <p style="color:rgba(200,180,255,0.7);">оооооооооооооооооочен дллллллллллллллллллллллллллллллинное сообщене</p>
+      </div>
+      Ага, вижу, и что?
+    </div>
+  </div>
+</div>
+
+<h3>D — margin-left auto (без flex)</h3>
+<div class="chat">
+  <div class="row-d">
+    <div class="bubble-d">
+      <div class="quote-d">
+        <p style="font-weight:600; color:rgba(200,180,255,0.9);">Ванечка Бурмистров</p>
+        <p style="color:rgba(200,180,255,0.7);">Инпут текстовый, между прочим, приятнее чем у нас в клубе, в коммент-секции!</p>
+      </div>
+      Не очень понимаю что это, но спасибо за отзыв!
+    </div>
+  </div>
+  <div class="row-d">
+    <div class="bubble-d">
+      <div class="quote-d">
+        <p style="font-weight:600; color:rgba(200,180,255,0.9);">lesha_nevodov</p>
+        <p style="color:rgba(200,180,255,0.7);">оооооооооооооооооочен дллллллллллллллллллллллллллллллинное сообщене</p>
+      </div>
+      Ага, вижу, и что?
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
