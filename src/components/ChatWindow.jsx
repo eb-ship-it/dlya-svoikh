@@ -167,7 +167,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2 bg-gray-50">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-2 bg-gray-50">
         {messages.map((msg, i) => {
           const isMine = msg.sender_id === user.id
           const showSender = isGroup && !isMine &&
@@ -187,7 +187,9 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
                 </button>
               )}
 
-              <div className={`max-w-[75%] min-w-0 px-4 py-2 rounded-2xl text-sm leading-relaxed break-words overflow-hidden ${
+              <div
+                style={{ maxWidth: '75%', wordBreak: 'break-word', overflowWrap: 'break-word' }}
+                className={`min-w-0 px-4 py-2 rounded-2xl text-sm leading-relaxed overflow-hidden ${
                 isMine
                   ? 'bg-gradient-to-br from-violet-500 to-purple-500 text-white rounded-br-sm'
                   : 'bg-white text-gray-800 shadow-sm rounded-bl-sm'
@@ -200,7 +202,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
                 {msg.reply_to && (
                   <div
                     onClick={() => scrollToMessage(msg.reply_to.id)}
-                    className={`mb-1.5 p-2 rounded-lg cursor-pointer border-l-2 overflow-hidden w-full ${
+                    className={`mb-1.5 p-2 rounded-lg cursor-pointer border-l-2 overflow-hidden ${
                       isMine
                         ? 'border-purple-300 bg-white/15'
                         : 'border-violet-400 bg-violet-50'
@@ -215,7 +217,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
                   </div>
                 )}
 
-                <p><LinkifyText text={msg.content} /></p>
+                <p style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}><LinkifyText text={msg.content} /></p>
                 <div className={`flex items-center justify-end gap-2 mt-1 ${isMine ? 'text-purple-200' : 'text-gray-400'}`}>
                   <button
                     onClick={() => handleReply(msg)}
