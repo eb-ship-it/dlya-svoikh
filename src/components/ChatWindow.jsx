@@ -173,12 +173,12 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
           const showSender = isGroup && !isMine &&
             (i === 0 || messages[i - 1].sender_id !== msg.sender_id)
           return (
-            <div key={msg.id} id={`msg-${msg.id}`} className={`flex group ${isMine ? 'justify-end' : 'justify-start'}`}>
-              {/* Reply button — left side for own messages */}
+            <div key={msg.id} id={`msg-${msg.id}`} className={`flex ${isMine ? 'justify-end' : 'justify-start'} group relative`}>
+              {/* Reply button — desktop only, absolute positioned */}
               {isMine && (
                 <button
                   onClick={() => handleReply(msg)}
-                  className="self-center opacity-0 group-hover:opacity-100 mr-2 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:text-violet-500 transition-all flex-shrink-0"
+                  className="absolute top-1/2 -translate-y-1/2 -left-1 -translate-x-full hidden md:flex opacity-0 group-hover:opacity-100 w-7 h-7 rounded-full bg-gray-100 items-center justify-center text-gray-400 hover:text-violet-500 transition-all"
                   aria-label="Ответить"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,7 +200,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
                 {msg.reply_to && (
                   <div
                     onClick={() => scrollToMessage(msg.reply_to.id)}
-                    className={`mb-1.5 p-2 rounded-lg cursor-pointer border-l-2 overflow-hidden ${
+                    className={`mb-1.5 p-2 rounded-lg cursor-pointer border-l-2 overflow-hidden w-full ${
                       isMine
                         ? 'border-purple-300 bg-white/15'
                         : 'border-violet-400 bg-violet-50'
@@ -216,16 +216,25 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
                 )}
 
                 <p><LinkifyText text={msg.content} /></p>
-                <p className={`text-[10px] mt-1 text-right ${isMine ? 'text-purple-200' : 'text-gray-400'}`}>
-                  {formatTime(msg.created_at)}
-                </p>
+                <div className={`flex items-center justify-end gap-2 mt-1 ${isMine ? 'text-purple-200' : 'text-gray-400'}`}>
+                  <button
+                    onClick={() => handleReply(msg)}
+                    className="md:hidden"
+                    aria-label="Ответить"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a5 5 0 015 5v4M3 10l6-6M3 10l6 6" />
+                    </svg>
+                  </button>
+                  <span className="text-[10px]">{formatTime(msg.created_at)}</span>
+                </div>
               </div>
 
-              {/* Reply button — right side for other's messages */}
+              {/* Reply button — desktop only, absolute positioned */}
               {!isMine && (
                 <button
                   onClick={() => handleReply(msg)}
-                  className="self-center opacity-0 group-hover:opacity-100 ml-2 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:text-violet-500 transition-all flex-shrink-0"
+                  className="absolute top-1/2 -translate-y-1/2 -right-1 translate-x-full hidden md:flex opacity-0 group-hover:opacity-100 w-7 h-7 rounded-full bg-gray-100 items-center justify-center text-gray-400 hover:text-violet-500 transition-all"
                   aria-label="Ответить"
                 >
                   <svg className="w-3.5 h-3.5 scale-x-[-1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
