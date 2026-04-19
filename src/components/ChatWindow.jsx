@@ -1,9 +1,27 @@
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from './Avatar'
 import GroupSettings from './GroupSettings'
 import LinkifyText from './LinkifyText'
+
+const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
+
+function isSameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+}
+
+function formatDayLabel(dateStr) {
+  const d = new Date(dateStr)
+  const now = new Date()
+  const yesterday = new Date(now)
+  yesterday.setDate(now.getDate() - 1)
+  if (isSameDay(d, now)) return 'Сегодня'
+  if (isSameDay(d, yesterday)) return 'Вчера'
+  const label = `${d.getDate()} ${MONTHS[d.getMonth()]}`
+  if (d.getFullYear() !== now.getFullYear()) return `${label} ${d.getFullYear()}`
+  return label
+}
 
 export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName, isGroup, groupName, onBack }) {
   const { user } = useAuth()
@@ -105,10 +123,27 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
       if (error) throw error
       setText('')
       setReplyTo(null)
+      if (inputRef.current) inputRef.current.style.height = 'auto'
     } catch (err) {
       console.error('send message error:', err)
     } finally {
       setSending(false)
+    }
+  }
+
+  function handleInput(e) {
+    setText(e.target.value)
+    const ta = e.target
+    ta.style.height = 'auto'
+    ta.style.height = Math.min(ta.scrollHeight, 140) + 'px'
+  }
+
+  function handleKeyDown(e) {
+    if (e.key !== 'Enter') return
+    const isMobile = window.matchMedia('(pointer: coarse)').matches
+    if (!isMobile && !e.shiftKey) {
+      e.preventDefault()
+      send(e)
     }
   }
 
@@ -172,8 +207,18 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
           const isMine = msg.sender_id === user.id
           const showSender = isGroup && !isMine &&
             (i === 0 || messages[i - 1].sender_id !== msg.sender_id)
+          const prev = messages[i - 1]
+          const showDaySep = !prev || !isSameDay(new Date(msg.created_at), new Date(prev.created_at))
           return (
-            <div key={msg.id} id={`msg-${msg.id}`} className={`flex ${isMine ? 'justify-end' : 'justify-start'} group relative w-full min-w-0`}>
+            <Fragment key={msg.id}>
+              {showDaySep && (
+                <div className="flex justify-center my-2">
+                  <span className="bg-violet-500/10 text-violet-600/75 text-[11px] font-medium px-2.5 py-0.5 rounded-full">
+                    {formatDayLabel(msg.created_at)}
+                  </span>
+                </div>
+              )}
+            <div id={`msg-${msg.id}`} className={`flex ${isMine ? 'justify-end' : 'justify-start'} group relative w-full min-w-0`}>
               {/* Reply button — desktop only, absolute positioned */}
               {isMine && (
                 <button
@@ -246,6 +291,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
                 </button>
               )}
             </div>
+            </Fragment>
           )
         })}
         <div ref={bottomRef} />
@@ -271,22 +317,25 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
 
       {/* Input */}
       <form onSubmit={send} className="flex items-end gap-2 px-4 py-3 bg-white border-t border-gray-100">
-        <input
+        <textarea
           ref={inputRef}
-          type="text"
           value={text}
-          onChange={e => setText(e.target.value)}
+          onChange={handleInput}
+          onKeyDown={handleKeyDown}
           placeholder="Сообщение..."
+          rows={1}
           maxLength={5000}
-          className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+          style={{ fontSize: '16px', maxHeight: '140px' }}
+          className="flex-1 bg-gray-100 rounded-2xl px-4 py-2.5 leading-relaxed focus:outline-none focus:ring-2 focus:ring-purple-200 resize-none overflow-y-auto"
         />
         <button
           type="submit"
           disabled={!text.trim() || sending}
           className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-500 disabled:opacity-50 rounded-full flex items-center justify-center text-white transition-all flex-shrink-0"
         >
-          <svg className="w-5 h-5 rotate-90" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+            <circle cx="4" cy="20" r="1.3" fill="currentColor" stroke="none" />
           </svg>
         </button>
       </form>
