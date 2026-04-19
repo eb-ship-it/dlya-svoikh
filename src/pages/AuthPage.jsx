@@ -49,7 +49,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-dvh flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 p-4">
+    <div className="min-h-dvh flex items-start justify-center bg-gradient-to-br from-purple-500 to-pink-500 p-4 pt-10">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-8">
         <div className="text-center mb-8">
           <img src="/icon.svg" alt="Свои" className="w-16 h-16 rounded-2xl mx-auto mb-3 shadow-lg" />

@@ -18,6 +18,15 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://dlya-svoikh.vercel.app" />
     <title>Свои</title>
+    <script>
+      // Eruda mobile devtools — only in Capacitor native app, not on web
+      if (window.location.protocol === 'capacitor:' || window.location.hostname === 'localhost') {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/eruda';
+        s.onload = function () { window.eruda && window.eruda.init(); };
+        document.head.appendChild(s);
+      }
+    </script>
   </head>
   <body style="background:#0f0a1e;margin:0">
     <div id="root">

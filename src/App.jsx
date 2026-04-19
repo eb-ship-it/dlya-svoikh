@@ -11,6 +11,9 @@ import GroupInvitePage from './pages/GroupInvitePage'
 import LandingPage from './pages/LandingPage'
 import Layout from './components/Layout'
 import SplashScreen from './components/SplashScreen'
+import { Capacitor } from '@capacitor/core'
+
+const isNativeApp = Capacitor.isNativePlatform()
 
 function ErrorScreen({ message }) {
   return (
@@ -60,7 +63,7 @@ function AppRoutes() {
       <Route path="/friends" element={<ProtectedRoute><FriendsPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/auth" element={user ? <Navigate to="/feed" replace /> : <AuthPage />} />
-      <Route path="*" element={user ? <Navigate to="/feed" replace /> : <LandingPage />} />
+      <Route path="*" element={user ? <Navigate to="/feed" replace /> : (isNativeApp ? <AuthPage /> : <LandingPage />)} />
     </Routes>
   )
 }

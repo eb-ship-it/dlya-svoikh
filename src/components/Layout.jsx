@@ -4,6 +4,7 @@ import { useBadges } from '../hooks/useBadges'
 import Avatar from './Avatar'
 import { useEffect, useState } from 'react'
 import AboutPage from '../pages/AboutPage'
+import PushPrompt from './PushPrompt'
 
 export default function Layout({ children }) {
   const location = useLocation()
@@ -62,6 +63,8 @@ export default function Layout({ children }) {
           <Avatar username={profile?.username} size="md" />
         </Link>
       </header>
+
+      <PushPrompt />
 
       {/* Page content */}
       <main className="flex-1 overflow-hidden">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
@@ -9,6 +9,7 @@ import CreateGroupPage from './CreateGroupPage'
 export default function ChatsPage() {
   const { user, profile } = useAuth()
   const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [chats, setChats] = useState([])
   const [activeChatId, setActiveChatId] = useState(null)
   const [friends, setFriends] = useState([])
@@ -31,14 +32,21 @@ export default function ChatsPage() {
     return () => supabase.removeChannel(channel)
   }, [user])
 
-  // Open specific chat if navigated with state
+  // Open specific chat if navigated with state or ?open= query param
   useEffect(() => {
     if (location.state?.openChatId) {
       setActiveChatId(location.state.openChatId)
-      // Clear state so it doesn't reopen on tab switch
       window.history.replaceState({}, '')
     }
   }, [location.state])
+
+  useEffect(() => {
+    const open = searchParams.get('open')
+    if (open) {
+      setActiveChatId(open)
+      setSearchParams({}, { replace: true })
+    }
+  }, [searchParams])
 
   async function loadChats() {
     try {

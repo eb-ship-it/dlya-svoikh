@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { Capacitor } from '@capacitor/core'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import MayachokIcon from '../components/MayachokIcon'
 import MayachokSetup from '../components/MayachokSetup'
+import { isPushSupported, subscribeUser, unsubscribeUser, getCurrentSubscription } from '../lib/push'
 
 export default function ProfilePage() {
   const { user, profile, signOut } = useAuth()
@@ -14,8 +16,37 @@ export default function ProfilePage() {
   const [mayachok, setMayachok] = useState(null)
   const [mayachokLoading, setMayachokLoading] = useState(true)
   const [showSetup, setShowSetup] = useState(false)
+  const [pushOn, setPushOn] = useState(false)
+  const [pushBusy, setPushBusy] = useState(false)
+  const pushAvailable = !Capacitor.isNativePlatform() && isPushSupported()
 
   useEffect(() => { loadMayachok() }, [])
+
+  useEffect(() => {
+    if (!pushAvailable) return
+    if (Notification.permission !== 'granted') { setPushOn(false); return }
+    getCurrentSubscription().then(s => setPushOn(!!s)).catch(() => setPushOn(false))
+  }, [pushAvailable])
+
+  async function togglePush() {
+    if (pushBusy) return
+    setPushBusy(true)
+    try {
+      if (pushOn) {
+        await unsubscribeUser()
+        setPushOn(false)
+      } else {
+        const perm = await Notification.requestPermission()
+        if (perm !== 'granted') { setPushBusy(false); return }
+        await subscribeUser(user.id)
+        setPushOn(true)
+      }
+    } catch (e) {
+      console.error('toggle push error:', e)
+    } finally {
+      setPushBusy(false)
+    }
+  }
 
   async function loadMayachok() {
     const { data } = await supabase
@@ -129,6 +160,26 @@ export default function ProfilePage() {
             </button>
           </div>
         </div>
+
+        {/* Push notifications */}
+        {pushAvailable && (
+          <div className="bg-white rounded-2xl shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🔔</span>
+                <span className="font-semibold text-gray-800">Уведомления</span>
+              </div>
+              <button
+                onClick={togglePush}
+                disabled={pushBusy}
+                className={`w-11 h-6 rounded-full transition-all relative disabled:opacity-50 ${pushOn ? 'bg-gradient-to-r from-violet-500 to-pink-500' : 'bg-gray-300'}`}
+              >
+                <div className={`w-5 h-5 bg-white rounded-full shadow absolute top-0.5 transition-all ${pushOn ? 'right-0.5' : 'left-0.5'}`} />
+              </button>
+            </div>
+            <p className="text-xs text-gray-400">Сообщения и заявки в друзья — приходят как пуши, даже если приложение закрыто</p>
+          </div>
+        )}
 
         {/* Маячок */}
         {!mayachokLoading && (

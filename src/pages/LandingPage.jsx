@@ -75,12 +75,33 @@ function ParticlesCanvas() {
 export default function LandingPage() {
   const navigate = useNavigate()
 
+  useEffect(() => {
+    const prevBody = { height: document.body.style.height, overflow: document.body.style.overflow }
+    const prevRoot = document.getElementById('root')
+    const prevRootHeight = prevRoot?.style.height
+    const prevRootOverflow = prevRoot?.style.overflow
+    document.body.style.height = 'auto'
+    document.body.style.overflow = 'auto'
+    if (prevRoot) {
+      prevRoot.style.height = 'auto'
+      prevRoot.style.overflow = 'visible'
+    }
+    return () => {
+      document.body.style.height = prevBody.height
+      document.body.style.overflow = prevBody.overflow
+      if (prevRoot) {
+        prevRoot.style.height = prevRootHeight || ''
+        prevRoot.style.overflow = prevRootOverflow || ''
+      }
+    }
+  }, [])
+
   return (
-    <div style={{ background: '#0f0a1e', minHeight: '100dvh', color: 'white', overflowX: 'hidden' }}>
+    <div style={{ background: '#0f0a1e', minHeight: '100vh', color: 'white', overflowX: 'hidden' }}>
       <ParticlesCanvas />
 
       {/* Hero */}
-      <section className="relative z-10 min-h-dvh flex flex-col items-center justify-center text-center px-6 py-10">
+      <section className="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-6 py-10">
         <img
           src="/icon.svg" alt="Свои"
           className="w-24 h-24 rounded-3xl mb-7"

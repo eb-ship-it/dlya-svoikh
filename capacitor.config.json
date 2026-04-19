@@ -1,0 +1,15 @@
+{
+  "appId": "com.dlyasvoikh.app",
+  "appName": "Для Своих",
+  "webDir": "dist",
+  "backgroundColor": "#0f0a1e",
+  "android": {
+    "backgroundColor": "#0f0a1e"
+  },
+  "plugins": {
+    "Keyboard": {
+      "resize": "none",
+      "style": "DARK"
+    }
+  }
+}
