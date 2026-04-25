@@ -22,6 +22,7 @@ export default function RitualPairPage() {
   const [frozen, setFrozen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [actionError, setActionError] = useState('')
   const [showAnswerInput, setShowAnswerInput] = useState(false)
   const [draft, setDraft] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -130,6 +131,7 @@ export default function RitualPairPage() {
   async function submitAnswer() {
     if (!draft.trim() || submitting || !question?.id) return
     setSubmitting(true)
+    setActionError('')
     try {
       const { error: e } = await supabase
         .from('ritual_answers')
@@ -145,7 +147,7 @@ export default function RitualPairPage() {
       await load()
     } catch (err) {
       console.error('submitAnswer error:', err)
-      setError('Не получилось отправить ответ')
+      setActionError(formatPgError(err))
     } finally {
       setSubmitting(false)
     }
@@ -154,6 +156,7 @@ export default function RitualPairPage() {
   async function acceptPair() {
     if (accepting) return
     setAccepting(true)
+    setActionError('')
     try {
       const { error: e } = await supabase
         .from('ritual_pairs')
@@ -163,7 +166,7 @@ export default function RitualPairPage() {
       await load()
     } catch (err) {
       console.error('acceptPair error:', err)
-      setError('Не удалось принять приглашение')
+      setActionError(formatPgError(err))
     } finally {
       setAccepting(false)
     }
@@ -196,7 +199,7 @@ export default function RitualPairPage() {
     return <Wrap><div className="text-center text-gray-400 py-10 text-sm">Загрузка…</div></Wrap>
   }
 
-  if (error || !pair) {
+  if (!pair) {
     return (
       <Wrap>
         <div className="bg-white rounded-2xl p-6 text-center">
@@ -216,6 +219,7 @@ export default function RitualPairPage() {
     return (
       <Wrap onBack={() => navigate('/rituals')}>
         <PairHeader other={other} subline={`${otherName} приглашает в ритуал`} />
+        <ErrorBanner text={actionError} />
         <div className="bg-gradient-to-br from-violet-50 to-pink-50 rounded-2xl p-4 mb-4 text-sm text-gray-700 leading-relaxed">
           Если принять, вам обоим будет приходить один вопрос в день. Ответы открываются, когда ответите оба.
         </div>
@@ -287,6 +291,7 @@ export default function RitualPairPage() {
           <span>🔒 Скрыто, пока оба не ответят</span>
           <span>{draft.length} / 2000</span>
         </div>
+        <ErrorBanner text={actionError} />
         <button
           onClick={submitAnswer}
           disabled={!draft.trim() || submitting}
@@ -421,4 +426,23 @@ function PairHeader({ other, subline, emphasized, dim }) {
       </div>
     </div>
   )
+}
+
+function ErrorBanner({ text }) {
+  if (!text) return null
+  return (
+    <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-3 rounded-xl mb-3 whitespace-pre-wrap break-words">
+      {text}
+    </div>
+  )
+}
+
+function formatPgError(err) {
+  if (!err) return 'Неизвестная ошибка'
+  const parts = []
+  if (err.message) parts.push(err.message)
+  if (err.code) parts.push(`код: ${err.code}`)
+  if (err.details) parts.push(err.details)
+  if (err.hint) parts.push(`подсказка: ${err.hint}`)
+  return parts.join(' · ') || String(err)
 }
