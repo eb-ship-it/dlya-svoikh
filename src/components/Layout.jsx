@@ -9,7 +9,7 @@ import PushPrompt from './PushPrompt'
 export default function Layout({ children }) {
   const location = useLocation()
   const { user, profile, signOut } = useAuth()
-  const { unreadChats, pendingFriends, newPosts, markFeedSeen, checkAll } = useBadges(user?.id)
+  const { unreadChats, pendingFriends, newPosts, ritualsWaiting, markFeedSeen, checkAll } = useBadges(user?.id)
   const [showAbout, setShowAbout] = useState(false)
 
   // Mark feed seen when navigating to feed tab
@@ -35,6 +35,16 @@ export default function Layout({ children }) {
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+        </svg>
+      ),
+    },
+    {
+      path: '/rituals',
+      label: 'Ритуалы',
+      badge: ritualsWaiting,
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
         </svg>
       ),
     },

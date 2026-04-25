@@ -9,6 +9,10 @@ import ProfilePage from './pages/ProfilePage'
 import InvitePage from './pages/InvitePage'
 import GroupInvitePage from './pages/GroupInvitePage'
 import LandingPage from './pages/LandingPage'
+import RitualsPage from './pages/RitualsPage'
+import CreateRitualPairPage from './pages/CreateRitualPairPage'
+import RitualPairPage from './pages/RitualPairPage'
+import RitualSoloPage from './pages/RitualSoloPage'
 import Layout from './components/Layout'
 import SplashScreen from './components/SplashScreen'
 import { Capacitor } from '@capacitor/core'
@@ -60,6 +64,10 @@ function AppRoutes() {
       <Route path="/group/:code" element={user ? <GroupInvitePage /> : <AuthPage />} />
       <Route path="/chats" element={<ProtectedRoute><ChatsPage /></ProtectedRoute>} />
       <Route path="/feed" element={<ProtectedRoute><FeedPage /></ProtectedRoute>} />
+      <Route path="/rituals" element={<ProtectedRoute><RitualsPage /></ProtectedRoute>} />
+      <Route path="/rituals/new" element={<ProtectedRoute><CreateRitualPairPage /></ProtectedRoute>} />
+      <Route path="/rituals/pair/:pairId" element={<ProtectedRoute><RitualPairPage /></ProtectedRoute>} />
+      <Route path="/rituals/solo" element={<ProtectedRoute><RitualSoloPage /></ProtectedRoute>} />
       <Route path="/friends" element={<ProtectedRoute><FriendsPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/auth" element={user ? <Navigate to="/feed" replace /> : <AuthPage />} />

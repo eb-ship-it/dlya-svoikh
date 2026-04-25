@@ -7,6 +7,7 @@ export function useBadges(userId) {
   const [unreadChats, setUnreadChats] = useState(0)
   const [pendingFriends, setPendingFriends] = useState(0)
   const [newPosts, setNewPosts] = useState(false)
+  const [ritualsWaiting, setRitualsWaiting] = useState(0)
 
   useEffect(() => {
     if (!userId) return
@@ -21,6 +22,8 @@ export function useBadges(userId) {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, () => checkNewPosts())
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'post_comments' }, () => checkNewPosts())
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mayachok_posts', filter: `user_id=eq.${userId}` }, () => checkNewPosts())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ritual_pairs' }, () => checkRitualsWaiting())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ritual_answers' }, () => checkRitualsWaiting())
       .subscribe()
 
     // Polling fallback for mobile browsers where realtime is unreliable
@@ -38,6 +41,7 @@ export function useBadges(userId) {
     checkUnreadChats()
     checkPendingFriends()
     checkNewPosts()
+    checkRitualsWaiting()
   }
 
   async function checkUnreadChats() {
@@ -145,6 +149,48 @@ export function useBadges(userId) {
     }
   }
 
+  async function checkRitualsWaiting() {
+    try {
+      const { data: pairs } = await supabase
+        .from('ritual_pairs')
+        .select('id, status, created_by_id, user_a_id, user_b_id')
+        .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
+
+      if (!pairs?.length) { setRitualsWaiting(0); return }
+
+      let waiting = 0
+      const pendingForMe = pairs.filter(p => p.status === 'pending' && p.created_by_id !== userId)
+      waiting += pendingForMe.length
+
+      const activePairs = pairs.filter(p => p.status === 'active')
+      if (activePairs.length) {
+        const today = new Date().toISOString().slice(0, 10)
+        const { data: pick } = await supabase
+          .from('ritual_daily_picks')
+          .select('question_id')
+          .eq('pick_date', today)
+          .maybeSingle()
+
+        if (pick?.question_id) {
+          const activeIds = activePairs.map(p => p.id)
+          const { data: myAnswers } = await supabase
+            .from('ritual_answers')
+            .select('pair_id')
+            .eq('user_id', userId)
+            .eq('question_id', pick.question_id)
+            .in('pair_id', activeIds)
+
+          const answeredSet = new Set((myAnswers || []).map(a => a.pair_id))
+          waiting += activePairs.length - answeredSet.size
+        }
+      }
+
+      setRitualsWaiting(waiting)
+    } catch (err) {
+      console.error('checkRitualsWaiting error:', err)
+    }
+  }
+
   async function markFeedSeen() {
     try {
       await supabase
@@ -156,5 +202,5 @@ export function useBadges(userId) {
     }
   }
 
-  return { unreadChats, pendingFriends, newPosts, markFeedSeen, checkAll }
+  return { unreadChats, pendingFriends, newPosts, ritualsWaiting, markFeedSeen, checkAll }
 }
