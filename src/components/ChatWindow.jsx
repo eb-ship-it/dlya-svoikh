@@ -208,30 +208,33 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 bg-white">
-        <button onClick={onBack} className="md:hidden text-violet-500 p-1 -ml-1" aria-label="Назад">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        {isGroup ? (
-          <button onClick={() => setShowSettings(true)} className="flex items-center gap-3 flex-1 min-w-0">
-            <Avatar isGroup groupName={groupName} size="md" />
-            <div className="text-left min-w-0">
-              <div className="font-medium text-gray-800 truncate">{groupName}</div>
-              <div className="text-xs text-gray-400">{Object.keys(members).length} участников</div>
-            </div>
+      <div className="border-b border-gray-100 bg-white">
+        <div className="flex items-center gap-3 px-4 py-3 md:max-w-lg md:mx-auto md:w-full min-w-0">
+          <button onClick={onBack} className="md:hidden text-violet-500 p-1 -ml-1" aria-label="Назад">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
           </button>
-        ) : (
-          <>
-            <Avatar username={partnerUsername} size="md" />
-            <div className="font-medium text-gray-800">{partnerDisplayName || partnerUsername}</div>
-          </>
-        )}
+          {isGroup ? (
+            <button onClick={() => setShowSettings(true)} className="flex items-center gap-3 flex-1 min-w-0">
+              <Avatar isGroup groupName={groupName} size="md" />
+              <div className="text-left min-w-0">
+                <div className="font-medium text-gray-800 truncate">{groupName}</div>
+                <div className="text-xs text-gray-400">{Object.keys(members).length} участников</div>
+              </div>
+            </button>
+          ) : (
+            <>
+              <Avatar username={partnerUsername} size="md" />
+              <div className="font-medium text-gray-800">{partnerDisplayName || partnerUsername}</div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Messages */}
-      <div ref={containerRef} className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-2 bg-gray-50 min-w-0 w-full">
+      <div ref={containerRef} className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-50 min-w-0 w-full">
+        <div className="px-4 py-4 space-y-2 md:max-w-lg md:mx-auto md:w-full min-w-0">
         {messages.map((msg, i) => {
           const isMine = msg.sender_id === user.id
           const showSender = isGroup && !isMine &&
@@ -324,49 +327,54 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
           )
         })}
         <div ref={bottomRef} />
+        </div>
       </div>
 
       {/* Reply preview */}
       {replyTo && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-violet-50 border-t border-violet-100">
-          <div className="w-1 self-stretch bg-violet-400 rounded-full flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-violet-600 truncate">
-              {replySenderName(replyTo.sender_id)}
-            </p>
-            <p className="text-xs text-gray-500 truncate">{replyTo.content.replace(/\s+/g, ' ')}</p>
+        <div className="bg-violet-50 border-t border-violet-100">
+          <div className="flex items-center gap-2 px-4 py-2 md:max-w-lg md:mx-auto md:w-full min-w-0">
+            <div className="w-1 self-stretch bg-violet-400 rounded-full flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-violet-600 truncate">
+                {replySenderName(replyTo.sender_id)}
+              </p>
+              <p className="text-xs text-gray-500 truncate">{replyTo.content.replace(/\s+/g, ' ')}</p>
+            </div>
+            <button onClick={() => setReplyTo(null)} className="text-gray-400 p-1 flex-shrink-0" aria-label="Отменить ответ">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-          <button onClick={() => setReplyTo(null)} className="text-gray-400 p-1 flex-shrink-0" aria-label="Отменить ответ">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
         </div>
       )}
 
       {/* Input */}
-      <form onSubmit={send} className="flex items-end gap-2 px-4 py-3 bg-white border-t border-gray-100">
-        <textarea
-          ref={inputRef}
-          value={text}
-          onChange={handleInput}
-          onKeyDown={handleKeyDown}
-          placeholder="Сообщение..."
-          rows={1}
-          maxLength={5000}
-          style={{ fontSize: '16px', maxHeight: '140px' }}
-          className="flex-1 bg-gray-100 rounded-2xl px-4 py-2.5 leading-relaxed focus:outline-none focus:ring-2 focus:ring-purple-200 resize-none overflow-y-auto"
-        />
-        <button
-          type="submit"
-          disabled={!text.trim() || sending}
-          className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-500 disabled:opacity-50 rounded-full flex items-center justify-center text-white transition-all flex-shrink-0"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
-            <circle cx="4" cy="20" r="1.3" fill="currentColor" stroke="none" />
-          </svg>
-        </button>
+      <form onSubmit={send} className="bg-white border-t border-gray-100">
+        <div className="flex items-end gap-2 px-4 py-3 md:max-w-lg md:mx-auto md:w-full min-w-0">
+          <textarea
+            ref={inputRef}
+            value={text}
+            onChange={handleInput}
+            onKeyDown={handleKeyDown}
+            placeholder="Сообщение..."
+            rows={1}
+            maxLength={5000}
+            style={{ fontSize: '16px', maxHeight: '140px' }}
+            className="flex-1 bg-gray-100 rounded-2xl px-4 py-2.5 leading-relaxed focus:outline-none focus:ring-2 focus:ring-purple-200 resize-none overflow-y-auto"
+          />
+          <button
+            type="submit"
+            disabled={!text.trim() || sending}
+            className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-500 disabled:opacity-50 rounded-full flex items-center justify-center text-white transition-all flex-shrink-0"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+              <circle cx="4" cy="20" r="1.3" fill="currentColor" stroke="none" />
+            </svg>
+          </button>
+        </div>
       </form>
 
       {showSettings && (
