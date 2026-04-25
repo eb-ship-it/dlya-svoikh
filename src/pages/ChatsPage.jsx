@@ -112,7 +112,7 @@ export default function ChatsPage() {
           partnerUsername: firstPartner?.profiles?.username,
           partnerDisplayName: firstPartner?.profiles?.display_name,
           memberCount: chatPartners.length + 1,
-          lastMessage: lastMsg?.content || '',
+          lastMessage: lastMsg?.content?.replace(/\s+/g, ' ') || '',
           lastAt: lastMsg?.created_at || '',
           unread,
         }

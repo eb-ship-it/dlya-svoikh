@@ -258,12 +258,12 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
                       {replySenderName(msg.reply_to.sender_id)}
                     </p>
                     <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '11px' }} className={isMine ? 'text-purple-200/70' : 'text-gray-500'}>
-                      {msg.reply_to.content.slice(0, 80)}
+                      {msg.reply_to.content.replace(/\s+/g, ' ').slice(0, 80)}
                     </p>
                   </div>
                 )}
 
-                <p><LinkifyText text={msg.content} /></p>
+                <p style={{ whiteSpace: 'pre-wrap' }}><LinkifyText text={msg.content} /></p>
                 <div className={`flex items-center justify-end gap-2 mt-1 ${isMine ? 'text-purple-200' : 'text-gray-400'}`}>
                   <button
                     onClick={() => handleReply(msg)}
@@ -305,7 +305,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
             <p className="text-xs font-medium text-violet-600 truncate">
               {replySenderName(replyTo.sender_id)}
             </p>
-            <p className="text-xs text-gray-500 truncate">{replyTo.content}</p>
+            <p className="text-xs text-gray-500 truncate">{replyTo.content.replace(/\s+/g, ' ')}</p>
           </div>
           <button onClick={() => setReplyTo(null)} className="text-gray-400 p-1 flex-shrink-0" aria-label="Отменить ответ">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
