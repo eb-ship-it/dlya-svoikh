@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { withTimeout } from '../lib/withTimeout'
 import { useAuth } from '../context/AuthContext'
@@ -13,7 +13,6 @@ export default function ChatsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [chats, setChats] = useState([])
   const [activeChatId, setActiveChatId] = useState(null)
-  const [friends, setFriends] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showCreateGroup, setShowCreateGroup] = useState(false)
@@ -21,7 +20,6 @@ export default function ChatsPage() {
   useEffect(() => {
     if (!user) return
     loadChats()
-    loadFriends()
 
     const channel = supabase
       .channel(`chats-list:${user.id}`)
@@ -138,75 +136,6 @@ export default function ChatsPage() {
     }
   }
 
-  async function loadFriends() {
-    try {
-      const { data } = await withTimeout(
-        supabase
-          .from('friendships')
-          .select('requester_id, addressee_id')
-          .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
-          .eq('status', 'accepted'),
-        10000,
-        'loadFriends:friendships'
-      )
-
-      if (!data?.length) { setFriends([]); return }
-
-      const otherIds = data.map(f => f.requester_id === user.id ? f.addressee_id : f.requester_id)
-      const { data: profiles } = await withTimeout(
-        supabase
-          .from('profiles')
-          .select('id, username, display_name')
-          .in('id', otherIds),
-        10000,
-        'loadFriends:profiles'
-      )
-
-      const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
-      const list = data.map(f => {
-        const otherId = f.requester_id === user.id ? f.addressee_id : f.requester_id
-        return { id: otherId, username: profileMap[otherId]?.username, displayName: profileMap[otherId]?.display_name }
-      })
-      setFriends(list)
-    } catch (err) {
-      console.error('loadFriends error:', err)
-    }
-  }
-
-  async function openOrCreateChat(friendId) {
-    // Check if chat already exists between me and friend
-    const { data: myChats } = await supabase
-      .from('chat_participants')
-      .select('chat_id')
-      .eq('user_id', user.id)
-
-    const myChatIds = (myChats || []).map(r => r.chat_id)
-
-    if (myChatIds.length > 0) {
-      const { data: shared } = await supabase
-        .from('chat_participants')
-        .select('chat_id')
-        .eq('user_id', friendId)
-        .in('chat_id', myChatIds)
-
-      if (shared?.length) {
-        setActiveChatId(shared[0].chat_id)
-        return
-      }
-    }
-
-    // Create new chat with client-generated ID (avoids RLS read-back issue)
-    const chatId = crypto.randomUUID()
-    await supabase.from('chats').insert({ id: chatId, created_by: user.id })
-    await supabase.from('chat_participants').insert([
-      { chat_id: chatId, user_id: user.id },
-      { chat_id: chatId, user_id: friendId },
-    ])
-
-    await loadChats()
-    setActiveChatId(chatId)
-  }
-
   const activeChat = chats.find(c => c.id === activeChatId)
 
   // On mobile: show list OR chat window
@@ -229,40 +158,27 @@ export default function ChatsPage() {
           </button>
         </div>
 
-        {/* Friends to start chats */}
-        {friends.length > 0 && (
-          <div className="px-4 py-2">
-            <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">Начать новый чат</p>
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {friends.map(f => (
-                <button
-                  key={f.id}
-                  onClick={() => openOrCreateChat(f.id)}
-                  className="flex-shrink-0 flex flex-col items-center gap-1"
-                >
-                  <Avatar username={f.username} size="lg" />
-                  <span className="text-xs text-gray-500 max-w-12 truncate">{f.displayName || f.username}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         <div className="flex-1 overflow-y-auto">
           {loading ? (
             <div className="p-4 text-center text-gray-400 text-sm">Загрузка...</div>
           ) : error ? (
             <div className="p-6 text-center">
               <p className="text-red-400 text-sm mb-3">{error}</p>
-              <button onClick={() => { setLoading(true); setError(''); loadChats(); loadFriends() }} className="bg-gradient-to-r from-violet-500 to-pink-500 text-white text-sm px-4 py-2 rounded-xl">Повторить</button>
+              <button onClick={() => { setLoading(true); setError(''); loadChats() }} className="bg-gradient-to-r from-violet-500 to-pink-500 text-white text-sm px-4 py-2 rounded-xl">Повторить</button>
             </div>
           ) : chats.length === 0 ? (
-            <div className="p-6 text-center">
+            <div className="p-8 text-center">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-500/10 to-pink-500/10 flex items-center justify-center mx-auto mb-3">
                 <span className="text-2xl">💬</span>
               </div>
-              <p className="font-medium text-gray-500 text-sm">Нет чатов</p>
-              <p className="text-xs text-gray-400 mt-1">Добавь друзей и начни общение</p>
+              <p className="font-medium text-gray-500 text-sm mb-1">Пока нет чатов</p>
+              <p className="text-xs text-gray-400 mb-5">Перейди к друзьям, чтобы начать общение</p>
+              <Link
+                to="/friends"
+                className="inline-block bg-gradient-to-r from-violet-500 to-pink-500 text-white text-sm font-medium px-5 py-2.5 rounded-full"
+              >
+                К друзьям
+              </Link>
             </div>
           ) : (
             chats.map(chat => (
