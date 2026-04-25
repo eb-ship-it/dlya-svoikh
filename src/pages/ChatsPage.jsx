@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { withTimeout } from '../lib/withTimeout'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import ChatWindow from '../components/ChatWindow'
@@ -50,33 +51,38 @@ export default function ChatsPage() {
 
   async function loadChats() {
     try {
-      const { data: participantRows, error: e1 } = await supabase
-        .from('chat_participants')
-        .select('chat_id')
-        .eq('user_id', user.id)
+      const { data: participantRows, error: e1 } = await withTimeout(
+        supabase.from('chat_participants').select('chat_id').eq('user_id', user.id),
+        10000,
+        'loadChats:participants'
+      )
 
       if (e1) throw e1
       if (!participantRows?.length) { setChats([]); setLoading(false); return }
 
       const chatIds = participantRows.map(r => r.chat_id)
 
-      const [partnersRes, messagesRes, chatsRes] = await Promise.all([
-        supabase
-          .from('chat_participants')
-          .select('chat_id, user_id, profiles(username, display_name)')
-          .in('chat_id', chatIds)
-          .neq('user_id', user.id),
-        supabase
-          .from('messages')
-          .select('chat_id, content, created_at, sender_id, read_at')
-          .in('chat_id', chatIds)
-          .order('created_at', { ascending: false })
-          .limit(chatIds.length * 20),
-        supabase
-          .from('chats')
-          .select('id, name, created_by')
-          .in('id', chatIds),
-      ])
+      const [partnersRes, messagesRes, chatsRes] = await withTimeout(
+        Promise.all([
+          supabase
+            .from('chat_participants')
+            .select('chat_id, user_id, profiles(username, display_name)')
+            .in('chat_id', chatIds)
+            .neq('user_id', user.id),
+          supabase
+            .from('messages')
+            .select('chat_id, content, created_at, sender_id, read_at')
+            .in('chat_id', chatIds)
+            .order('created_at', { ascending: false })
+            .limit(chatIds.length * 20),
+          supabase
+            .from('chats')
+            .select('id, name, created_by')
+            .in('id', chatIds),
+        ]),
+        10000,
+        'loadChats:details'
+      )
 
       if (partnersRes.error) throw partnersRes.error
 
@@ -123,7 +129,10 @@ export default function ChatsPage() {
       setError('')
     } catch (err) {
       console.error('loadChats error:', err)
-      setError('Не удалось загрузить чаты. Потяни вниз для обновления.')
+      const isTimeout = err?.message?.includes('timeout')
+      setError(isTimeout
+        ? 'Сервер не отвечает. Проверь интернет и нажми «Повторить».'
+        : 'Не удалось загрузить чаты. Нажми «Повторить».')
     } finally {
       setLoading(false)
     }
@@ -131,19 +140,27 @@ export default function ChatsPage() {
 
   async function loadFriends() {
     try {
-      const { data } = await supabase
-        .from('friendships')
-        .select('requester_id, addressee_id')
-        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
-        .eq('status', 'accepted')
+      const { data } = await withTimeout(
+        supabase
+          .from('friendships')
+          .select('requester_id, addressee_id')
+          .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
+          .eq('status', 'accepted'),
+        10000,
+        'loadFriends:friendships'
+      )
 
       if (!data?.length) { setFriends([]); return }
 
       const otherIds = data.map(f => f.requester_id === user.id ? f.addressee_id : f.requester_id)
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, username, display_name')
-        .in('id', otherIds)
+      const { data: profiles } = await withTimeout(
+        supabase
+          .from('profiles')
+          .select('id, username, display_name')
+          .in('id', otherIds),
+        10000,
+        'loadFriends:profiles'
+      )
 
       const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
       const list = data.map(f => {
