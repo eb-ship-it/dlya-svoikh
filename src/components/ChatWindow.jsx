@@ -34,6 +34,8 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
   const bottomRef = useRef(null)
   const messagesRef = useRef([])
   const inputRef = useRef(null)
+  const containerRef = useRef(null)
+  const initialScrolledRef = useRef(false)
 
   useEffect(() => { messagesRef.current = messages }, [messages])
 
@@ -74,8 +76,35 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
   }, [chatId])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    initialScrolledRef.current = false
+  }, [chatId])
+
+  useEffect(() => {
+    if (messages.length === 0) return
+
+    if (!initialScrolledRef.current) {
+      const firstUnread = messages.find(m => m.sender_id !== user.id && !m.read_at)
+      requestAnimationFrame(() => {
+        if (firstUnread) {
+          const el = document.getElementById(`msg-${firstUnread.id}`)
+          if (el) el.scrollIntoView({ behavior: 'auto', block: 'start' })
+          else bottomRef.current?.scrollIntoView({ behavior: 'auto' })
+        } else {
+          bottomRef.current?.scrollIntoView({ behavior: 'auto' })
+        }
+        initialScrolledRef.current = true
+      })
+      return
+    }
+
+    const lastMsg = messages[messages.length - 1]
+    const isMine = lastMsg.sender_id === user.id
+    const c = containerRef.current
+    const nearBottom = c ? (c.scrollHeight - c.scrollTop - c.clientHeight < 100) : true
+    if (isMine || nearBottom) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages, user.id])
 
   async function loadMessages() {
     const { data } = await supabase
@@ -202,7 +231,7 @@ export default function ChatWindow({ chatId, partnerUsername, partnerDisplayName
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-2 bg-gray-50 min-w-0 w-full">
+      <div ref={containerRef} className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-2 bg-gray-50 min-w-0 w-full">
         {messages.map((msg, i) => {
           const isMine = msg.sender_id === user.id
           const showSender = isGroup && !isMine &&
