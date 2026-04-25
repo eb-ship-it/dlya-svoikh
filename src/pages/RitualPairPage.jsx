@@ -141,7 +141,9 @@ export default function RitualPairPage() {
           question_id: question.id,
           content: draft.trim(),
         })
-      if (e) throw e
+      // 23505 = unique violation. Means an earlier submit actually succeeded
+      // (likely a stale UI race). Treat as success: refresh and show what's saved.
+      if (e && e.code !== '23505') throw e
       setDraft('')
       setShowAnswerInput(false)
       await load()
